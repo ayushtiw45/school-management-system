@@ -56,7 +56,7 @@ class AccessTest extends SchoolTestCase
             route('fee-heads.index'), route('fee-structure.index'), route('fees.pending'), route('payments.index'),
             route('payments.create'), route('payments.create', ['q' => $student->admission_no]), route('payments.create', ['student_id' => $student->id]),
             route('payments.show', $payment), route('classes.index'), route('sessions.index'), route('users.index'), route('users.create'),
-            route('settings.edit'), route('password.edit'), route('classes.sections.json', $student->school_class_id),
+            route('settings.edit'), route('password.edit'), route('reports.index'), route('expenses.index'), route('expenses.create'), route('expense-categories.index'), route('notifications.index'), route('notifications.announce'), route('notifications.settings'), route('classes.sections.json', $student->school_class_id),
         ];
 
         foreach ($urls as $url) {

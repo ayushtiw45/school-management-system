@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicSession;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\User;
@@ -56,6 +58,24 @@ class DemoDataSeeder extends Seeder
                         'payment_date' => now()->subDays(rand(0, 30))->toDateString(),
                     ], $admin?->id);
                 }
+            }
+        }
+
+        // Expenses for each month so far
+        $cats = ExpenseCategory::pluck('id', 'name');
+        foreach ($session->months() as $m) {
+            if ($m->isFuture()) {
+                break;
+            }
+            foreach (['Anita Verma', 'Suresh Kumar', 'Meena Joshi'] as $teacher) {
+                Expense::create(['expense_category_id' => $cats['Staff Salary'], 'expense_date' => $m->copy()->endOfMonth()->min(now()), 'amount' => 15000,
+                    'title' => 'Teacher salary', 'paid_to' => $teacher, 'salary_month' => $m->format('Y-m'), 'payment_method' => 'bank', 'created_by' => $admin?->id]);
+            }
+            Expense::create(['expense_category_id' => $cats['Electricity & Utilities'], 'expense_date' => $m->copy()->day(15)->min(now()), 'amount' => rand(3000, 6000),
+                'title' => 'Electricity bill', 'paid_to' => 'State Electricity Board', 'payment_method' => 'upi', 'created_by' => $admin?->id]);
+            if (rand(0, 1)) {
+                Expense::create(['expense_category_id' => $cats['Maintenance & Repairs'], 'expense_date' => $m->copy()->day(20)->min(now()), 'amount' => rand(500, 4000),
+                    'title' => 'Classroom repairs', 'paid_to' => 'Local contractor', 'payment_method' => 'cash', 'created_by' => $admin?->id]);
             }
         }
 

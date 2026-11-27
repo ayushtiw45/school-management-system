@@ -4,10 +4,14 @@ use App\Http\Controllers\AcademicSessionController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeeHeadController;
 use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnlineAdmissionController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SettingController;
@@ -83,6 +87,20 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/collect-fee', [PaymentController::class, 'create'])->name('payments.create');
         Route::post('/students/{student}/payments', [PaymentController::class, 'store'])->name('payments.store');
         Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+
+        // Reports
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{type}', [ReportController::class, 'show'])->name('reports.show');
+
+        // Expenses
+        Route::get('/expenses/{expense}/bill', [ExpenseController::class, 'bill'])->name('expenses.bill');
+        Route::resource('expenses', ExpenseController::class)->except(['show']);
+        Route::resource('expense-categories', ExpenseCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        // Notifications
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{log}/retry', [NotificationController::class, 'retry'])->name('notifications.retry');
+        Route::post('/notifications/remind', [NotificationController::class, 'remind'])->name('notifications.remind');
     });
 
     // Admin only
@@ -97,5 +115,9 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
+        Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
+        Route::get('/notification-settings', [NotificationController::class, 'settings'])->name('notifications.settings');
+        Route::put('/notification-settings', [NotificationController::class, 'saveSettings'])->name('notifications.settings.update');
     });
 });

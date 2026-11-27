@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicSession;
+use App\Models\ExpenseCategory;
 use App\Models\FeeHead;
 use App\Models\FeeStructure;
 use App\Models\SchoolClass;
@@ -45,6 +46,10 @@ class DatabaseSeeder extends Seeder
         ];
         foreach ($heads as [$name, $freq, $concession]) {
             FeeHead::firstOrCreate(['name' => $name], ['frequency' => $freq, 'concession_applicable' => $concession]);
+        }
+
+        foreach ([['Staff Salary', true], ['Electricity & Utilities', false], ['Maintenance & Repairs', false], ['Stationery & Printing', false], ['Transport / Fuel', false], ['Other Expenses', false]] as [$name, $salary]) {
+            ExpenseCategory::firstOrCreate(['name' => $name], ['is_salary' => $salary]);
         }
 
         // Sample amounts — the school will change these

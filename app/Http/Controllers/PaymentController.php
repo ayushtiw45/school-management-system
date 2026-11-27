@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Services\FeeService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -53,7 +54,7 @@ class PaymentController extends Controller
         return view('payments.create', compact('student', 'dues', 'matches'));
     }
 
-    public function store(Request $request, Student $student, FeeService $fees)
+    public function store(Request $request, Student $student, FeeService $fees, NotificationService $notifier)
     {
         $data = $request->validate([
             'lines' => ['required', 'array'],
@@ -69,6 +70,7 @@ class PaymentController extends Controller
         ], ['reference_no.required' => 'Enter the transaction / cheque number.']);
 
         $payment = $fees->collect($student, $data['lines'], $data, $request->user()->id);
+        $notifier->paymentReceived($payment);
 
         return redirect()->route('payments.show', $payment)->with('success', "Payment recorded. Receipt No: {$payment->receipt_no}");
     }

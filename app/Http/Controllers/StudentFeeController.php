@@ -6,14 +6,16 @@ use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentFee;
+use App\Models\Setting;
 use App\Services\FeeService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class StudentFeeController extends Controller
 {
     /** Students with unpaid dues up to a date. */
-    public function pending(Request $request)
+    public function pending(Request $request, NotificationService $notifier)
     {
         $upto = $request->date('upto') ?? now();
 
@@ -29,6 +31,16 @@ class StudentFeeController extends Controller
             ->orderByDesc('due_amount')
             ->paginate(30)
             ->withQueryString();
+
+        // Free click-to-chat WhatsApp link with the reminder text filled in
+        $tpl = Setting::get('tpl_fee_due');
+        $rows->getCollection()->each(function (Student $s) use ($notifier, $tpl, $upto) {
+            [, $oldest] = $notifier->overdue($s, $upto);
+            $s->wa_link = NotificationService::whatsappLink($s->parent_phone, $notifier->render($tpl, $notifier->studentVars($s) + [
+                'amount' => number_format((float) $s->due_amount, 2),
+                'due_date' => $oldest?->format('d-m-Y'),
+            ]));
+        });
 
         $total = (float) StudentFee::outstanding()->whereDate('due_date', '<=', $upto)
             ->whereHas('student', fn ($q) => $q->where('status', 'active')

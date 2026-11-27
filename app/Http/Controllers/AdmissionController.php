@@ -6,6 +6,7 @@ use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Services\FeeService;
+use App\Services\NotificationService;
 use App\Services\NumberGenerator;
 use App\Support\StudentForm;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class AdmissionController extends Controller
         ]);
     }
 
-    public function store(Request $request, FeeService $fees)
+    public function store(Request $request, FeeService $fees, NotificationService $notifier)
     {
         $session = AcademicSession::current();
         abort_unless($session, 422, 'No academic session.');
@@ -69,11 +70,15 @@ class AdmissionController extends Controller
             return $student;
         });
 
+        if ($student->status === 'active') {
+            $notifier->admissionConfirmed($student);
+        }
+
         return redirect()->route('students.show', $student)
             ->with('success', "Admission saved. Admission No: {$student->admission_no}");
     }
 
-    public function confirm(Student $student, FeeService $fees)
+    public function confirm(Student $student, FeeService $fees, NotificationService $notifier)
     {
         abort_if($student->status !== 'pending', 422, 'Admission is already confirmed.');
 
@@ -82,6 +87,7 @@ class AdmissionController extends Controller
         }
 
         DB::transaction(fn () => $this->doConfirm($student, $fees));
+        $notifier->admissionConfirmed($student->fresh());
 
         return back()->with('success', "Admission confirmed for {$student->full_name}. Fees have been assigned.");
     }

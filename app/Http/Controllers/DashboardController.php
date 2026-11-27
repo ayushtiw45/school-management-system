@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\SchoolClass;
 use App\Models\Student;
@@ -28,6 +29,9 @@ class DashboardController extends Controller
                 ->whereHas('student', fn ($q) => $q->where('status', 'active'))
                 ->sum(DB::raw(StudentFee::BALANCE_SQL)),
         ];
+
+        $stats['month_expenses'] = (float) Expense::whereBetween('expense_date', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount');
+        $stats['month_collection'] = (float) Payment::whereBetween('payment_date', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount');
 
         $classStats = SchoolClass::ordered()
             ->withCount([

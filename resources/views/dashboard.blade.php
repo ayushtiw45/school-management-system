@@ -39,6 +39,19 @@
     @endforeach
 </div>
 
+@if($u->hasRole('admin', 'accountant'))
+    <div class="card mb-3"><div class="card-body d-flex flex-wrap gap-4 align-items-center py-2">
+        <div class="fw-semibold">{{ now()->format('F Y') }}</div>
+        <div><span class="text-muted small">Fee income</span> <strong class="text-success">{{ inr($stats['month_collection']) }}</strong></div>
+        <div><span class="text-muted small">Expenses</span> <strong class="text-danger">{{ inr($stats['month_expenses']) }}</strong></div>
+        <div><span class="text-muted small">Net</span> <strong>{{ inr($stats['month_collection'] - $stats['month_expenses']) }}</strong></div>
+        <div class="ms-auto d-flex gap-2">
+            <a href="{{ route('reports.show', 'daily') }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-bar-graph"></i> Today's Report</a>
+            <a href="{{ route('expenses.create') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-plus"></i> Add Expense</a>
+        </div>
+    </div></div>
+@endif
+
 <div class="row g-3">
     <div class="col-lg-5">
         <div class="card h-100">

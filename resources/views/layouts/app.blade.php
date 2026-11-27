@@ -67,6 +67,18 @@
             <a class="nav-link {{ request()->routeIs('fees.pending') ? 'active' : '' }}" href="{{ route('fees.pending') }}"><i class="bi bi-hourglass-split"></i>Pending Fees</a>
             <a class="nav-link {{ request()->routeIs('fee-structure.*') ? 'active' : '' }}" href="{{ route('fee-structure.index') }}"><i class="bi bi-grid-3x3"></i>Fee Structure</a>
             <a class="nav-link {{ request()->routeIs('fee-heads.*') ? 'active' : '' }}" href="{{ route('fee-heads.index') }}"><i class="bi bi-tags"></i>Fee Categories</a>
+
+            <div class="nav-head">Reports & Accounts</div>
+            <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}"><i class="bi bi-bar-chart-line"></i>Reports</a>
+            <a class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}" href="{{ route('expenses.index') }}"><i class="bi bi-wallet"></i>Expenses</a>
+            <a class="nav-link {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}" href="{{ route('expense-categories.index') }}"><i class="bi bi-bookmarks"></i>Expense Categories</a>
+
+            <div class="nav-head">Notifications</div>
+            <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><i class="bi bi-chat-dots"></i>Message Log</a>
+            @if($u->isAdmin())
+                <a class="nav-link {{ request()->routeIs('notifications.announce') ? 'active' : '' }}" href="{{ route('notifications.announce') }}"><i class="bi bi-megaphone"></i>Announcements</a>
+                <a class="nav-link {{ request()->routeIs('notifications.settings') ? 'active' : '' }}" href="{{ route('notifications.settings') }}"><i class="bi bi-bell"></i>Message Settings</a>
+            @endif
         @endif
 
         @if($u->isAdmin())
