@@ -25,7 +25,7 @@ jobs:
     env:
       LICENSE_PUBLIC_KEY: ${{ vars.TDS_LICENSE_PUBLIC_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check release settings
         if: github.ref_type == 'tag'
@@ -81,7 +81,14 @@ jobs:
 
           # Launcher
           Copy-Item desktop\launch.ps1, desktop\launch.vbs, desktop\stop.ps1, desktop\stop.vbs, desktop\app.ico build\
-          "{0:N0} MB" -f ((Get-ChildItem build -Recurse | Measure-Object Length -Sum).Sum / 1MB)
+
+          # Drop debug symbols / dev files that are not needed to run PHP
+          Get-ChildItem build\php -Recurse -Include *.pdb, *.lib | Remove-Item -Force -ErrorAction SilentlyContinue
+          foreach ($d in 'build\php\dev', 'build\php\extras') { if (Test-Path $d) { Remove-Item $d -Recurse -Force } }
+          foreach ($d in 'build\app', 'build\app\vendor', 'build\php') {
+            "{0,-20} {1,6:N0} MB" -f $d, ((Get-ChildItem $d -Recurse -File | Measure-Object Length -Sum).Sum / 1MB)
+          }
+          exit 0  # robocopy leaves exit code 1 ("files copied"), which is success
 
       - name: Smoke test (start the app like a school would)
         shell: pwsh
