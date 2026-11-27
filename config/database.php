@@ -35,7 +35,8 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            // Desktop install: the database lives in the user's data folder (TDS_DATA_DIR)
+            'database' => env('TDS_DATA_DIR') ? env('TDS_DATA_DIR').DIRECTORY_SEPARATOR.'database.sqlite' : env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

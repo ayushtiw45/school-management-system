@@ -8,6 +8,7 @@ use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeeHeadController;
 use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnlineAdmissionController;
 use App\Http\Controllers\PaymentController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\UserController;
@@ -27,6 +29,10 @@ Route::get('/apply', [OnlineAdmissionController::class, 'create'])->name('apply'
 Route::post('/apply', [OnlineAdmissionController::class, 'store'])->middleware('throttle:10,1')->name('apply.store');
 Route::get('/apply/thanks/{admissionNo}', [OnlineAdmissionController::class, 'thanks'])->name('apply.thanks');
 
+// First-run setup (only while no user exists)
+Route::get('/setup', [SetupController::class, 'create'])->name('setup');
+Route::post('/setup', [SetupController::class, 'store'])->middleware('throttle:10,1')->name('setup.store');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -37,6 +43,8 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/account/password', [AuthController::class, 'editPassword'])->name('password.edit');
     Route::put('/account/password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::get('/license', [LicenseController::class, 'show'])->name('license');
+    Route::post('/license', [LicenseController::class, 'activate'])->name('license.activate');
 
     // Sections list for dropdowns (JSON)
     Route::get('/classes/{schoolClass}/sections.json', [SectionController::class, 'forClass'])->name('classes.sections.json');

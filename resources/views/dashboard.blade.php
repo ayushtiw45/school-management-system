@@ -13,6 +13,17 @@
     </div>
 </div>
 
+@if($u->isAdmin() && $session && ! \App\Models\FeeStructure::where('academic_session_id', $session->id)->exists())
+    <div class="alert alert-info">
+        <strong>Getting started:</strong>
+        1. Check <a href="{{ route('settings.edit') }}">school settings</a> ·
+        2. Review <a href="{{ route('classes.index') }}">classes & sections</a> ·
+        3. Enter your <a href="{{ route('fee-structure.index') }}">fee structure</a> ·
+        4. Add <a href="{{ route('users.index') }}">staff logins</a> ·
+        5. Start <a href="{{ route('admissions.create') }}">admissions</a>
+    </div>
+@endif
+
 @if(! $session && $u->isAdmin())
     <div class="alert alert-warning">Setup is not complete. Create an <a href="{{ route('sessions.index') }}">academic session</a>, add <a href="{{ route('classes.index') }}">classes & sections</a>, then set the <a href="{{ route('fee-structure.index') }}">fee structure</a>.</div>
 @endif

@@ -44,7 +44,7 @@
 <body>
 @php($u = auth()->user())
 <nav class="sidebar" id="sidebar">
-    <div class="brand"><small>School Management</small>{{ school('name') }}</div>
+    <div class="brand"><small>{{ config('license.enabled') ? 'TDS School Management' : 'School Management' }}</small>{{ school('name') }}</div>
     <div class="nav flex-column py-2">
         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
 
@@ -88,6 +88,9 @@
             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-shield-lock"></i>Users & Roles</a>
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.edit') }}"><i class="bi bi-gear"></i>Settings</a>
         @endif
+        @if(config('license.enabled'))
+            <a class="nav-link {{ request()->routeIs('license') ? 'active' : '' }}" href="{{ route('license') }}"><i class="bi bi-patch-check"></i>License</a>
+        @endif
     </div>
 </nav>
 
@@ -107,6 +110,24 @@
             </ul>
         </div>
     </header>
+
+    @isset($license)
+        @if($license['state'] === 'trial')
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 no-print" style="background:#fff7e6;border-bottom:1px solid #f5d9a6">
+                <i class="bi bi-hourglass-split"></i> Free trial: <strong>{{ $license['days_left'] }} day(s) left</strong>
+                <a href="{{ route('license') }}" class="ms-auto">Buy license</a>
+            </div>
+        @elseif($license['state'] === 'expired')
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white bg-danger no-print">
+                <i class="bi bi-lock"></i> {{ $license['plan'] === 'trial' ? 'Free trial has ended' : 'License expired' }}. Read-only mode: your data is safe, but new entries are disabled.
+                <a href="{{ route('license') }}" class="ms-auto text-white fw-semibold">Activate license</a>
+            </div>
+        @elseif($license['days_left'] !== null && $license['days_left'] <= 15)
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 no-print" style="background:#fff7e6">
+                <i class="bi bi-bell"></i> License expires in {{ $license['days_left'] }} day(s). <a href="{{ route('license') }}" class="ms-auto">Renew</a>
+            </div>
+        @endif
+    @endisset
 
     <main class="p-3 p-md-4">
         @include('partials.flash')

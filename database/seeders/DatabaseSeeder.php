@@ -18,10 +18,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::firstOrCreate(
-            ['email' => env('ADMIN_EMAIL', 'admin@school.test')],
-            ['name' => 'Administrator', 'role' => 'admin', 'is_active' => true, 'password' => env('ADMIN_PASSWORD', 'password')]
-        );
+        // Desktop installs create the admin on the first-run setup screen instead.
+        if (! config('license.enabled')) {
+            User::firstOrCreate(
+                ['email' => env('ADMIN_EMAIL', 'admin@school.test')],
+                ['name' => 'Administrator', 'role' => 'admin', 'is_active' => true, 'password' => env('ADMIN_PASSWORD', 'password')]
+            );
+        }
 
         $year = now()->month >= 4 ? now()->year : now()->year - 1;
         $session = AcademicSession::firstOrCreate(
@@ -53,7 +56,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Sample amounts — the school will change these
-        if (! FeeStructure::where('academic_session_id', $session->id)->exists()) {
+        if (! config('license.enabled') && ! FeeStructure::where('academic_session_id', $session->id)->exists()) {
             $admission = FeeHead::where('name', 'Admission Fee')->first();
             $tuition = FeeHead::where('name', 'Tuition Fee')->first();
             $annual = FeeHead::where('name', 'Annual Charges')->first();

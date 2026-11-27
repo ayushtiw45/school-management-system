@@ -91,6 +91,52 @@ Student photos, documents and expense bills are stored privately in `storage/app
 - If the fee structure changes later, use **Fee Structure → Assign to all students** to add the new dues. Existing dues are never duplicated.
 - On promotion, the new session's dues can be assigned automatically (without the admission fee). Old pending dues stay on the student's account.
 
+## Desktop app for schools (TDS School Management Software)
+
+Schools download **TDS-School-Setup.exe** from your website, install it on a Windows laptop and use it offline.
+Each installation keeps its data on that laptop in `%APPDATA%\TDS School Data` (database, photos, documents).
+Installing a new version over the old one keeps the data.
+
+**How it works**
+- The installer contains a portable PHP and this app (`desktop/`), installs per-user (no admin rights) and adds
+  *TDS School Management Software* and *Stop TDS School Management* shortcuts.
+- `desktop/launch.ps1` creates the data folder and a per-computer `APP_KEY`, runs migrations, starts PHP's built-in
+  server on `127.0.0.1:8765` (next free port up to 8775) and opens the browser.
+- First launch shows a setup screen (school name + admin login). There is no default password in the desktop build.
+- **Licensing:** 30-day trial (from the first run, also stored in the Windows registry), then read-only until a
+  license key is entered. Keys are Ed25519-signed on your website and checked offline. A key works only for the
+  Installation ID it was made for. Yearly, multi-year, lifetime or custom-date keys.
+
+**One-time setup**
+1. Upload the `website/` folder to Hostinger (below) and open `https://your-domain/license-admin/`.
+   Set the admin password. Copy the **public key** it shows and download the **backup** (keep it safe; it contains
+   the secret signing key).
+2. In GitHub → this repository → Settings → Secrets and variables → Actions → **Variables**, add:
+   `TDS_LICENSE_PUBLIC_KEY` (required), and optionally `TDS_VENDOR_PHONE`, `TDS_VENDOR_WHATSAPP` (e.g. 919876543210),
+   `TDS_VENDOR_EMAIL`, `TDS_VENDOR_WEBSITE`, `TDS_TRIAL_DAYS`.
+3. Publish a version: create a tag, e.g. `git tag v1.0.0 && git push origin v1.0.0` (or GitHub → Releases → Draft a new
+   release → new tag `v1.0.0`). The **Build Windows installer** workflow builds and tests the installer on Windows and
+   attaches `TDS-School-Setup.exe` to the release. The website's download button always points to the latest release.
+
+**Selling a license:** the school opens *License* in the app and sends you the Installation ID → you create a key on
+`/license-admin/` → send it (WhatsApp button) → they paste it and click Activate.
+
+Notes: the installer is not code-signed, so Windows SmartScreen shows "Windows protected your PC" (More info → Run
+anyway) until you buy a code-signing certificate. PHP source is readable on the school's laptop, so the license stops
+ordinary users but cannot stop a determined programmer.
+
+## Website on Hostinger
+
+`website/` contains the product page (`index.html`, `assets/`) and the license admin (`license-admin/index.php`).
+
+1. Edit the `window.SITE` block at the top of `website/index.html`: phone, WhatsApp, email, price.
+2. hPanel → Websites → your domain → **File Manager** → open `public_html` → upload the *contents* of `website/`
+   (`index.html`, `assets/`, `license-admin/`). Remove Hostinger's default `index.php`/`default.php` if present.
+3. hPanel → Advanced → **PHP Configuration**: PHP 8.1 or newer, and the `sodium` extension enabled.
+4. Open `https://your-domain/license-admin/` and finish the setup (step 1 above). Its private files are created in
+   `tds-license-data/` **next to** `public_html` (not inside it), so they cannot be downloaded.
+5. Turn on SSL (hPanel → Security → SSL) so the admin password is sent over HTTPS.
+
 ## Notifications (SMS / WhatsApp)
 
 Without a gateway, every message is saved in **Message Log** with status "Not sent (no gateway)", so nothing is lost.
