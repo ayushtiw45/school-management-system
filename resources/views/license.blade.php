@@ -38,6 +38,7 @@
                     <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('instId').value); this.textContent='Copied'">Copy</button>
                 </div>
                 <div class="d-flex flex-wrap gap-2 mb-3">
+                    @if($vendor['website'])<a href="{{ rtrim($vendor['website'], '/') }}/buy?installation_id={{ urlencode($installationId) }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><i class="bi bi-cart"></i> Buy online</a>@endif
                     @if($wa)<a href="{{ $wa }}" target="_blank" rel="noopener" class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i> Send on WhatsApp</a>@endif
                     @if($vendor['phone'])<span class="small align-self-center"><i class="bi bi-telephone"></i> {{ $vendor['phone'] }}</span>@endif
                     @if($vendor['email'])<a href="mailto:{{ $vendor['email'] }}?subject=License%20{{ $installationId }}" class="small align-self-center">{{ $vendor['email'] }}</a>@endif

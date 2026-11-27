@@ -1,0 +1,71 @@
+name: Build website (Hostinger)
+
+# Builds tds-portal-hostinger.zip: upload it to Hostinger and extract it in your domain folder
+# (the folder that contains public_html). Push a tag like v1.0.0 to attach it to the release.
+
+on:
+  push:
+    tags: ['v*']
+    branches: [main]
+    paths: ['portal/**', '.github/workflows/build-portal.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: portal
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sodium, curl, fileinfo, intl
+          coverage: none
+
+      - name: Test
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress
+          cp .env.example .env && php artisan key:generate
+          php artisan test
+
+      - name: Build Hostinger package
+        run: |
+          rm -rf vendor .env database/database.sqlite
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+          PKG=$RUNNER_TEMP/pkg
+          mkdir -p $PKG/public_html $PKG/tds-portal
+          # web root
+          cp -r public/. $PKG/public_html/
+          # application (outside the web root)
+          tar cf - --exclude=./public --exclude=./tests --exclude=./.env --exclude=./phpunit.xml --exclude='./storage/logs/*.log' . | (cd $PKG/tds-portal && tar xf -)
+          find $PKG/tds-portal/storage -type f ! -name .gitignore -delete
+          cat > $PKG/READ-ME-FIRST.txt <<'TXT'
+          TDS Portal - Hostinger installation
+          1. hPanel -> Databases -> MySQL: create a database and user (note name, user, password).
+          2. hPanel -> Advanced -> PHP Configuration: PHP 8.3+, enable "sodium" and "pdo_mysql".
+          3. hPanel -> File Manager -> open your domain folder (the one that CONTAINS public_html).
+             Delete the default files inside public_html, upload this zip here and Extract.
+             You should now have:  public_html/  and  tds-portal/  side by side.
+          4. Open https://your-domain/ - the installer opens. Fill the database and admin details.
+          5. Log in at https://your-domain/login - you are taken to the admin panel.
+          TXT
+          cd $PKG && zip -qr $GITHUB_WORKSPACE/tds-portal-hostinger.zip .
+          ls -la $GITHUB_WORKSPACE/tds-portal-hostinger.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tds-portal-hostinger
+          path: tds-portal-hostinger.zip
+
+      - name: Attach to release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tds-portal-hostinger.zip

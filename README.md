@@ -108,34 +108,49 @@ Installing a new version over the old one keeps the data.
   Installation ID it was made for. Yearly, multi-year, lifetime or custom-date keys.
 
 **One-time setup**
-1. Upload the `website/` folder to Hostinger (below) and open `https://your-domain/license-admin/`.
-   Set the admin password. Copy the **public key** it shows and download the **backup** (keep it safe; it contains
-   the secret signing key).
-2. In GitHub → this repository → Settings → Secrets and variables → Actions → **Variables**, add:
-   `TDS_LICENSE_PUBLIC_KEY` (required), and optionally `TDS_VENDOR_PHONE`, `TDS_VENDOR_WHATSAPP` (e.g. 919876543210),
-   `TDS_VENDOR_EMAIL`, `TDS_VENDOR_WEBSITE`, `TDS_TRIAL_DAYS`.
-3. Publish a version: create a tag, e.g. `git tag v1.0.0 && git push origin v1.0.0` (or GitHub → Releases → Draft a new
-   release → new tag `v1.0.0`). The **Build Windows installer** workflow builds and tests the installer on Windows and
-   attaches `TDS-School-Setup.exe` to the release. The website's download button always points to the latest release.
+1. Put the website (TDS Portal, below) on Hostinger and log in to its admin panel.
+2. Admin → **Signing Key**: copy the public key and download the backup (keep it safe; it holds the secret signing key).
+3. GitHub → this repository → Settings → Secrets and variables → Actions → **Variables**, add:
+   `TDS_LICENSE_PUBLIC_KEY` (required), `TDS_VENDOR_WEBSITE` (your website address, used by the software's
+   "Buy online" button), and optionally `TDS_VENDOR_PHONE`, `TDS_VENDOR_WHATSAPP` (e.g. 919876543210),
+   `TDS_VENDOR_EMAIL`, `TDS_TRIAL_DAYS`.
+4. Publish a version: GitHub → Releases → Draft a new release → new tag `v1.0.0` → Publish (or
+   `git tag v1.0.0 && git push origin v1.0.0`). The workflows build and test `TDS-School-Setup.exe` on Windows and
+   `tds-portal-hostinger.zip`, and attach both to the release. The website's download always points to the latest release.
 
-**Selling a license:** the school opens *License* in the app and sends you the Installation ID → you create a key on
-`/license-admin/` → send it (WhatsApp button) → they paste it and click Activate.
+**Selling a license:** schools buy online on your website (Razorpay) and the key appears in their account instantly.
+For UPI / cash payments, create the key in Admin → Licenses and send it with the WhatsApp button.
 
 Notes: the installer is not code-signed, so Windows SmartScreen shows "Windows protected your PC" (More info → Run
 anyway) until you buy a code-signing certificate. PHP source is readable on the school's laptop, so the license stops
 ordinary users but cannot stop a determined programmer.
 
-## Website on Hostinger
+## Website: TDS Portal (`portal/`)
 
-`website/` contains the product page (`index.html`, `assets/`) and the license admin (`license-admin/index.php`).
+A separate Laravel app for your domain:
+- **Home page** (company page) in English and Hindi with a language switch, features, screenshots, pricing, FAQ.
+- **Install for Windows** → sign up (school name, contact, mobile, city, email) → the installer download starts.
+- **School account**: download, buy / renew a license online with Razorpay (UPI, card, net banking), license keys,
+  payment history, profile, password reset by email.
+- **Admin panel** (`/admin`): schools (search, CSV export, WhatsApp), downloads, licenses (manual keys, renewals start
+  when the current license ends), payments, settings (contact details, prices, Razorpay keys), signing key + backup.
 
-1. Edit the `window.SITE` block at the top of `website/index.html`: phone, WhatsApp, email, price.
-2. hPanel → Websites → your domain → **File Manager** → open `public_html` → upload the *contents* of `website/`
-   (`index.html`, `assets/`, `license-admin/`). Remove Hostinger's default `index.php`/`default.php` if present.
-3. hPanel → Advanced → **PHP Configuration**: PHP 8.1 or newer, and the `sodium` extension enabled.
-4. Open `https://your-domain/license-admin/` and finish the setup (step 1 above). Its private files are created in
-   `tds-license-data/` **next to** `public_html` (not inside it), so they cannot be downloaded.
-5. Turn on SSL (hPanel → Security → SSL) so the admin password is sent over HTTPS.
+**Install on Hostinger**
+1. Download `tds-portal-hostinger.zip` from the latest GitHub release (or the "Build website (Hostinger)" run's Artifacts).
+2. hPanel → Databases → MySQL: create a database and user. hPanel → Advanced → PHP Configuration: PHP 8.3+,
+   extensions `sodium` and `pdo_mysql` on.
+3. hPanel → File Manager → your domain folder (the one that **contains** `public_html`): empty `public_html`, upload
+   the zip there and extract. You get `public_html/` and `tds-portal/` side by side (the app and its secrets stay
+   outside the web root).
+4. Open `https://your-domain/`: the installer checks the server and asks for the database and your admin login
+   (and optionally an email account for "forgot password" mails). It deletes itself when done.
+5. Log in at `/login` → Admin → **Settings**: phone, WhatsApp, email, prices, Razorpay keys. In Razorpay add the webhook
+   shown there (events `payment.captured`, `order.paid`). Use Razorpay **Test** keys first, then **Live** keys.
+6. Turn on SSL (hPanel → Security → SSL).
+
+Local development: `cd portal && composer install && cp .env.example .env && php artisan key:generate &&
+touch database/database.sqlite && php artisan migrate && php artisan serve`. Make yourself admin with
+`php artisan tinker --execute 'App\Models\User::first()->forceFill(["is_admin" => true])->save();'`.
 
 ## Notifications (SMS / WhatsApp)
 
@@ -169,5 +184,6 @@ overdue by the chosen number of days, and at most once a week per student. Run t
 ## Tests
 
 ```bash
-php artisan test
+php artisan test              # school software
+cd portal && php artisan test  # website
 ```

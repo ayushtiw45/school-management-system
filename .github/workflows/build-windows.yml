@@ -54,7 +54,7 @@ jobs:
           "VERSION=$version" >> $env:GITHUB_ENV
 
           # Laravel app (without tests, git, website, local data)
-          robocopy . build\app /E /NFL /NDL /NJH /NJS /XD .git .github build dist desktop website tests node_modules storage /XF .env .env.* *.sqlite *.sqlite-journal phpunit.xml .phpunit.result.cache
+          robocopy . build\app /E /NFL /NDL /NJH /NJS /XD .git .github build dist desktop portal tests node_modules storage /XF .env .env.* *.sqlite *.sqlite-journal phpunit.xml .phpunit.result.cache
           if ($LASTEXITCODE -ge 8) { exit 1 }
           foreach ($d in 'storage\app\private','storage\framework\cache\data','storage\framework\sessions','storage\framework\views','storage\logs') {
             New-Item -ItemType Directory -Force -Path "build\app\$d" | Out-Null
