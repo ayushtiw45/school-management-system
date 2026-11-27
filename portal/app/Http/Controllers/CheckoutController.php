@@ -83,13 +83,29 @@ class CheckoutController extends Controller
     }
 
     /** Razorpay webhook (payment.captured / order.paid): issues the key even if the browser was closed. */
-    public function webhook(Request $request, Razorpay $razorpay, PaymentProcessor $processor)
+    public function webhook(Request $request, Razorpay $razorpay, PaymentProcessor $processor, \App\Services\SubscriptionManager $subs)
     {
         if (! $razorpay->validWebhookSignature($request->getContent(), $request->header('X-Razorpay-Signature'))) {
             return response('invalid signature', 400);
         }
 
         $event = $request->input('event');
+
+        // Autopay subscriptions
+        if (str_starts_with((string) $event, 'subscription.')) {
+            $sub = $request->input('payload.subscription.entity', []);
+            $id = $sub['id'] ?? null;
+            if ($id) {
+                match ($event) {
+                    'subscription.authenticated' => $subs->authenticated($id),
+                    'subscription.charged' => $subs->charged($id, $sub['current_end'] ?? null),
+                    default => $subs->statusChanged($id, (string) ($sub['status'] ?? '')),
+                };
+            }
+
+            return response('ok');
+        }
+
         $entity = $request->input('payload.payment.entity');
         if (in_array($event, ['payment.captured', 'order.paid'], true) && ! empty($entity['order_id']) && ($entity['status'] ?? '') === 'captured') {
             $processor->markPaid($entity['order_id'], $entity['id']);

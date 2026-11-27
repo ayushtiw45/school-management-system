@@ -19,7 +19,14 @@
         <div class="card mb-3"><div class="card-header bg-white">Licenses</div>
             <div class="table-responsive"><table class="table table-sm mb-0">
                 <thead><tr><th>Installation ID</th><th>Plan</th><th>Valid till</th><th>Source</th><th>Issued</th></tr></thead>
-                <tbody>@forelse($school->licenses as $l)<tr><td class="font-monospace">{{ $l->installation_id }}</td><td>{{ \App\Services\LicenseIssuer::PLANS[$l->plan]['label'] ?? 'Custom' }}</td><td>{{ $l->expires_on?->format('d M Y') ?? 'Lifetime' }}</td><td>{{ ucfirst($l->source) }}</td><td>{{ $l->created_at->format('d M Y') }}</td></tr>@empty<tr><td colspan="5" class="text-muted text-center py-3">No licenses.</td></tr>@endforelse</tbody>
+                <tbody>@forelse($school->licenses as $l)<tr><td class="font-monospace">{{ $l->installation_id }}</td><td>{{ \App\Services\LicenseIssuer::LABELS[$l->plan] ?? 'Custom' }}</td><td>{{ $l->expires_on?->format('d M Y') ?? 'Lifetime' }}</td><td>{{ ucfirst($l->source) }}</td><td>{{ $l->created_at->format('d M Y') }}</td></tr>@empty<tr><td colspan="5" class="text-muted text-center py-3">No licenses.</td></tr>@endforelse</tbody>
+            </table></div>
+        </div>
+        <div class="card mb-3"><div class="card-header bg-white">Autopay</div>
+            <div class="table-responsive"><table class="table table-sm mb-0">
+                <thead><tr><th>Installation ID</th><th>Status</th><th>Monthly</th><th>Paid till</th><th>Charges</th><th></th></tr></thead>
+                <tbody>@forelse($school->subscriptions as $sub)<tr><td class="font-monospace">{{ $sub->installation_id }}</td><td>{{ $sub->label() }}</td><td>₹{{ number_format($sub->monthly_amount / 100) }}</td><td>{{ ($sub->current_end ?? $sub->trial_ends_at)?->format('d M Y') }}</td><td>{{ $sub->paid_count }}</td>
+                <td>@if($sub->isLive())<form method="POST" action="{{ route('subscriptions.cancel', $sub) }}" onsubmit="return confirm('Cancel this Autopay?')">@csrf<button class="btn btn-sm btn-outline-danger">Cancel</button></form>@endif</td></tr>@empty<tr><td colspan="6" class="text-muted text-center py-3">No Autopay.</td></tr>@endforelse</tbody>
             </table></div>
         </div>
         <div class="card"><div class="card-header bg-white">Payments</div>

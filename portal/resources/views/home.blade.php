@@ -47,10 +47,10 @@
         <p class="lead fs-5">{{ __('Admissions, student records, fee collection, receipts, reports and parent reminders — in one simple program that runs on your own Windows laptop.') }}</p>
         <p class="tagline">{{ __('Your data stays on your laptop. No internet needed.') }}</p>
         <div class="d-flex flex-wrap gap-3 my-4">
-            <a href="{{ route('install') }}" class="btn btn-amber btn-lg px-4"><i class="bi bi-windows me-2"></i>{{ __('Install for Windows') }} · {{ __(':days days free', ['days' => $trialDays]) }}</a>
+            <a href="{{ route('install') }}" class="btn btn-amber btn-lg px-4"><i class="bi bi-windows me-2"></i>{{ __('Install for Windows') }}</a>
             <a href="#screens" class="btn btn-outline-light btn-lg px-4">{{ __('See screenshots') }}</a>
         </div>
-        <div class="meta">{{ __('Windows 10 / 11 (64-bit) · Free account · Setup takes 2 minutes') }}</div>
+        <div class="meta">{{ __('Windows 10 / 11 (64-bit) · :days-day trial for ₹:trial · then ₹:monthly/month', ['days' => $trialDays, 'trial' => $trialPrice, 'monthly' => $monthlyPrice]) }}</div>
         <div class="frame"><div class="dots"><i></i><i></i><i></i></div><img src="{{ asset('assets/shot-dashboard.jpg') }}" alt="{{ __('Dashboard') }}"></div>
     </div>
 </header>
@@ -61,7 +61,7 @@
             @foreach([
                 ['bi-laptop', __('Data stays on your laptop'), __('Student and fee records are saved only on your computer. Nothing is uploaded to anyone\'s server.')],
                 ['bi-wifi-off', __('Works without internet'), __('Collect fees and print receipts even when the internet is down. Internet is only needed for SMS/WhatsApp.')],
-                ['bi-clock-history', __('Try free for :days days', ['days' => $trialDays]), __('Use every feature during the trial. After that, your data is never locked: you can always view and print it.')],
+                ['bi-clock-history', __(':days days for just ₹:trial', ['days' => $trialDays, 'trial' => $trialPrice]), __('Use every feature during the trial. Your data is never locked: even without a subscription you can always view and print it.')],
             ] as [$icon, $title, $text])
                 <div class="col-md-4"><div class="card p-4 h-100 pillar">
                     <div class="ic mb-3"><i class="bi {{ $icon }}"></i></div>
@@ -135,7 +135,7 @@
             @foreach([
                 [__('Create a free account'), __('Click Install for Windows and sign up with your school name and mobile number.')],
                 [__('Download & install'), __('The setup file downloads. Double-click it and press Next → Install.')],
-                [__('Set up your school'), __('Enter your school name and create your admin login. Your :days-day trial starts.', ['days' => $trialDays])],
+                [__('Start your trial'), __('Enter your school name, then pay ₹:trial to unlock the :days-day trial. Autopay continues at ₹:monthly/month.', ['days' => $trialDays, 'trial' => $trialPrice, 'monthly' => $monthlyPrice])],
                 [__('Start working'), __('Open it any time from the desktop icon. Set your fees and start admissions.')],
             ] as $i => [$t, $p])
                 <div class="col-sm-6 col-lg-3"><div class="step"><div class="num">{{ $i + 1 }}</div><h3>{{ $t }}</h3><p>{{ $p }}</p></div></div>
@@ -154,27 +154,13 @@
             <p class="text-muted">{{ __('Start with the free trial. Buy a license online when you are happy with it.') }}</p>
         </div>
         <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-4"><div class="plan">
-                <h3 class="h5">{{ __('Free Trial') }}</h3>
-                <div class="price">{{ __(':days days', ['days' => $trialDays]) }} <small class="fs-6 text-muted fw-normal">{{ __('free') }}</small></div>
-                <ul><li><i class="bi bi-check-circle-fill"></i>{{ __('All features unlocked') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('No payment or card needed') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Keep your data when you buy') }}</li></ul>
-                <a href="{{ route('install') }}" class="btn btn-navy">{{ __('Download & start trial') }}</a>
+            <div class="col-md-8 col-lg-6"><div class="plan best">
+                <h3 class="h5">{{ __('School Plan') }}</h3>
+                <div class="price">₹{{ $monthlyPrice }} <small class="fs-6 text-muted fw-normal">{{ __('per month') }}</small></div>
+                <div class="text-success fw-semibold">{{ __('First :days days for just ₹:trial', ['days' => $trialDays, 'trial' => $trialPrice]) }}</div>
+                <ul><li><i class="bi bi-check-circle-fill"></i>{{ __('All 10 modules') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Free updates') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Automatic monthly payment by UPI Autopay or card') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Cancel any time, no charge if you cancel during the trial') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Your data stays on your laptop') }}</li></ul>
+                <a href="{{ route('install') }}" class="btn btn-amber btn-lg">{{ __('Install & start for ₹:trial', ['trial' => $trialPrice]) }}</a>
             </div></div>
-            @forelse($plans as $plan => $price)
-                <div class="col-md-6 col-lg-4"><div class="plan {{ $loop->first ? 'best' : '' }}">
-                    <h3 class="h5">{{ __(\App\Services\LicenseIssuer::PLANS[$plan]['label']) }}</h3>
-                    <div class="price">₹{{ number_format($price) }} <small class="fs-6 text-muted fw-normal">{{ $plan === 'life' ? __('one time') : __('per computer') }}</small></div>
-                    <ul><li><i class="bi bi-check-circle-fill"></i>{{ __('All 10 modules') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Free updates') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Pay online with UPI, card or net banking') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('License key instantly in your account') }}</li></ul>
-                    <a href="{{ auth()->check() ? route('account').'#buy' : route('register') }}" class="btn btn-amber">{{ __('Buy online') }}</a>
-                </div></div>
-            @empty
-                <div class="col-md-6 col-lg-4"><div class="plan best">
-                    <h3 class="h5">{{ __('School License') }}</h3>
-                    <div class="price fs-4">{{ __('Contact us for price') }}</div>
-                    <ul><li><i class="bi bi-check-circle-fill"></i>{{ __('All 10 modules') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Free updates') }}</li><li><i class="bi bi-check-circle-fill"></i>{{ __('Help on phone and WhatsApp') }}</li></ul>
-                    @if($wa)<a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="btn btn-amber">{{ __('Ask on WhatsApp') }}</a>@endif
-                </div></div>
-            @endforelse
         </div>
     </div>
 </section>
@@ -189,8 +175,8 @@
             [__('Where is my school\'s data saved?'), __('Only on your laptop, in the folder AppData\Roaming\TDS School Data. We cannot see your data, and nothing is uploaded anywhere. Your website account only stores your contact details and license.')],
             [__('Why do I need an account to download?'), __('Your account keeps your license keys and payment receipts safe, and lets us help you quickly. Your school\'s student data is never stored in it.')],
             [__('How do I back up my data?'), __('Copy the TDS School Data folder to a pen drive or Google Drive once a week. To restore it on a new laptop, install the software, then put the folder back in the same place before opening it.')],
-            [__('What happens when the trial or license ends?'), __('Your data is never deleted or locked. The software becomes read-only: you can still view students, print receipts and download reports. To add new admissions or payments, activate a license.')],
-            [__('How do I buy a license?'), __('In the software, open License and click Buy online (or copy the Installation ID). Log in here, choose a plan and pay with UPI, card or net banking. The key appears in your account immediately: paste it in the software and click Activate.')],
+            [__('How does the ₹1 trial work?'), __('After installing, the software asks you to start the trial. Log in, pay ₹1 and set up Autopay. All features unlock immediately. After the trial, the monthly fee is paid automatically; you can cancel any time before that and nothing more is charged.')],
+            [__('What happens if I cancel or a payment fails?'), __('Your data is never deleted or locked. The software becomes read-only: you can still view students, print receipts and download reports. Restart Autopay any time to add new records again.')],
             [__('How do I update to a new version?'), __('Download the latest setup from your account and install it over the old one. All your data, settings and license stay as they are.')],
             [__('Can I use it on more than one computer?'), __('Each license is for one computer. The data of each installation is separate.')],
         ] as [$q, $a])

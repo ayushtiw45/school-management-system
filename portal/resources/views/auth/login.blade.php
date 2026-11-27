@@ -6,6 +6,9 @@
     <div class="card p-4 p-md-5 shadow-sm">
         <h1 class="h3 fw-bold text-center">{{ __('Log in') }}</h1>
         <p class="text-muted text-center">{{ __('New here?') }} <a href="{{ route('register') }}">{{ __('Create a free account') }}</a></p>
+        @if(str_contains((string) session('url.intended'), '/activate'))
+            <div class="alert alert-warning small"><i class="bi bi-key"></i> {{ __('Log in to activate your software. New here? Create a free account first — you will come back here automatically.') }}</div>
+        @endif
         @if(str_contains((string) session('url.intended'), 'start_download'))
             <div class="alert alert-warning small"><i class="bi bi-download"></i> {{ __('Log in to download the software.') }}</div>
         @endif

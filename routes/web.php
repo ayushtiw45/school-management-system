@@ -45,6 +45,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::put('/account/password', [AuthController::class, 'updatePassword'])->name('password.update');
     Route::get('/license', [LicenseController::class, 'show'])->name('license');
     Route::post('/license', [LicenseController::class, 'activate'])->name('license.activate');
+    Route::post('/license/check', [LicenseController::class, 'check'])->middleware('throttle:20,1')->name('license.check');
 
     // Sections list for dropdowns (JSON)
     Route::get('/classes/{schoolClass}/sections.json', [SectionController::class, 'forClass'])->name('classes.sections.json');

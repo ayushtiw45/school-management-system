@@ -15,6 +15,9 @@ class LicenseTest extends TestCase
 
     private string $secret;
 
+    /** What the fake website returns for /api/license/{id}: a key, null, or 'offline'. */
+    private ?string $serverKey = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,6 +29,14 @@ class LicenseTest extends TestCase
             'license.trial_days' => 30,
         ]);
         $this->seed(DatabaseSeeder::class);
+        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        \Illuminate\Support\Facades\Http::fake(function () {
+            if ($this->serverKey === 'offline') {
+                throw new \Illuminate\Http\Client\ConnectionException('offline');
+            }
+
+            return \Illuminate\Support\Facades\Http::response(['key' => $this->serverKey]);
+        });
     }
 
     private function key(array $overrides = [], ?string $secret = null): string
@@ -54,7 +65,7 @@ class LicenseTest extends TestCase
         $this->assertSame(0, User::count());
         $this->get('/login')->assertRedirect(route('setup'));
         $this->get('/apply')->assertRedirect(route('setup'));
-        $this->get(route('setup'))->assertOk()->assertSee('Free Trial');
+        $this->get(route('setup'))->assertOk()->assertSee('Continue');
 
         $admin = $this->setupAdmin();
         $this->assertTrue($admin->isAdmin());
@@ -163,5 +174,65 @@ class LicenseTest extends TestCase
         $acct = User::factory()->create(['role' => 'accountant', 'is_active' => true]);
         $this->actingAs($acct)->post(route('license.activate'), ['key' => $this->key()])->assertForbidden();
         $this->get(route('license'))->assertOk()->assertSee('Ask your admin');
+    }
+
+    public function test_paid_activation_mode_blocks_use_until_the_website_issues_a_key(): void
+    {
+        config(['license.trial_days' => 0, 'license.server' => 'https://tds.example']);
+
+        $this->post(route('setup.store'), [
+            'school_name' => 'Sunrise', 'name' => 'P', 'email' => 'p@s.in', 'password' => 'secret123', 'password_confirmation' => 'secret123',
+        ])->assertRedirect(route('license'));
+        $admin = User::first();
+
+        $status = app(LicenseService::class)->status();
+        $this->assertSame(['expired', 'none'], [$status['state'], $status['plan']]);
+        $this->actingAs($admin)->get(route('license'))->assertOk()->assertSee('Start your 7-day trial for ₹1')
+            ->assertSee('https://tds.example/activate?installation_id='.Setting::get('installation_id'), false);
+        $this->get(route('dashboard'))->assertSee('Start trial');
+        $this->post(route('classes.store'), ['name' => 'Class 9'])->assertRedirect(route('license'));
+
+        // school pays ₹1 on the website → the website now returns a key → the License screen poll activates it
+        $this->serverKey = $this->key(['plan' => '7-day trial', 'exp' => now()->addDays(7)->toDateString()]);
+        $this->postJson(route('license.check'))->assertOk()->assertJson(['activated' => true, 'state' => 'licensed']);
+
+        $this->post(route('classes.store'), ['name' => 'Class 9'])->assertSessionHas('success');
+    }
+
+    public function test_monthly_renewal_is_picked_up_automatically_and_older_keys_are_ignored(): void
+    {
+        config(['license.server' => 'https://tds.example']);
+        $admin = $this->setupAdmin();
+        $this->actingAs($admin)->post(route('license.activate'), ['key' => $this->key(['exp' => now()->addDays(2)->toDateString()])]);
+
+        // website already has next month's key (Autopay charged)
+        $next = $this->serverKey = $this->key(['plan' => 'Monthly', 'exp' => now()->addMonth()->toDateString()]);
+        $this->travel(61)->minutes(); // past the hourly throttle
+        $this->get(route('dashboard'))->assertOk(); // expiring soon → middleware syncs
+        $this->assertSame($next, Setting::get('license_key'));
+
+        // an older key from the server never replaces a newer one
+        $this->serverKey = $this->key(['exp' => now()->addDays(5)->toDateString()]);
+        $this->assertFalse(app(LicenseService::class)->syncOnline(force: true));
+        $this->assertSame($next, Setting::get('license_key'));
+
+        // keys for another computer or forged keys are ignored, and being offline is harmless
+        $this->serverKey = $this->key(['id' => 'TDS-AAAA-BBBB-CCCC', 'exp' => now()->addYears(9)->toDateString()]);
+        $this->assertFalse(app(LicenseService::class)->syncOnline(force: true));
+        $this->serverKey = 'offline';
+        $this->assertFalse(app(LicenseService::class)->syncOnline(force: true));
+        $this->assertSame($next, Setting::get('license_key'));
+    }
+
+    public function test_sync_is_throttled(): void
+    {
+        $this->setupAdmin();
+        config(['license.server' => 'https://tds.example']);
+        $svc = app(LicenseService::class);
+        $svc->syncOnline();
+        $svc->syncOnline();
+        \Illuminate\Support\Facades\Http::assertSentCount(1);
+        $svc->syncOnline(force: true);
+        \Illuminate\Support\Facades\Http::assertSentCount(2);
     }
 }

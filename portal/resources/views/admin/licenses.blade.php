@@ -39,7 +39,7 @@
                         <td>{{ $l->created_at->format('d M Y') }}</td>
                         <td>@if($l->user)<a href="{{ route('admin.schools.show', $l->user) }}">{{ $l->school_name }}</a>@else{{ $l->school_name }}@endif<div class="small text-muted">{{ $l->notes }}</div></td>
                         <td class="font-monospace">{{ $l->installation_id }}</td>
-                        <td>{{ \App\Services\LicenseIssuer::PLANS[$l->plan]['label'] ?? 'Custom' }}</td>
+                        <td>{{ \App\Services\LicenseIssuer::LABELS[$l->plan] ?? 'Custom' }}</td>
                         <td class="{{ $l->isActive() ? '' : 'text-danger' }}">{{ $l->expires_on?->format('d M Y') ?? 'Lifetime' }}</td>
                         <td>{{ ucfirst($l->source) }}</td>
                         <td class="text-nowrap">

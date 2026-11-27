@@ -48,7 +48,7 @@ class PortalTest extends TestCase
 
     public function test_home_page_is_the_company_page_in_english_and_hindi(): void
     {
-        $this->get('/')->assertOk()->assertSee('TDS School')->assertSee('Install for Windows')->assertSee('₹4,999')->assertDontSee('Admin login');
+        $this->get('/')->assertOk()->assertSee('TDS School')->assertSee('Install for Windows')->assertSee('₹599')->assertSee('7 days for just ₹1')->assertDontSee('Admin login');
 
         $this->get('/lang/hi')->assertRedirect();
         $this->get('/')->assertOk()->assertSee('विंडोज़ के लिए इंस्टॉल करें')->assertSee('नर्सरी से कक्षा 8 तक के लिए');
@@ -210,7 +210,7 @@ class PortalTest extends TestCase
     public function test_admin_settings_keep_secrets_when_left_blank(): void
     {
         $this->actingAs($this->admin())->put('/admin/settings', [
-            'company_name' => 'TDS', 'trial_days' => 30, 'download_url' => 'https://example.com/setup.exe',
+            'company_name' => 'TDS', 'trial_days' => 7, 'trial_price' => 1, 'monthly_price' => 599, 'download_url' => 'https://example.com/setup.exe',
             'price_1y' => 5999, 'price_2y' => '', 'price_life' => '', 'razorpay_key_id' => 'rzp_live_x', 'razorpay_key_secret' => '', 'contact_whatsapp' => '919876543210',
         ])->assertSessionHas('success');
 

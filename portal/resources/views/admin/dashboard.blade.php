@@ -1,17 +1,18 @@
 @extends('layouts.admin')
 @section('title', 'Dashboard')
 @section('content')
-@if(! \App\Models\Setting::get('razorpay_key_id') || ! \App\Services\LicenseIssuer::pricedPlans())
-    <div class="alert alert-warning">Online sales are off: add your license prices and Razorpay keys in <a href="{{ route('admin.settings') }}">Settings</a>.</div>
+@if(! \App\Models\Setting::get('razorpay_key_id') || ! \App\Models\Setting::get('razorpay_webhook_secret'))
+    <div class="alert alert-warning">Online sales are off: add your Razorpay keys and webhook secret in <a href="{{ route('admin.settings') }}">Settings</a>.</div>
 @endif
 <div class="row g-3 mb-3">
     @foreach([
         ['Schools signed up', $stats['schools'], '+'.$stats['schools_month'].' this month'],
         ['Downloads', $stats['downloads'], $stats['downloaded_schools'].' schools downloaded'],
         ['Active licenses', $stats['licensed'], $stats['expiring'].' expiring in 30 days'],
-        ['Revenue', '₹'.number_format($stats['revenue']), '₹'.number_format($stats['revenue_month']).' this month'],
+        ['Autopay active', $stats['subs_active'], $stats['subs_trial'].' on ₹1 trial · ₹'.number_format($stats['mrr']).'/month'],
+        ['One-time revenue', '₹'.number_format($stats['revenue']), '₹'.number_format($stats['revenue_month']).' this month'],
     ] as [$l, $v, $s])
-        <div class="col-6 col-xl-3"><div class="card stat p-3"><div class="text-muted small">{{ $l }}</div><div class="v">{{ $v }}</div><div class="small text-muted">{{ $s }}</div></div></div>
+        <div class="col-6 col-xl"><div class="card stat p-3"><div class="text-muted small">{{ $l }}</div><div class="v">{{ $v }}</div><div class="small text-muted">{{ $s }}</div></div></div>
     @endforeach
 </div>
 <div class="row g-3">
@@ -26,7 +27,7 @@
         <div class="card-header bg-white d-flex">Recent payments <a href="{{ route('admin.payments') }}" class="ms-auto small">All payments</a></div>
         <div class="table-responsive"><table class="table table-sm mb-0">
             <thead><tr><th>Date</th><th>School</th><th>Plan</th><th class="text-end">Amount</th></tr></thead>
-            <tbody>@forelse($recentPayments as $p)<tr><td>{{ $p->paid_at->format('d M') }}</td><td>{{ $p->user->school_name }}</td><td>{{ \App\Services\LicenseIssuer::PLANS[$p->plan]['label'] ?? $p->plan }}</td><td class="text-end">₹{{ number_format($p->rupees()) }}</td></tr>@empty<tr><td colspan="4" class="text-muted text-center py-3">No payments yet.</td></tr>@endforelse</tbody>
+            <tbody>@forelse($recentPayments as $p)<tr><td>{{ $p->paid_at->format('d M') }}</td><td>{{ $p->user->school_name }}</td><td>{{ \App\Services\LicenseIssuer::LABELS[$p->plan] ?? $p->plan }}</td><td class="text-end">₹{{ number_format($p->rupees()) }}</td></tr>@empty<tr><td colspan="4" class="text-muted text-center py-3">No payments yet.</td></tr>@endforelse</tbody>
         </table></div>
     </div></div>
 </div>

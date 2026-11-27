@@ -117,6 +117,11 @@
                 <i class="bi bi-hourglass-split"></i> Free trial: <strong>{{ $license['days_left'] }} day(s) left</strong>
                 <a href="{{ route('license') }}" class="ms-auto">Buy license</a>
             </div>
+        @elseif($license['state'] === 'expired' && $license['plan'] === 'none')
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white no-print" style="background:#14213d">
+                <i class="bi bi-key"></i> Activate the software: start your 7-day trial for just ₹1.
+                <a href="{{ route('license') }}" class="ms-auto btn btn-sm fw-semibold" style="background:#e9a23b;color:#14213d">Start trial</a>
+            </div>
         @elseif($license['state'] === 'expired')
             <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white bg-danger no-print">
                 <i class="bi bi-lock"></i> {{ $license['plan'] === 'trial' ? 'Free trial has ended' : 'License expired' }}. Read-only mode: your data is safe, but new entries are disabled.

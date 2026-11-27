@@ -46,6 +46,10 @@ class SetupController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        if ($license->enabled() && $license->status()['plan'] === 'none') {
+            return redirect()->route('license')->with('success', 'Welcome! Your school is set up. Now start your trial to unlock the software.');
+        }
+
         return redirect()->route('dashboard')->with('success', 'Welcome! Your school is set up. Next: check classes and set your fee structure.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Setting;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Offline licensing for the desktop build.
@@ -102,6 +103,11 @@ class LicenseService
             }
         }
 
+        if ((int) config('license.trial_days') <= 0) {
+            // Paid activation required (₹1 trial on the website)
+            return ['state' => 'expired', 'days_left' => 0, 'expires' => null, 'plan' => 'none', 'school' => null, 'enforced' => true];
+        }
+
         $trialEnd = $this->trialStart()->addDays((int) config('license.trial_days'));
         $left = max(0, (int) $today->diffInDays($trialEnd, false));
 
@@ -167,6 +173,54 @@ class LicenseService
         Setting::put('license_key', preg_replace('/\s+/', '', $key));
 
         return null;
+    }
+
+    /** Website page where this computer is activated / paid for. */
+    public function activateUrl(): ?string
+    {
+        $server = rtrim((string) config('license.server'), '/');
+
+        return $server ? $server.'/activate?installation_id='.urlencode($this->installationId()) : null;
+    }
+
+    /**
+     * Ask the website for this computer's newest key and activate it if it lasts longer than the current one.
+     * Throttled (every $minutes unless forced); silent when offline.
+     *
+     * @return bool true if a newer license was activated
+     */
+    public function syncOnline(bool $force = false, int $minutes = 60): bool
+    {
+        $server = rtrim((string) config('license.server'), '/');
+        if (! $this->enabled() || ! $server) {
+            return false;
+        }
+        $last = (int) Setting::get('license_last_sync');
+        if (! $force && $last && now()->timestamp - $last < $minutes * 60) {
+            return false;
+        }
+        Setting::put('license_last_sync', (string) now()->timestamp);
+
+        try {
+            $res = Http::timeout(4)->acceptJson()->get($server.'/api/license/'.urlencode($this->installationId()));
+        } catch (\Throwable) {
+            return false;
+        }
+        $key = $res->successful() ? $res->json('key') : null;
+        if (! $key || $key === Setting::get('license_key')) {
+            return false;
+        }
+
+        $new = $this->verify($key);
+        if (! $new) {
+            return false;
+        }
+        $current = Setting::get('license_key') ? $this->verify(Setting::get('license_key')) : null;
+        $newer = ! $current
+            || ($new['exp'] === null && $current['exp'] !== null)
+            || ($new['exp'] !== null && $current['exp'] !== null && $new['exp'] > $current['exp']);
+
+        return $newer && $this->activate($key) === null;
     }
 
     // ---- helpers shared with the key generator ----

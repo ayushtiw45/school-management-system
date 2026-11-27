@@ -11,7 +11,11 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return view('home', ['plans' => LicenseIssuer::pricedPlans(), 'trialDays' => Setting::get('trial_days')]);
+        return view('home', [
+            'trialDays' => Setting::get('trial_days'),
+            'trialPrice' => (float) Setting::get('trial_price') + 0,
+            'monthlyPrice' => number_format((float) Setting::get('monthly_price')),
+        ]);
     }
 
     public function locale(Request $request, string $locale)

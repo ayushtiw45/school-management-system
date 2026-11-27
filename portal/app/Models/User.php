@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class)->latest('id');
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class)->latest('id');
+    }
+
     public function downloads(): HasMany
     {
         return $this->hasMany(Download::class);

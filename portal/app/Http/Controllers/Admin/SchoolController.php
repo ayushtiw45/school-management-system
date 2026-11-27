@@ -37,7 +37,7 @@ class SchoolController extends Controller
     public function show(User $user)
     {
         abort_if($user->is_admin, 404);
-        $user->load(['licenses', 'payments', 'downloads' => fn ($q) => $q->latest('id')->take(20)]);
+        $user->load(['licenses', 'payments', 'subscriptions' => fn ($q) => $q->where('status', '!=', 'created'), 'downloads' => fn ($q) => $q->latest('id')->take(20)]);
 
         return view('admin.school', ['school' => $user]);
     }

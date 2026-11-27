@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class EnforceLicense
 {
-    private const ALWAYS_ALLOWED = ['license', 'license.activate', 'login', 'logout', 'setup', 'setup.store', 'password.update'];
+    private const ALWAYS_ALLOWED = ['license', 'license.activate', 'license.check', 'login', 'logout', 'setup', 'setup.store', 'password.update'];
 
     public function __construct(private LicenseService $license) {}
 
@@ -25,11 +25,18 @@ class EnforceLicense
         }
 
         $status = $this->license->status();
+        // Pick up renewals / activation from the website (hourly; every 10 minutes when about to lock)
+        if ($status['state'] !== 'licensed' || ($status['days_left'] !== null && $status['days_left'] <= 3)) {
+            if ($this->license->syncOnline(minutes: $status['state'] === 'licensed' ? 60 : 10)) {
+                $status = $this->license->status();
+            }
+        }
         View::share('license', $status);
 
         if ($status['state'] === 'expired' && ! $request->isMethodSafe() && ! $request->routeIs(...self::ALWAYS_ALLOWED)) {
-            return redirect()->route('license')
-                ->with('error', 'Your '.($status['plan'] === 'trial' ? 'free trial has' : 'license has').' ended. You can still view and print everything, but to add or change records please activate a license.');
+            return redirect()->route('license')->with('error', $status['plan'] === 'none'
+                ? 'Please activate the software first: start your trial from this screen.'
+                : 'Your '.($status['plan'] === 'trial' ? 'free trial has' : 'license has').' ended. You can still view and print everything, but to add or change records please renew.');
         }
 
         return $next($request);

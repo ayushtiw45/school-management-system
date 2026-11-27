@@ -19,7 +19,7 @@
         <div class="col-lg-5">
             <div class="card p-4 h-100">
                 <h2 class="h5 fw-bold"><i class="bi bi-windows text-primary"></i> {{ __('Download the software') }}</h2>
-                <p class="text-muted small">{{ __('Windows 10 / 11 (64-bit). Includes a :days-day free trial.', ['days' => $trialDays]) }}</p>
+                <p class="text-muted small">{{ __('Windows 10 / 11 (64-bit). :days-day trial for ₹:trial, then ₹:monthly/month.', ['days' => $trialDays, 'trial' => $trialPrice + 0, 'monthly' => number_format($monthlyPrice)]) }}</p>
                 <a href="{{ route('download') }}" class="btn btn-amber btn-lg w-100" id="dlBtn"><i class="bi bi-download me-2"></i>{{ __('Download TDS-School-Setup.exe') }}</a>
                 <ol class="small text-muted mt-3 mb-0 ps-3">
                     <li>{{ __('Open the downloaded file and click Next → Install.') }}</li>
@@ -29,39 +29,64 @@
             </div>
         </div>
 
-        {{-- Buy --}}
+        {{-- Activate / buy --}}
         <div class="col-lg-7" id="buy">
             <div class="card p-4 h-100">
-                <h2 class="h5 fw-bold"><i class="bi bi-key text-warning"></i> {{ __('Buy or renew a license') }}</h2>
-                @if(! $plans || ! $razorpayReady)
-                    <p class="text-muted mb-0">{{ __('Online payment is being set up. Please contact us on WhatsApp to buy a license.') }}</p>
-                @else
-                    <p class="text-muted small">{{ __('In the software open License and copy the Installation ID (or click Buy online there).') }}</p>
-                    <form id="buyForm" class="row g-2">
-                        <div class="col-12">
-                            <label class="form-label">{{ __('Installation ID') }}</label>
-                            <input name="installation_id" value="{{ old('installation_id', $prefillId) }}" class="form-control form-control-lg font-monospace text-uppercase" placeholder="TDS-XXXX-XXXX-XXXX" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">{{ __('Plan') }}</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($plans as $plan => $price)
-                                    <input type="radio" class="btn-check" name="plan" value="{{ $plan }}" id="p{{ $plan }}" @checked($loop->first)>
-                                    <label class="btn btn-outline-dark" for="p{{ $plan }}">{{ __(\App\Services\LicenseIssuer::PLANS[$plan]['label']) }} · ₹{{ number_format($price) }}</label>
-                                @endforeach
-                            </div>
-                            <div class="form-text">{{ __('Renewing? Your new license starts when the current one ends.') }}</div>
+                <h2 class="h5 fw-bold"><i class="bi bi-key text-warning"></i> {{ __('Activate a computer') }}</h2>
+                <p class="text-muted small">{{ __('In the software open License and click "Start trial" — or copy the Installation ID and enter it here.') }}</p>
+                <form method="GET" action="{{ route('activate') }}" class="row g-2">
+                    <div class="col-12"><label class="form-label">{{ __('Installation ID') }}</label>
+                        <input name="installation_id" value="{{ old('installation_id', $prefillId) }}" class="form-control form-control-lg font-monospace text-uppercase" placeholder="TDS-XXXX-XXXX-XXXX" required></div>
+                    <div class="col-12"><button class="btn btn-navy btn-lg w-100">{{ __('Continue') }}</button></div>
+                </form>
+                <p class="small text-muted mt-3 mb-0">{{ __(':days days for ₹:trial, then ₹:monthly per month by Autopay. Cancel any time.', ['days' => $trialDays, 'trial' => $trialPrice + 0, 'monthly' => number_format($monthlyPrice)]) }}</p>
+
+                @if($plans && $razorpayReady)
+                    <details class="mt-3"><summary class="small fw-semibold">{{ __('Or pay once for a longer period') }}</summary>
+                    <form id="buyForm" class="row g-2 mt-1">
+                        <div class="col-12"><input name="installation_id" value="{{ old('installation_id', $prefillId) }}" class="form-control font-monospace text-uppercase" placeholder="TDS-XXXX-XXXX-XXXX" required></div>
+                        <div class="col-12 d-flex flex-wrap gap-2">
+                            @foreach($plans as $plan => $price)
+                                <input type="radio" class="btn-check" name="plan" value="{{ $plan }}" id="p{{ $plan }}" @checked($loop->first)>
+                                <label class="btn btn-outline-dark btn-sm" for="p{{ $plan }}">{{ __(\App\Services\LicenseIssuer::PLANS[$plan]['label']) }} · ₹{{ number_format($price) }}</label>
+                            @endforeach
                         </div>
                         <div class="col-12"><div class="alert alert-danger d-none mb-0" id="buyErr"></div></div>
-                        <div class="col-12"><button class="btn btn-navy btn-lg w-100" id="payBtn"><i class="bi bi-lock me-1"></i>{{ __('Pay securely (UPI / Card / Net banking)') }}</button></div>
+                        <div class="col-12"><button class="btn btn-outline-dark w-100" id="payBtn">{{ __('Pay once') }}</button></div>
                     </form>
                     <form method="POST" action="{{ route('checkout.verify') }}" id="verifyForm" class="d-none">
                         @csrf
                         <input name="razorpay_order_id"><input name="razorpay_payment_id"><input name="razorpay_signature">
                     </form>
+                    </details>
                 @endif
             </div>
         </div>
+
+        {{-- Autopay --}}
+        @if($subscriptions->count())
+            <div class="col-12">
+                <div class="card p-4">
+                    <h2 class="h5 fw-bold">{{ __('Autopay') }}</h2>
+                    <div class="table-responsive"><table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>{{ __('Installation ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Monthly') }}</th><th>{{ __('Paid till') }}</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach($subscriptions as $sub)
+                            <tr>
+                                <td class="font-monospace">{{ $sub->installation_id }}</td>
+                                <td>{{ __($sub->label()) }}</td>
+                                <td>₹{{ number_format($sub->monthly_amount / 100) }}</td>
+                                <td>{{ ($sub->current_end ?? $sub->trial_ends_at)?->format('d M Y') }}</td>
+                                <td class="text-end">@if($sub->isLive())
+                                    <form method="POST" action="{{ route('subscriptions.cancel', $sub) }}" onsubmit="return confirm('{{ __('Cancel Autopay? The software keeps working until the paid period ends.') }}')">@csrf<button class="btn btn-sm btn-outline-danger">{{ __('Cancel Autopay') }}</button></form>
+                                @endif</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table></div>
+                </div>
+            </div>
+        @endif
 
         {{-- Licenses --}}
         <div class="col-12">
@@ -72,7 +97,7 @@
                         <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
                             <span class="font-monospace fw-semibold">{{ $l->installation_id }}</span>
                             <span class="badge {{ $l->isActive() ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $l->isActive() ? __('Active') : __('Expired') }}</span>
-                            <span class="small text-muted">{{ __(\App\Services\LicenseIssuer::PLANS[$l->plan]['label'] ?? 'Custom') }} · {{ __('valid till') }} {{ $l->expires_on ? $l->expires_on->format('d M Y') : __('Lifetime') }}</span>
+                            <span class="small text-muted">{{ __(\App\Services\LicenseIssuer::LABELS[$l->plan] ?? 'Custom') }} · {{ __('valid till') }} {{ $l->expires_on ? $l->expires_on->format('d M Y') : __('Lifetime') }}</span>
                         </div>
                         <div class="input-group">
                             <input class="form-control font-monospace small" value="{{ $l->license_key }}" id="key{{ $l->id }}" readonly>
@@ -96,7 +121,7 @@
                             <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Installation ID') }}</th><th>{{ __('Plan') }}</th><th>{{ __('Payment ID') }}</th><th class="text-end">{{ __('Amount') }}</th></tr></thead>
                             <tbody>
                             @foreach($payments->where('status', 'paid') as $p)
-                                <tr><td>{{ $p->paid_at?->format('d M Y') }}</td><td class="font-monospace">{{ $p->installation_id }}</td><td>{{ __(\App\Services\LicenseIssuer::PLANS[$p->plan]['label'] ?? $p->plan) }}</td><td class="small">{{ $p->razorpay_payment_id }}</td><td class="text-end">₹{{ number_format($p->rupees(), 2) }}</td></tr>
+                                <tr><td>{{ $p->paid_at?->format('d M Y') }}</td><td class="font-monospace">{{ $p->installation_id }}</td><td>{{ __(\App\Services\LicenseIssuer::LABELS[$p->plan] ?? $p->plan) }}</td><td class="small">{{ $p->razorpay_payment_id }}</td><td class="text-end">₹{{ number_format($p->rupees(), 2) }}</td></tr>
                             @endforeach
                             </tbody>
                         </table>

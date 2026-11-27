@@ -14,7 +14,7 @@
                 <td>{{ $p->created_at->format('d M Y H:i') }}</td>
                 <td><a href="{{ route('admin.schools.show', $p->user) }}">{{ $p->user->school_name }}</a></td>
                 <td class="font-monospace">{{ $p->installation_id }}</td>
-                <td>{{ \App\Services\LicenseIssuer::PLANS[$p->plan]['label'] ?? $p->plan }}</td>
+                <td>{{ \App\Services\LicenseIssuer::LABELS[$p->plan] ?? $p->plan }}</td>
                 <td class="small">{{ $p->razorpay_order_id }}<br>{{ $p->razorpay_payment_id }}</td>
                 <td><span class="badge {{ ['paid' => 'text-bg-success', 'failed' => 'text-bg-danger'][$p->status] ?? 'text-bg-secondary' }}">{{ $p->status === 'created' ? 'not completed' : $p->status }}</span></td>
                 <td class="text-end">₹{{ number_format($p->rupees(), 2) }}</td>

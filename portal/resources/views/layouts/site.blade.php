@@ -80,8 +80,10 @@
             @if($wa)<a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>@endif
             @if(\App\Models\Setting::get('contact_phone'))<a href="tel:{{ preg_replace('/[^\d+]/', '', \App\Models\Setting::get('contact_phone')) }}"><i class="bi bi-telephone"></i> {{ \App\Models\Setting::get('contact_phone') }}</a>@endif
             @if(\App\Models\Setting::get('contact_email'))<a href="mailto:{{ \App\Models\Setting::get('contact_email') }}"><i class="bi bi-envelope"></i> {{ \App\Models\Setting::get('contact_email') }}</a>@endif
+            <a href="{{ route('contact') }}">{{ __('Contact us') }}</a>
             <a href="{{ route('privacy') }}">{{ __('Privacy Policy') }}</a>
             <a href="{{ route('terms') }}">{{ __('Terms') }}</a>
+            <a href="{{ route('refund') }}">{{ __('Refund Policy') }}</a>
         </span>
     </div>
 </footer>

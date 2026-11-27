@@ -13,7 +13,17 @@ class LicenseController extends Controller
             'status' => $license->status(),
             'installationId' => $license->installationId(),
             'vendor' => config('license.vendor'),
+            'activateUrl' => $license->activateUrl(),
         ]);
+    }
+
+    /** Polled by the License screen while the school pays in the browser. */
+    public function check(LicenseService $license)
+    {
+        $activated = $license->syncOnline(force: true);
+        $status = $license->status();
+
+        return response()->json(['activated' => $activated, 'state' => $status['state'], 'expires' => $status['expires']?->toDateString()]);
     }
 
     public function activate(Request $request, LicenseService $license)

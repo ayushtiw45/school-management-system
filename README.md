@@ -103,9 +103,12 @@ Installing a new version over the old one keeps the data.
 - `desktop/launch.ps1` creates the data folder and a per-computer `APP_KEY`, runs migrations, starts PHP's built-in
   server on `127.0.0.1:8765` (next free port up to 8775) and opens the browser.
 - First launch shows a setup screen (school name + admin login). There is no default password in the desktop build.
-- **Licensing:** 30-day trial (from the first run, also stored in the Windows registry), then read-only until a
-  license key is entered. Keys are Ed25519-signed on your website and checked offline. A key works only for the
-  Installation ID it was made for. Yearly, multi-year, lifetime or custom-date keys.
+- **Licensing:** after setup the software is read-only until it is activated. The License screen opens your website's
+  activation page; the school pays **₹1 for a 7-day trial** and sets up **Autopay (₹599/month)** with Razorpay
+  Subscriptions. The software fetches its key from the website automatically (`/api/license/{installation id}`) and
+  picks up each monthly renewal by itself (hourly check when online, every 10 minutes when about to lock). Keys are
+  Ed25519-signed and checked offline; a key works only for its Installation ID. Payment stops → read-only, data kept.
+  (Set the variable `TDS_TRIAL_DAYS` to give free days before activation instead.)
 
 **One-time setup**
 1. Put the website (TDS Portal, below) on Hostinger and log in to its admin panel.
@@ -118,8 +121,13 @@ Installing a new version over the old one keeps the data.
    `git tag v1.0.0 && git push origin v1.0.0`). The workflows build and test `TDS-School-Setup.exe` on Windows and
    `tds-portal-hostinger.zip`, and attach both to the release. The website's download always points to the latest release.
 
-**Selling a license:** schools buy online on your website (Razorpay) and the key appears in their account instantly.
-For UPI / cash payments, create the key in Admin → Licenses and send it with the WhatsApp button.
+**Selling:** fully automatic. School installs → clicks *Start trial for ₹1* → logs in / signs up on your website → pays
+₹1 and approves Autopay → software unlocks by itself → ₹599 is charged every month and the software renews itself.
+One ₹1 trial per account and per computer. For UPI / cash payments you can still create a key in Admin → Licenses.
+
+**What you need from Razorpay** (Admin → Settings): an activated account (KYC), **Subscriptions** enabled with UPI
+Autopay / card recurring, API Key ID + Secret, and a webhook (URL and events are shown in Settings) with its secret.
+Razorpay reviews your website: privacy, terms, refund/cancellation and contact pages are included.
 
 Notes: the installer is not code-signed, so Windows SmartScreen shows "Windows protected your PC" (More info → Run
 anyway) until you buy a code-signing certificate. PHP source is readable on the school's laptop, so the license stops
@@ -130,10 +138,13 @@ ordinary users but cannot stop a determined programmer.
 A separate Laravel app for your domain:
 - **Home page** (company page) in English and Hindi with a language switch, features, screenshots, pricing, FAQ.
 - **Install for Windows** → sign up (school name, contact, mobile, city, email) → the installer download starts.
-- **School account**: download, buy / renew a license online with Razorpay (UPI, card, net banking), license keys,
-  payment history, profile, password reset by email.
-- **Admin panel** (`/admin`): schools (search, CSV export, WhatsApp), downloads, licenses (manual keys, renewals start
-  when the current license ends), payments, settings (contact details, prices, Razorpay keys), signing key + backup.
+- **Activation** (`/activate?installation_id=…`, opened from the software): ₹1 for a 7-day trial + Autopay ₹599/month
+  (Razorpay Subscriptions). Prices and trial days are set in Admin → Settings.
+- **School account**: download, Autopay status and cancel, license keys, payments, profile, password reset by email.
+  Optional one-time plans (1 year / 2 years / lifetime) if you set their prices.
+- **Admin panel** (`/admin`): schools (search, CSV export, WhatsApp), Autopay subscriptions and monthly revenue,
+  licenses (manual keys), one-time payments, settings (contact, ₹1 trial / ₹599 monthly / trial days, Razorpay keys),
+  signing key + backup.
 
 **Install on Hostinger**
 1. Download `tds-portal-hostinger.zip` from the latest GitHub release (or the "Build website (Hostinger)" run's Artifacts).
@@ -144,8 +155,9 @@ A separate Laravel app for your domain:
    outside the web root).
 4. Open `https://your-domain/`: the installer checks the server and asks for the database and your admin login
    (and optionally an email account for "forgot password" mails). It deletes itself when done.
-5. Log in at `/login` → Admin → **Settings**: phone, WhatsApp, email, prices, Razorpay keys. In Razorpay add the webhook
-   shown there (events `payment.captured`, `order.paid`). Use Razorpay **Test** keys first, then **Live** keys.
+5. Log in at `/login` → Admin → **Settings**: phone, WhatsApp, email, trial and monthly price, Razorpay keys. In
+   Razorpay add the webhook shown there with the listed `subscription.*` and payment events. Use Razorpay **Test**
+   keys first (test UPI Autopay / cards), then **Live** keys.
 6. Turn on SSL (hPanel → Security → SSL).
 
 Local development: `cd portal && composer install && cp .env.example .env && php artisan key:generate &&

@@ -7,7 +7,7 @@ name: Build Windows installer
 # Repository variables (Settings -> Secrets and variables -> Actions -> Variables):
 #   TDS_LICENSE_PUBLIC_KEY  public key shown on your website's license admin page (required for releases)
 #   TDS_VENDOR_PHONE, TDS_VENDOR_WHATSAPP, TDS_VENDOR_EMAIL, TDS_VENDOR_WEBSITE  shown on the License screen
-#   TDS_TRIAL_DAYS          optional, default 30
+#   TDS_TRIAL_DAYS          optional free days before activation, default 0 (₹1 trial via the website)
 
 on:
   push:
@@ -31,8 +31,8 @@ jobs:
         if: github.ref_type == 'tag'
         shell: pwsh
         run: |
-          if (-not $env:LICENSE_PUBLIC_KEY) {
-            Write-Error "Set the repository variable TDS_LICENSE_PUBLIC_KEY before publishing a release (see README -> Desktop app)."
+          if (-not $env:LICENSE_PUBLIC_KEY -or -not '${{ vars.TDS_VENDOR_WEBSITE }}') {
+            Write-Error "Set the repository variables TDS_LICENSE_PUBLIC_KEY and TDS_VENDOR_WEBSITE before publishing a release (see README -> Desktop app)."
             exit 1
           }
 
@@ -61,7 +61,8 @@ jobs:
           }
 
           # Desktop .env
-          $trial = if ('${{ vars.TDS_TRIAL_DAYS }}') { '${{ vars.TDS_TRIAL_DAYS }}' } else { '30' }
+          # 0 = no free days: the school starts the ₹1 trial on the website (set TDS_TRIAL_DAYS to allow free days)
+          $trial = if ('${{ vars.TDS_TRIAL_DAYS }}') { '${{ vars.TDS_TRIAL_DAYS }}' } else { '0' }
           (Get-Content desktop\env.desktop -Raw) `
             -replace '__VERSION__', $version `
             -replace '__LICENSE_PUBLIC_KEY__', $env:LICENSE_PUBLIC_KEY `

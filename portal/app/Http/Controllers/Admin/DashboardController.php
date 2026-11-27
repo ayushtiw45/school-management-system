@@ -21,6 +21,9 @@ class DashboardController extends Controller
             'licensed' => License::where(fn ($q) => $q->whereNull('expires_on')->orWhereDate('expires_on', '>=', now()))->distinct('installation_id')->count('installation_id'),
             'revenue' => Payment::where('status', 'paid')->sum('amount') / 100,
             'revenue_month' => Payment::where('status', 'paid')->where('paid_at', '>=', now()->startOfMonth())->sum('amount') / 100,
+            'subs_active' => \App\Models\Subscription::where('status', 'active')->count(),
+            'subs_trial' => \App\Models\Subscription::where('status', 'authenticated')->count(),
+            'mrr' => \App\Models\Subscription::where('status', 'active')->sum('monthly_amount') / 100,
             'expiring' => License::whereNotNull('expires_on')->whereBetween('expires_on', [now()->toDateString(), now()->addDays(30)->toDateString()])->count(),
         ];
 

@@ -20,6 +20,9 @@ class LicenseIssuer
         'life' => ['months' => null, 'label' => 'Lifetime'],
     ];
 
+    /** Labels for every plan code stored on a license (incl. subscription ones). */
+    public const LABELS = ['1y' => '1 Year', '2y' => '2 Years', 'life' => 'Lifetime', 'custom' => 'Custom', 'trial' => '7-day trial', 'monthly' => 'Monthly'];
+
     public const ID_PATTERN = '/^TDS(-[2-9A-HJ-NP-Z]{4}){3}$/';
 
     private const KEY_FILE = 'signing-key.json';
@@ -87,7 +90,7 @@ class LicenseIssuer
         $current = $this->currentExpiry($installationId);
         $start = ($current instanceof Carbon && $current->gte($today)) ? $current->copy()->addDay() : $today->copy();
 
-        if ($plan === 'custom') {
+        if ($customExpiry !== null || in_array($plan, ['custom', 'trial', 'monthly'], true)) {
             $expires = Carbon::parse($customExpiry)->startOfDay();
         } elseif (self::PLANS[$plan]['months'] === null) {
             $expires = null;
@@ -98,7 +101,7 @@ class LicenseIssuer
         $payload = [
             'id' => $installationId,
             'school' => $school,
-            'plan' => $plan === 'life' ? 'lifetime' : (self::PLANS[$plan]['label'] ?? 'custom'),
+            'plan' => $plan === 'life' ? 'lifetime' : (self::LABELS[$plan] ?? 'custom'),
             'exp' => $expires?->toDateString(),
             'iat' => $today->toDateString(),
         ];

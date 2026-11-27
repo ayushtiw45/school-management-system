@@ -22,7 +22,7 @@
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#an"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="an">
             <ul class="navbar-nav me-auto">
-                @foreach(['admin.dashboard' => 'Dashboard', 'admin.schools' => 'Schools', 'admin.licenses' => 'Licenses', 'admin.payments' => 'Payments', 'admin.settings' => 'Settings', 'admin.key' => 'Signing Key'] as $r => $l)
+                @foreach(['admin.dashboard' => 'Dashboard', 'admin.schools' => 'Schools', 'admin.licenses' => 'Licenses', 'admin.subscriptions' => 'Autopay', 'admin.payments' => 'One-time payments', 'admin.settings' => 'Settings', 'admin.key' => 'Signing Key'] as $r => $l)
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs($r.'*') ? 'active' : '' }}" href="{{ route($r) }}">{{ $l }}</a></li>
                 @endforeach
             </ul>

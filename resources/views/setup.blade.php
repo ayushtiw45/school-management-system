@@ -21,7 +21,7 @@
             <div class="col-md-6"><label class="form-label required">Email</label><input type="email" name="email" value="{{ old('email') }}" class="form-control" required></div>
             <div class="col-md-6"><label class="form-label required">Password</label><input type="password" name="password" minlength="8" class="form-control" required><div class="form-text">At least 8 characters.</div></div>
             <div class="col-md-6"><label class="form-label required">Confirm Password</label><input type="password" name="password_confirmation" class="form-control" required></div>
-            <div class="col-12 mt-4"><button class="btn btn-primary btn-lg w-100">Start {{ config('license.trial_days') }}-day Free Trial</button></div>
+            <div class="col-12 mt-4"><button class="btn btn-primary btn-lg w-100">Continue</button></div>
         </form>
     </div>
 </div>
