@@ -13,7 +13,7 @@ class Student extends Model
     use BelongsToSchool;
 
     public const STATUSES = [
-        'pending' => 'Pending',
+        'pending' => 'Pending (fee not paid)',
         'active' => 'Active',
         'inactive' => 'Inactive',
         'left' => 'Left / Transferred',
@@ -85,12 +85,18 @@ class Student extends Model
 
         return $q->where(function ($q) use ($term) {
             $q->where('admission_no', 'like', "%{$term}%")
+                ->orWhere('student_code', 'like', "%{$term}%")
                 ->orWhere('first_name', 'like', "%{$term}%")
                 ->orWhere('last_name', 'like', "%{$term}%")
                 ->orWhere('father_name', 'like', "%{$term}%")
                 ->orWhere('father_phone', 'like', "%{$term}%")
                 ->orWhere('mother_phone', 'like', "%{$term}%");
         });
+    }
+
+    public function enquiry(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Enquiry::class);
     }
 
     public function totalDue(): float

@@ -8,8 +8,9 @@
         <div class="text-muted small">{{ now()->format('l, d M Y') }} @if($session)· Session {{ $session->name }}@endif</div>
     </div>
     <div class="ms-auto d-flex gap-2">
-        @if($u->hasRole('admin', 'admission_staff'))<a href="{{ route('admissions.create') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-person-plus"></i> New Admission</a>@endif
-        @if($u->hasRole('admin', 'accountant'))<a href="{{ route('payments.create') }}" class="btn btn-primary btn-sm"><i class="bi bi-cash-coin"></i> Collect Fee</a>@endif
+        @if($u->canAdmit())<a href="{{ route('enquiries.create') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chat-left-text"></i> New Enquiry</a>@endif
+        @if($u->canAdmit())<a href="{{ route('admissions.create') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-person-plus"></i> New Admission</a>@endif
+        @if($u->canManageFees())<a href="{{ route('payments.create') }}" class="btn btn-primary btn-sm"><i class="bi bi-cash-coin"></i> Collect Fee</a>@endif
     </div>
 </div>
 
@@ -28,10 +29,31 @@
     <div class="alert alert-warning">Setup is not complete. Create an <a href="{{ route('sessions.index') }}">academic session</a>, add <a href="{{ route('classes.index') }}">classes & sections</a>, then set the <a href="{{ route('fee-structure.index') }}">fee structure</a>.</div>
 @endif
 
+@if($u->canAdmit())
+    @php($today = now()->toDateString())
+    @php($rc = [
+        ['New enquiries today', \App\Models\Enquiry::whereDate('created_at', $today)->count(), 'bi-chat-left-text', 'primary', route('enquiries.index', ['view' => 'today'])],
+        ['Follow-ups due', \App\Models\Enquiry::whereIn('status', ['new', 'follow_up'])->whereDate('next_follow_up', '<=', $today)->count(), 'bi-alarm', 'danger', route('enquiries.index', ['view' => 'due'])],
+        ['Admission forms today', \App\Models\Student::whereDate('created_at', $today)->count(), 'bi-person-plus', 'success', route('enquiries.report')],
+        ['Awaiting admission fee', $stats['pending_admissions'], 'bi-hourglass-split', 'warning', route('admissions.index', ['status' => 'pending'])],
+    ])
+    <div class="row g-3 mb-3">
+        @foreach($rc as [$label, $value, $icon, $color, $link])
+            <div class="col-6 col-xl-3">
+                <a href="{{ $link }}" class="card stat h-100 text-decoration-none"><div class="card-body d-flex gap-3 align-items-center">
+                    <div class="icon bg-{{ $color }}-subtle text-{{ $color }}"><i class="bi {{ $icon }}"></i></div>
+                    <div><div class="text-muted small">{{ $label }}</div><div class="value text-body">{{ $value }}</div></div>
+                </div></a>
+            </div>
+        @endforeach
+    </div>
+@endif
+
+@if($u->canSeeAccounts())
 <div class="row g-3 mb-3">
     @php($cards = [
         ['Total Students', $stats['students'], 'bi-people', 'primary', 'Active students'],
-        ['Admissions', $stats['admissions'], 'bi-person-check', 'success', $stats['pending_admissions'].' pending approval'],
+        ['Admissions', $stats['admissions'], 'bi-person-check', 'success', $stats['pending_admissions'].' awaiting fee'],
         ['Total Fees Collected', inr($stats['total_collection']), 'bi-wallet2', 'info', 'This session'],
         ["Today's Collection", inr($stats['today_collection']), 'bi-cash-stack', 'warning', $stats['today_receipts'].' receipt(s) today'],
         ['Pending Fees', inr($stats['pending_fees']), 'bi-hourglass-split', 'danger', 'Due till today'],
@@ -49,8 +71,9 @@
         </div>
     @endforeach
 </div>
+@endif
 
-@if($u->hasRole('admin', 'accountant'))
+@if($u->canSeeAccounts())
     <div class="card mb-3"><div class="card-body d-flex flex-wrap gap-4 align-items-center py-2">
         <div class="fw-semibold">{{ now()->format('F Y') }}</div>
         <div><span class="text-muted small">Fee income</span> <strong class="text-success">{{ inr($stats['month_collection']) }}</strong></div>
@@ -110,6 +133,7 @@
                 </table>
             </div>
         </div>
+        @if($u->canSeeAccounts())
         <div class="card">
             <div class="card-header d-flex">Recent Payments @if($u->hasRole('admin','accountant'))<a href="{{ route('payments.index') }}" class="ms-auto small">View all</a>@endif</div>
             <div class="table-responsive">
@@ -130,6 +154,7 @@
                     </tbody>
                 </table>
             </div>
+        @endif
         </div>
     </div>
 </div>

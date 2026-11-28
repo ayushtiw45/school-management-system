@@ -24,8 +24,10 @@
         .nav-tabs .nav-link.active { color:#FF4B32; }
         .page-link { color:#FF4B32; } .active > .page-link { background:#FF4B32; border-color:#FF4B32; }
     </style>
+    @stack('head')
 </head>
 <body>
 @yield('content')
+@stack('footer')
 </body>
 </html>

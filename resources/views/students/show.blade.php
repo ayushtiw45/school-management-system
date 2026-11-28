@@ -4,8 +4,8 @@
 @php
     $s = $student;
     $u = auth()->user();
-    $canEdit = $u->hasRole('admin', 'admission_staff');
-    $canFees = $u->hasRole('admin', 'accountant');
+    $canEdit = $u->canAdmit();
+    $canFees = $u->canManageFees();
     $totalFee = $s->fees->sum(fn ($f) => $f->netAmount());
     $totalPaid = $s->fees->sum('paid');
     $balance = $s->fees->sum(fn ($f) => $f->balance());
@@ -21,14 +21,14 @@
         @endif
         <div>
             <h2 class="h5 fw-bold mb-1">{{ $s->full_name }} @include('students.status-badge', ['status' => $s->status])</h2>
-            <div class="text-muted small">Adm. No <strong>{{ $s->admission_no }}</strong> · {{ $s->class_label ?: '—' }} @if($s->roll_no)· Roll {{ $s->roll_no }}@endif · Session {{ $s->academicSession->name }}</div>
+            <div class="text-muted small">@if($s->student_code)Student ID <strong class="text-body">{{ $s->student_code }}</strong> · @endif Adm. No <strong>{{ $s->admission_no }}</strong> · {{ $s->class_label ?: '—' }} @if($s->roll_no)· Roll {{ $s->roll_no }}@endif · Session {{ $s->academicSession->name }}</div>
             <div class="text-muted small">Father: {{ $s->father_name }} · <i class="bi bi-telephone"></i> {{ $s->parent_phone }}</div>
         </div>
         <div class="ms-auto d-flex flex-wrap gap-2">
-            @if($canEdit && $s->status === 'pending')
-                <form method="POST" action="{{ route('admissions.confirm', $s) }}">@csrf<button class="btn btn-success btn-sm"><i class="bi bi-check2-circle"></i> Confirm Admission</button></form>
+            @if($s->status === 'pending' && auth()->user()->hasRole('admin', 'principal'))
+                <form method="POST" action="{{ route('admissions.confirm', $s) }}" data-confirm="Approve this admission without fee payment?">@csrf<button class="btn btn-outline-success btn-sm"><i class="bi bi-check2-circle"></i> Approve without fee</button></form>
             @endif
-            @if($canFees && $s->status !== 'pending')
+            @if($canFees)
                 <a href="{{ route('payments.create', ['student_id' => $s->id]) }}" class="btn btn-primary btn-sm"><i class="bi bi-cash-coin"></i> Collect Fee</a>
             @endif
             @if($canEdit)<a href="{{ route('students.edit', $s) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> Edit</a>@endif
@@ -36,6 +36,7 @@
                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">More</button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{{ route('students.idcard', $s) }}"><i class="bi bi-person-badge me-2"></i>ID Card</a></li>
+                    @if(auth()->user()->canSeeAccounts())<li><a class="dropdown-item" href="{{ route('students.feeslip', $s) }}"><i class="bi bi-receipt me-2"></i>Fee Slip (with UPI QR)</a></li>@endif
                     @if($canEdit)
                         <li><a class="dropdown-item" href="{{ route('admissions.print', $s) }}"><i class="bi bi-printer me-2"></i>Admission Form</a></li>
                         @if(in_array($s->status, ['active', 'inactive']))

@@ -30,7 +30,7 @@ class DemoDataSeeder extends Seeder
         $faker = fake('en_IN');
 
         User::firstOrCreate(['email' => 'accounts@school.test'], ['school_id' => $school->id, 'name' => 'Accountant', 'role' => 'accountant', 'password' => 'password']);
-        User::firstOrCreate(['email' => 'office@school.test'], ['school_id' => $school->id, 'name' => 'Admission Desk', 'role' => 'admission_staff', 'password' => 'password']);
+        User::firstOrCreate(['email' => 'office@school.test'], ['school_id' => $school->id, 'name' => 'Reception Desk', 'role' => 'receptionist', 'password' => 'password']);
 
         foreach (SchoolClass::with('sections')->get() as $class) {
             foreach (range(1, 4) as $n) {

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ school('name') }}</title>
-    <link rel="icon" href="{{ asset('favicon.png') }}">
+    <link rel="icon" href="{{ (\App\Support\Tenant::school()?->isWhiteLabel() && \App\Support\Tenant::school()->logoUrl()) ? \App\Support\Tenant::school()->logoUrl() : asset('favicon.png') }}">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,25 +55,35 @@
 <body>
 @php($u = auth()->user())
 <nav class="sidebar {{ ($access['state'] ?? null) === 'locked' ? 'locked' : '' }}" id="sidebar">
-    <div class="brand d-flex align-items-center gap-2"><img src="{{ asset('assets/tds-mark.png') }}" alt="" style="width:34px;height:34px;border-radius:10px;background:#fff"><span><small>TDS School Management</small>{{ school('name') }}</span></div>
+    <div class="brand d-flex align-items-center gap-2">
+        @if($brandSchool && $brandSchool->isWhiteLabel())
+            @if($brandSchool->logoUrl())<img src="{{ $brandSchool->logoUrl() }}" alt="" style="width:38px;height:38px;border-radius:10px;background:#fff;object-fit:contain">@endif
+            <span><small>School Management</small>{{ school('name') }}</span>
+        @else
+            <img src="{{ asset('assets/tds-mark.png') }}" alt="" style="width:34px;height:34px;border-radius:10px;background:#fff"><span><small>TDS School Management</small>{{ school('name') }}</span>
+        @endif
+    </div>
     <div class="nav flex-column py-2">
         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
 
-        @if($u->hasRole('admin', 'admission_staff'))
-            <div class="nav-head">Admissions</div>
+        @if($u->canAdmit())
+            <div class="nav-head">Reception</div>
+            <a class="nav-link {{ request()->routeIs('enquiries.create') ? 'active' : '' }}" href="{{ route('enquiries.create') }}"><i class="bi bi-chat-square-text"></i>New Enquiry</a>
+            <a class="nav-link {{ request()->routeIs('enquiries.index', 'enquiries.show') ? 'active' : '' }}" href="{{ route('enquiries.index') }}"><i class="bi bi-telephone-forward"></i>Enquiries & Follow-ups</a>
             <a class="nav-link {{ request()->routeIs('admissions.create') ? 'active' : '' }}" href="{{ route('admissions.create') }}"><i class="bi bi-person-plus"></i>New Admission</a>
             <a class="nav-link {{ request()->routeIs('admissions.index') ? 'active' : '' }}" href="{{ route('admissions.index') }}"><i class="bi bi-inboxes"></i>Admission List</a>
+            <a class="nav-link {{ request()->routeIs('enquiries.report') ? 'active' : '' }}" href="{{ route('enquiries.report') }}"><i class="bi bi-calendar-day"></i>Daily Report</a>
         @endif
 
         <div class="nav-head">Students</div>
         <a class="nav-link {{ request()->routeIs('students.index', 'students.show', 'students.edit', 'students.leave') ? 'active' : '' }}" href="{{ route('students.index') }}"><i class="bi bi-people"></i>All Students</a>
-        @if($u->hasRole('admin', 'admission_staff'))
+        @if($u->hasRole('admin', 'principal'))
             <a class="nav-link {{ request()->routeIs('students.promote') ? 'active' : '' }}" href="{{ route('students.promote') }}"><i class="bi bi-arrow-up-circle"></i>Promote Students</a>
         @endif
 
-        @if($u->hasRole('admin', 'accountant'))
-            <div class="nav-head">Fees & Payments</div>
-            <a class="nav-link {{ request()->routeIs('payments.create') ? 'active' : '' }}" href="{{ route('payments.create') }}"><i class="bi bi-cash-coin"></i>Collect Fee</a>
+        @if($u->canSeeAccounts())
+            <div class="nav-head">Fees & Payments @if(! $u->canManageFees())<span class="badge text-bg-secondary ms-1" style="font-size:.6rem">view only</span>@endif</div>
+            <a class="nav-link {{ request()->routeIs('payments.create') ? 'active' : '' }}" href="{{ route('payments.create') }}"><i class="bi bi-cash-coin"></i>{{ $u->canManageFees() ? 'Collect Fee' : 'Fees by Class' }}</a>
             <a class="nav-link {{ request()->routeIs('payments.index', 'payments.show') ? 'active' : '' }}" href="{{ route('payments.index') }}"><i class="bi bi-receipt"></i>Payments</a>
             <a class="nav-link {{ request()->routeIs('fees.pending') ? 'active' : '' }}" href="{{ route('fees.pending') }}"><i class="bi bi-hourglass-split"></i>Pending Fees</a>
             <a class="nav-link {{ request()->routeIs('fee-structure.*') ? 'active' : '' }}" href="{{ route('fee-structure.index') }}"><i class="bi bi-grid-3x3"></i>Fee Structure</a>
@@ -86,18 +96,23 @@
 
             <div class="nav-head">Notifications</div>
             <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><i class="bi bi-chat-dots"></i>Message Log</a>
-            @if($u->isAdmin())
-                <a class="nav-link {{ request()->routeIs('notifications.announce') ? 'active' : '' }}" href="{{ route('notifications.announce') }}"><i class="bi bi-megaphone"></i>Announcements</a>
-                <a class="nav-link {{ request()->routeIs('notifications.settings') ? 'active' : '' }}" href="{{ route('notifications.settings') }}"><i class="bi bi-bell"></i>Message Settings</a>
-            @endif
+        @endif
+        @if($u->hasRole('admin', 'principal'))
+            @if(! $u->canSeeAccounts())<div class="nav-head">Notifications</div>@endif
+            <a class="nav-link {{ request()->routeIs('notifications.announce') ? 'active' : '' }}" href="{{ route('notifications.announce') }}"><i class="bi bi-megaphone"></i>Announcements</a>
+        @endif
+        @if($u->isAdmin())
+            <a class="nav-link {{ request()->routeIs('notifications.settings') ? 'active' : '' }}" href="{{ route('notifications.settings') }}"><i class="bi bi-bell"></i>Message Settings</a>
         @endif
 
-        @if($u->isAdmin())
+        @if($u->hasRole('admin', 'principal'))
             <div class="nav-head">Setup</div>
             <a class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}" href="{{ route('classes.index') }}"><i class="bi bi-diagram-3"></i>Classes & Sections</a>
             <a class="nav-link {{ request()->routeIs('sessions.*') ? 'active' : '' }}" href="{{ route('sessions.index') }}"><i class="bi bi-calendar3"></i>Academic Sessions</a>
+        @endif
+        @if($u->isAdmin())
             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-shield-lock"></i>Users & Roles</a>
-            <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.edit') }}"><i class="bi bi-gear"></i>Settings</a>
+            <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.edit') }}"><i class="bi bi-building-gear"></i>School Settings</a>
         @endif
         <div class="nav-head">Plan</div>
         <a class="nav-link billing-link {{ request()->routeIs('billing') ? 'active' : '' }}" href="{{ route('billing') }}"><i class="bi bi-credit-card"></i>Plan & Billing</a>
@@ -141,6 +156,13 @@
     @endisset
 
     <main class="p-3 p-md-4">
+        @php($accountsPage = request()->routeIs('payments.*', 'fees.*', 'fee-structure.*', 'fee-heads.*', 'student-fees.*', 'expenses.*', 'expense-categories.*', 'notifications.index'))
+        @if($u->role === 'principal' && $accountsPage)
+            <div class="alert alert-secondary py-2 small no-print"><i class="bi bi-eye"></i> View only — accounts are managed by the Accounts team.</div>
+            @push('scripts')
+            <script>document.querySelectorAll('main form').forEach(f => { if ((f.getAttribute('method') || 'get').toLowerCase() !== 'get') { f.querySelectorAll('button, input[type=submit]').forEach(b => { b.disabled = true; b.title = 'View only'; }); } });</script>
+            @endpush
+        @endif
         @include('partials.flash')
         @yield('content')
     </main>

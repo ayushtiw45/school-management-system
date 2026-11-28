@@ -41,7 +41,7 @@ class SchoolProvisioner
             );
             $session->makeCurrent();
 
-            foreach (['Nursery', 'LKG', 'UKG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8'] as $i => $name) {
+            foreach (['Nursery', 'LKG', 'UKG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'] as $i => $name) {
                 $class = SchoolClass::firstOrCreate(['name' => $name], ['sort_order' => $i + 1]);
                 foreach (['A', 'B'] as $sec) {
                     $class->sections()->firstOrCreate(['name' => $sec]);

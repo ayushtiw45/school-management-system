@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@hasSection('title')@yield('title') · @endif{{ \App\Models\PlatformSetting::get('company_name') }}</title>
-    <meta name="description" content="@yield('description', __('School management software for Nursery to Class 8: admissions, fees, receipts, reports and parent reminders. Runs on your own Windows laptop.'))">
+    <meta name="description" content="@yield('description', __('School management software for Nursery to Class 12: admissions, fees, receipts, reports and parent reminders. Works online on any computer or phone.'))">
     <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">

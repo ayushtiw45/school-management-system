@@ -14,15 +14,60 @@ class SectionController extends Controller
         return $schoolClass->sections()->get(['id', 'name']);
     }
 
+    /** Add one or more sections: "C", "C,D,E" or a range "A-F". Existing names are skipped. */
     public function store(Request $request, SchoolClass $schoolClass)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:20', Rule::unique('sections')->where('school_class_id', $schoolClass->id)],
+            'name' => ['required', 'string', 'max:60'],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:500'],
         ]);
-        $schoolClass->sections()->create($data);
+        $added = $this->addSections($schoolClass, self::parseNames($data['name']), $data['capacity'] ?? null);
 
-        return back()->with('success', "Section {$data['name']} added to {$schoolClass->name}.");
+        return back()->with($added ? 'success' : 'error', $added
+            ? 'Section '.implode(', ', $added)." added to {$schoolClass->name}."
+            : 'These sections already exist.');
+    }
+
+    /** Same sections for many classes at once. */
+    public function bulk(Request $request)
+    {
+        $data = $request->validate([
+            'names' => ['required', 'string', 'max:60'],
+            'class_ids' => ['required', 'array', 'min:1'],
+            'class_ids.*' => [\App\Support\Tenant::exists('school_classes')],
+        ], ['class_ids.required' => 'Tick at least one class.']);
+        $names = self::parseNames($data['names']);
+        $count = 0;
+        foreach (SchoolClass::whereIn('id', $data['class_ids'])->get() as $class) {
+            $count += count($this->addSections($class, $names, null));
+        }
+
+        return back()->with('success', "{$count} section(s) added.");
+    }
+
+    public static function parseNames(string $input): array
+    {
+        $input = strtoupper(trim($input));
+        if (preg_match('/^([A-Z])\s*(?:-|TO)\s*([A-Z])$/', $input, $m) && $m[1] <= $m[2]) {
+            return range($m[1], $m[2]);
+        }
+
+        return array_values(array_unique(array_filter(array_map(fn ($n) => mb_substr(trim($n), 0, 20), preg_split('/[,\s]+/', $input)))));
+    }
+
+    private function addSections(SchoolClass $class, array $names, ?int $capacity): array
+    {
+        $existing = $class->sections()->pluck('name')->map(fn ($n) => strtoupper($n))->all();
+        $added = [];
+        foreach (array_slice($names, 0, 26) as $name) {
+            if (! in_array(strtoupper($name), $existing, true)) {
+                $class->sections()->create(['name' => $name, 'capacity' => $capacity]);
+                $added[] = $name;
+                $existing[] = strtoupper($name);
+            }
+        }
+
+        return $added;
     }
 
     public function update(Request $request, Section $section)

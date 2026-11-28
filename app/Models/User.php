@@ -14,8 +14,17 @@ class User extends Authenticatable
 
     public const ROLES = [
         'admin' => 'Admin',
-        'accountant' => 'Accountant',
-        'admission_staff' => 'Admission Staff',
+        'principal' => 'Principal',
+        'receptionist' => 'Receptionist',
+        'accountant' => 'Accounts',
+    ];
+
+    /** What each role is for (shown on the Users page). */
+    public const ROLE_HELP = [
+        'admin' => 'Everything: setup, users, settings, plan, fees and records.',
+        'principal' => 'Sees everything incl. fees and reports; manages admissions, students, classes. Cannot collect fees or change accounts.',
+        'receptionist' => 'Enquiries & follow-ups, new admissions, student records, own daily report. No fees or settings.',
+        'accountant' => 'Fee collection, receipts, fee structure, pending fees, expenses and reports.',
     ];
 
     protected $fillable = ['school_id', 'name', 'email', 'phone', 'role', 'is_active', 'password'];
@@ -40,6 +49,24 @@ class User extends Authenticatable
     public function hasRole(string ...$roles): bool
     {
         return in_array($this->role, $roles, true);
+    }
+
+    /** Can collect fees and change anything in accounts. */
+    public function canManageFees(): bool
+    {
+        return $this->hasRole('admin', 'accountant');
+    }
+
+    /** Can see fee, payment, expense and report screens (principal read-only). */
+    public function canSeeAccounts(): bool
+    {
+        return $this->hasRole('admin', 'accountant', 'principal');
+    }
+
+    /** Can take enquiries and admissions. */
+    public function canAdmit(): bool
+    {
+        return $this->hasRole('admin', 'receptionist', 'principal');
     }
 
     public function isAdmin(): bool

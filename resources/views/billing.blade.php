@@ -23,11 +23,11 @@
         <div class="card-body">
             <div class="row g-2">
                 @foreach([
-                    ['bi-person-plus', 'Admissions & online admission form'], ['bi-people', 'Student records, ID cards, promotion, TC'],
+                    ['bi-person-plus', 'Enquiries, admissions & online admission form'], ['bi-people', 'Student records, ID cards, promotion, TC'],
                     ['bi-diagram-3', 'Classes, sections & sessions'], ['bi-grid-3x3', 'Fee structure & automatic dues'],
                     ['bi-cash-coin', 'Fee collection & printable receipts'], ['bi-hourglass-split', 'Pending fees & WhatsApp reminders'],
                     ['bi-bar-chart-line', 'Reports in Excel & PDF'], ['bi-wallet', 'Expenses & salary records'],
-                    ['bi-shield-lock', 'Staff logins (accountant, admission desk)'], ['bi-chat-dots', 'SMS / WhatsApp messages to parents'],
+                    ['bi-shield-lock', 'Staff logins (principal, reception, accounts)'], ['bi-chat-dots', 'SMS / WhatsApp messages to parents'],
                 ] as [$icon, $label])
                     <div class="col-md-6"><div class="d-flex align-items-center gap-2 p-2 border rounded-3 text-muted">
                         <i class="bi {{ $icon }}"></i><span>{{ $label }}</span><i class="bi bi-lock-fill ms-auto" style="color:#FF4B32"></i>

@@ -5,6 +5,7 @@ use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeeHeadController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnlineAdmissionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SchoolAssetController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SettingController;
@@ -34,9 +36,12 @@ Route::view('/contact', 'site.contact')->name('contact');
 Route::get('/install/finish', [InstallController::class, 'finish'])->name('install.finish');
 Route::post('/razorpay/webhook', [BillingController::class, 'webhook'])->name('razorpay.webhook');
 
+Route::get('/logo/{school:slug}', [SchoolAssetController::class, 'logo'])->name('school.logo');
+
 // Public online admission form of a school: /apply/{school-slug}
 Route::get('/apply/{school:slug}', [OnlineAdmissionController::class, 'create'])->name('apply');
 Route::post('/apply/{school:slug}', [OnlineAdmissionController::class, 'store'])->middleware('throttle:10,1')->name('apply.store');
+Route::get('/apply/{school:slug}/form', [OnlineAdmissionController::class, 'blankForm'])->name('apply.form');
 Route::get('/apply/{school:slug}/thanks/{admissionNo}', [OnlineAdmissionController::class, 'thanks'])->name('apply.thanks');
 
 Route::middleware('guest')->group(function () {
@@ -82,6 +87,8 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
     Route::post('/billing/verify', [BillingController::class, 'verify'])->name('billing.verify');
     Route::post('/billing/{subscription}/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
 
+    Route::get('/school-signature', [SchoolAssetController::class, 'signature'])->name('school.signature');
+
     // Sections list for dropdowns (JSON)
     Route::get('/classes/{schoolClass}/sections.json', [SectionController::class, 'forClass'])->name('classes.sections.json');
 
@@ -89,20 +96,33 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/{student}', [StudentController::class, 'show'])->whereNumber('student')->name('students.show');
 
-    // Admission + student records
-    Route::middleware('role:admin,admission_staff')->group(function () {
+    // Enquiries, admissions + student records (reception, principal, admin)
+    Route::middleware('role:admin,receptionist,principal')->group(function () {
+        Route::get('/enquiries', [EnquiryController::class, 'index'])->name('enquiries.index');
+        Route::get('/enquiries/create', [EnquiryController::class, 'create'])->name('enquiries.create');
+        Route::post('/enquiries', [EnquiryController::class, 'store'])->name('enquiries.store');
+        Route::get('/enquiries/report', [EnquiryController::class, 'report'])->name('enquiries.report');
+        Route::get('/enquiries/{enquiry}', [EnquiryController::class, 'show'])->name('enquiries.show');
+        Route::put('/enquiries/{enquiry}', [EnquiryController::class, 'update'])->name('enquiries.update');
+        Route::post('/enquiries/{enquiry}/follow-ups', [EnquiryController::class, 'followUp'])->name('enquiries.followup');
+
         Route::get('/admissions', [AdmissionController::class, 'index'])->name('admissions.index');
         Route::get('/admissions/create', [AdmissionController::class, 'create'])->name('admissions.create');
         Route::post('/admissions', [AdmissionController::class, 'store'])->name('admissions.store');
-        Route::post('/admissions/{student}/confirm', [AdmissionController::class, 'confirm'])->name('admissions.confirm');
         Route::delete('/admissions/{student}', [AdmissionController::class, 'reject'])->name('admissions.reject');
         Route::get('/admissions/{student}/print', [AdmissionController::class, 'print'])->name('admissions.print');
+        Route::get('/admission-form/blank', [AdmissionController::class, 'blankForm'])->name('admissions.blank');
 
         Route::get('/students/{student}/edit', [StudentController::class, 'edit'])->name('students.edit');
         Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
-        Route::post('/students/{student}/status', [StudentController::class, 'updateStatus'])->name('students.status');
         Route::post('/students/{student}/documents', [StudentController::class, 'storeDocument'])->name('students.documents.store');
         Route::delete('/students/{student}/documents/{document}', [StudentController::class, 'destroyDocument'])->name('students.documents.destroy');
+    });
+
+    // Decisions: approve without fee, status, leaving, promotion (principal, admin)
+    Route::middleware('role:admin,principal')->group(function () {
+        Route::post('/admissions/{student}/confirm', [AdmissionController::class, 'confirm'])->name('admissions.confirm');
+        Route::post('/students/{student}/status', [StudentController::class, 'updateStatus'])->name('students.status');
         Route::get('/students/{student}/leave', [StudentController::class, 'leaveForm'])->name('students.leave');
         Route::post('/students/{student}/leave', [StudentController::class, 'leave'])->name('students.leave.store');
         Route::get('/students-promote', [StudentController::class, 'promoteForm'])->name('students.promote');
@@ -114,14 +134,15 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
     Route::get('/id-cards', [StudentController::class, 'idCards'])->name('students.idcards');
     Route::get('/students/{student}/documents/{document}', [StudentController::class, 'showDocument'])->name('students.documents.show');
 
-    // Fees + payments
-    Route::middleware('role:admin,accountant')->group(function () {
+    // Fees, payments, reports, expenses (accounts; principal can only view)
+    Route::middleware('role:admin,accountant,principal:read')->group(function () {
         Route::resource('fee-heads', FeeHeadController::class)->except(['show']);
         Route::get('/fee-structure', [FeeStructureController::class, 'index'])->name('fee-structure.index');
         Route::post('/fee-structure', [FeeStructureController::class, 'store'])->name('fee-structure.store');
         Route::post('/fee-structure/generate', [FeeStructureController::class, 'generate'])->name('fee-structure.generate');
 
         Route::get('/pending-fees', [StudentFeeController::class, 'pending'])->name('fees.pending');
+        Route::get('/students/{student}/fee-slip', [StudentFeeController::class, 'slip'])->name('students.feeslip');
         Route::post('/students/{student}/fees', [StudentFeeController::class, 'store'])->name('students.fees.store');
         Route::post('/students/{student}/fees/generate', [StudentFeeController::class, 'generate'])->name('students.fees.generate');
         Route::put('/student-fees/{studentFee}', [StudentFeeController::class, 'update'])->name('student-fees.update');
@@ -147,20 +168,27 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
         Route::post('/notifications/remind', [NotificationController::class, 'remind'])->name('notifications.remind');
     });
 
-    // Admin only
-    Route::middleware('role:admin')->group(function () {
-        Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+    // Classes, sessions, announcements (principal, admin)
+    Route::middleware('role:admin,principal')->group(function () {
         Route::resource('classes', SchoolClassController::class)->parameters(['classes' => 'schoolClass'])->except(['show', 'create', 'edit']);
         Route::post('/classes/{schoolClass}/sections', [SectionController::class, 'store'])->name('sections.store');
+        Route::post('/sections/bulk', [SectionController::class, 'bulk'])->name('sections.bulk');
         Route::put('/sections/{section}', [SectionController::class, 'update'])->name('sections.update');
         Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
         Route::resource('sessions', AcademicSessionController::class)->except(['show', 'create', 'edit']);
         Route::post('/sessions/{session}/current', [AcademicSessionController::class, 'makeCurrent'])->name('sessions.current');
+        Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
+        Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
+    });
+
+    // Admin only
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+        Route::post('/settings/logo', [SettingController::class, 'uploadLogo'])->name('settings.logo');
+        Route::post('/settings/signature', [SettingController::class, 'uploadSignature'])->name('settings.signature');
         Route::resource('users', UserController::class)->except(['show']);
         Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-        Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
-        Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
         Route::get('/notification-settings', [NotificationController::class, 'settings'])->name('notifications.settings');
         Route::put('/notification-settings', [NotificationController::class, 'saveSettings'])->name('notifications.settings.update');
     });

@@ -48,10 +48,21 @@ class OnlineAdmissionController extends Controller
                 'status' => 'pending',
             ]);
 
-            return StudentForm::save($student, $data, $request);
+            StudentForm::save($student, $data, $request);
+            app(\App\Services\FeeService::class)->prepareAdmission($student->fresh());
+
+            return $student;
         });
 
         return redirect()->route('apply.thanks', [$school, $student->admission_no]);
+    }
+
+    /** Blank form parents can print and fill by hand. */
+    public function blankForm(School $school)
+    {
+        $this->open($school);
+
+        return view('admissions.blank', ['classes' => SchoolClass::ordered()->get(), 'session' => AcademicSession::current(), 'school' => $school]);
     }
 
     public function thanks(School $school, string $admissionNo)

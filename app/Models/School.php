@@ -52,6 +52,35 @@ class School extends Model
         return $this->paid_until->isFuture() ? 'active' : 'expired';
     }
 
+    /** After the school has paid (plan active), the software shows only the school's own name and logo. */
+    public function isWhiteLabel(): bool
+    {
+        return $this->accessState() === 'active';
+    }
+
+    /** A school setting read directly (works without the tenant being set). */
+    /** @var array<string, string|null>|null */
+    private ?array $settingCache = null;
+
+    public function setting(string $key): ?string
+    {
+        $this->settingCache ??= Setting::withoutGlobalScopes()->where('school_id', $this->id)->pluck('value', 'key')->all();
+
+        return $this->settingCache[$key] ?? null;
+    }
+
+    public function logoUrl(): ?string
+    {
+        $path = $this->setting('logo_path');
+
+        return $path ? route('school.logo', ['school' => $this->slug, 'v' => substr(md5($path), 0, 8)]) : null;
+    }
+
+    public function displayName(): string
+    {
+        return $this->setting('school_name') ?: $this->name;
+    }
+
     public function daysLeft(): ?int
     {
         return $this->paid_until && $this->paid_until->isFuture() ? (int) ceil(now()->diffInHours($this->paid_until) / 24) : null;

@@ -49,7 +49,7 @@ class SaasTest extends SchoolTestCase
 
         $this->actingAs($theirs)->get('/students')->assertOk()->assertDontSee('Aarav');
         $this->assertSame(0, Student::count(), 'other school must see no students');
-        $this->assertSame(11, SchoolClass::count(), 'other school has its own default classes');
+        $this->assertSame(15, SchoolClass::count(), 'other school has its own default classes');
 
         Tenant::set($this->school);
         $this->assertSame($mine, Student::count());
@@ -113,7 +113,7 @@ class SaasTest extends SchoolTestCase
         $this->assertSame('admin', $user->role);
         $this->assertSame('locked', $school->accessState());
         Tenant::set($school);
-        $this->assertSame(11, SchoolClass::count());
+        $this->assertSame(15, SchoolClass::count());
         $this->assertSame('Little Stars School', \App\Models\Setting::get('school_name'));
 
         // every function is locked until ₹1 is paid
@@ -201,7 +201,7 @@ class SaasTest extends SchoolTestCase
         Tenant::set(null);
         $this->get('/')->assertOk()->assertSee('Start for ₹1')->assertSee('₹599')->assertDontSee('Install for Windows');
         $this->get('/lang/hi');
-        $this->get('/')->assertOk()->assertSee('नर्सरी से कक्षा 8 तक के लिए');
+        $this->get('/')->assertOk()->assertSee('नर्सरी से कक्षा 12 तक के लिए');
         foreach (['/privacy', '/terms', '/refund-policy', '/contact', '/register', '/login', '/forgot-password'] as $u) {
             $this->get($u)->assertOk();
         }

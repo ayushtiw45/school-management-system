@@ -27,9 +27,9 @@
 <div class="card mt-3"><div class="card-body small">
     <strong>What each role can do</strong>
     <ul class="mb-0 mt-1">
-        <li><strong>Admin</strong>: everything, including setup, users, settings and cancelling receipts.</li>
-        <li><strong>Accountant</strong>: fee structure, fee collection, receipts, pending fees; can view students.</li>
-        <li><strong>Admission Staff</strong>: new admissions, student records, documents, ID cards, promotion; cannot see fee screens.</li>
+        @foreach(\App\Models\User::ROLES as $k => $label)
+            <li><strong>{{ $label }}</strong>: {{ \App\Models\User::ROLE_HELP[$k] }}</li>
+        @endforeach
     </ul>
 </div></div>
 @endsection

@@ -13,7 +13,7 @@
             <div class="col-md-8">
                 <label class="form-label required">Reason</label>
                 <input name="leaving_reason" list="reasons" value="{{ old('leaving_reason') }}" class="form-control" required>
-                <datalist id="reasons"><option>Transfer to another school</option><option>Family relocation</option><option>Completed Class 8</option><option>Fee default</option><option>Other</option></datalist>
+                <datalist id="reasons"><option>Transfer to another school</option><option>Family relocation</option><option>Completed Class 12</option><option>Fee default</option><option>Other</option></datalist>
             </div>
             <div class="col-12"><label class="form-label">Remarks</label><textarea name="remarks" class="form-control" rows="2">{{ old('remarks', $student->remarks) }}</textarea></div>
             <div class="col-12 form-check ms-2">

@@ -50,8 +50,8 @@ class ExpenseTest extends SchoolTestCase
         $this->get(route('expense-categories.index'))->assertOk();
     }
 
-    public function test_admission_staff_cannot_see_expenses(): void
+    public function test_receptionist_cannot_see_expenses(): void
     {
-        $this->actingAs($this->user('admission_staff'))->get(route('expenses.index'))->assertForbidden();
+        $this->actingAs($this->user('receptionist'))->get(route('expenses.index'))->assertForbidden();
     }
 }

@@ -47,9 +47,9 @@ class ReportTest extends SchoolTestCase
         $this->assertEquals(Payment::sum('amount'), $report->totals['amount']);
     }
 
-    public function test_admission_staff_cannot_open_reports(): void
+    public function test_receptionist_cannot_open_reports(): void
     {
-        $this->actingAs($this->user('admission_staff'))->get(route('reports.index'))->assertForbidden();
+        $this->actingAs($this->user('receptionist'))->get(route('reports.index'))->assertForbidden();
     }
 
     public function test_xlsx_contains_report_rows(): void

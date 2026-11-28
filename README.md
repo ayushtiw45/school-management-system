@@ -1,6 +1,6 @@
 # TDS School Management Software (online, multi-school)
 
-Web software for Nursery to Class 8 schools, sold as a monthly plan from your own website.
+Web software for Nursery to Class 12 schools, sold as a monthly plan from your own website.
 Any school registers on the website, gets its **own private account** (data is separated per school),
 pays **₹1 for a 7-day trial** and then **₹599/month by Razorpay Autopay**. Until the ₹1 is paid every feature is locked.
 
@@ -14,7 +14,7 @@ Built with Laravel 13 (PHP 8.3+) and MySQL. Runs on normal shared hosting (Hosti
 | Dashboard | Students, admissions, today's and session fee collection, pending fees, class-wise strength, income vs expense |
 | Admissions | Office form and a public online form per school (`/apply/{school}`), auto admission no., photo & documents, print form |
 | Students | Search & filters, profile, ID cards, active/inactive, promotion, TC / leaving |
-| Classes & sessions | Nursery–Class 8 created on sign-up, sections, academic sessions |
+| Classes & sessions | Nursery–Class 12 created on sign-up, sections, academic sessions |
 | Fees | Fee categories, class-wise structure, automatic dues, concession, extra fees, pending list |
 | Payments | Cash / UPI / bank / cheque, partial payments, fine & discount, printable receipts, cancel receipt |
 | Reports | 11 reports (daily, monthly, class-wise, student-wise, pending, discount, summary, expenses…) in Excel & PDF |

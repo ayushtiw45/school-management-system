@@ -14,6 +14,7 @@
         </div>
         <div class="col-6 text-end">
             <div><strong>{{ $s->full_name }}</strong></div>
+            @if($s->student_code)<div>Student ID: <strong>{{ $s->student_code }}</strong></div>@endif
             <div>Adm. No: {{ $s->admission_no }}</div>
             <div>Class: {{ $s->class_label }}</div>
             <div>Father: {{ $s->father_name }}</div>
@@ -37,11 +38,14 @@
             <tr><td colspan="4" class="text-end small">Balance due after this payment</td><td class="text-end small">{{ inr($balance) }}</td></tr>
         </tfoot>
     </table>
+    <p class="small mb-1"><strong>Amount in words:</strong> {{ amount_in_words($p->amount) }}</p>
     @if($p->remarks)<p class="small"><strong>Remarks:</strong> {{ $p->remarks }}</p>@endif
-    <div class="d-flex justify-content-between align-items-end mt-5">
+    @if(\App\Models\Setting::get('receipt_note'))<p class="small text-muted mb-0">{{ \App\Models\Setting::get('receipt_note') }}</p>@endif
+    <div class="d-flex justify-content-between align-items-end mt-4">
         <div class="small text-muted">Received by: {{ $p->receiver?->name }}<br>This is a computer-generated receipt.</div>
-        <div class="text-center border-top pt-1" style="width:180px">Authorised Signatory</div>
+        @include('partials.signatory')
     </div>
+    @include('partials.terms', ['key' => 'receipt_terms'])
 </div>
 @if(auth()->user()->isAdmin())
     <div class="text-center mb-4 no-print">

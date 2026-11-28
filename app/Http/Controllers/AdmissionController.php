@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\Enquiry;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Services\FeeService;
@@ -31,18 +32,27 @@ class AdmissionController extends Controller
         return view('admissions.index', compact('students', 'status'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $session = AcademicSession::current();
         if (! $session) {
-            return redirect()->route('sessions.index')->with('error', 'Please create an academic session first.');
+            return redirect()->route(auth()->user()->hasRole('admin', 'principal') ? 'sessions.index' : 'dashboard')
+                ->with('error', 'Please ask the admin to create an academic session first.');
         }
+        $enquiry = $request->enquiry ? Enquiry::find($request->enquiry) : null;
 
         return view('admissions.create', [
             'session' => $session,
             'classes' => SchoolClass::ordered()->with('sections')->get(),
             'nextNo' => NumberGenerator::admissionNo($session),
+            'enquiry' => $enquiry,
         ]);
+    }
+
+    /** Empty admission form to print and give to parents. */
+    public function blankForm()
+    {
+        return view('admissions.blank', ['classes' => SchoolClass::ordered()->get(), 'session' => AcademicSession::current()]);
     }
 
     public function store(Request $request, FeeService $fees, NotificationService $notifier)
@@ -62,20 +72,17 @@ class AdmissionController extends Controller
                 'status' => 'pending',
             ]);
             StudentForm::save($student, $data, $request);
+            $fees->prepareAdmission($student->fresh());
 
-            if ($request->boolean('confirm_now')) {
-                $this->doConfirm($student, $fees);
+            if ($request->enquiry_id && $enquiry = Enquiry::find($request->enquiry_id)) {
+                $enquiry->update(['status' => 'converted', 'student_id' => $student->id, 'next_follow_up' => null]);
             }
 
             return $student;
         });
 
-        if ($student->status === 'active') {
-            $notifier->admissionConfirmed($student);
-        }
-
         return redirect()->route('students.show', $student)
-            ->with('success', "Admission saved. Admission No: {$student->admission_no}");
+            ->with('success', "Admission form saved (No. {$student->admission_no}). It will be confirmed when the admission fee is paid at the accounts desk.");
     }
 
     public function confirm(Student $student, FeeService $fees, NotificationService $notifier)
@@ -86,21 +93,17 @@ class AdmissionController extends Controller
             return back()->with('error', 'Assign a section before confirming (Edit student).');
         }
 
-        DB::transaction(fn () => $this->doConfirm($student, $fees));
-        $notifier->admissionConfirmed($student->fresh());
+        DB::transaction(fn () => $fees->confirmAdmission($student));
+        $student->refresh();
+        $notifier->admissionConfirmed($student);
 
-        return back()->with('success', "Admission confirmed for {$student->full_name}. Fees have been assigned.");
-    }
-
-    private function doConfirm(Student $student, FeeService $fees): void
-    {
-        $student->update(['status' => 'active', 'confirmed_at' => now()]);
-        $fees->generateForStudent($student->fresh());
+        return back()->with('success', "Admission approved for {$student->full_name}. Student ID: {$student->student_code}.");
     }
 
     public function reject(Student $student)
     {
         abort_if($student->status !== 'pending', 422, 'Only pending admissions can be deleted.');
+        abort_if($student->payments()->exists(), 422, 'This admission already has a payment.');
 
         foreach ($student->documents as $doc) {
             Storage::delete($doc->path);

@@ -18,8 +18,18 @@ class EnsureRole
             return redirect()->route('login')->withErrors(['email' => 'Your account is inactive.']);
         }
 
-        if ($roles && ! $user->hasRole(...$roles)) {
-            abort(403, 'You do not have permission to open this page.');
+        if ($roles) {
+            $allowed = false;
+            foreach ($roles as $role) {
+                [$name, $mode] = array_pad(explode(':', $role, 2), 2, null);
+                if ($user->role === $name && ($mode !== 'read' || $request->isMethodSafe())) {
+                    $allowed = true;
+                    break;
+                }
+            }
+            if (! $allowed) {
+                abort(403, $user->role === 'principal' ? 'The principal can view accounts but cannot change them.' : 'You do not have permission to open this page.');
+            }
         }
 
         return $next($request);

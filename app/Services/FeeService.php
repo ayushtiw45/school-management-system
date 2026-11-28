@@ -104,6 +104,35 @@ class FeeService
         return 1;
     }
 
+    /**
+     * Confirm an admission: the student becomes active and gets a unique Student ID.
+     * Called automatically on the first payment, or by the admin/principal ("approve without fee").
+     */
+    public function confirmAdmission(Student $student): bool
+    {
+        if ($student->status !== 'pending') {
+            return false;
+        }
+        $student->update([
+            'status' => 'active',
+            'confirmed_at' => now(),
+            'student_code' => $student->student_code ?: NumberGenerator::studentCode(),
+        ]);
+        if (! $student->fees()->exists()) {
+            $this->generateForStudent($student->fresh());
+        }
+
+        return true;
+    }
+
+    /** Dues are created as soon as the admission form is saved, so accounts can collect the admission fee. */
+    public function prepareAdmission(Student $student): void
+    {
+        if ($student->status === 'pending' && ! $student->fees()->exists()) {
+            $this->generateForStudent($student);
+        }
+    }
+
     /** Fine suggested when collecting an overdue fee that has no fine yet. */
     public function suggestedFine(StudentFee $fee): float
     {
@@ -174,6 +203,9 @@ class FeeService
                 'received_by' => $userId,
             ]);
             $payment->items()->createMany($items);
+
+            // the first payment confirms a pending admission
+            $payment->confirmedAdmission = $this->confirmAdmission($student);
 
             return $payment;
         });

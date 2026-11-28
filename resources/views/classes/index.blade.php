@@ -12,7 +12,23 @@
                     <div class="col-4"><input type="number" name="sort_order" class="form-control" placeholder="Order"></div>
                     <div class="col-12"><button class="btn btn-primary w-100">Add Class</button></div>
                 </form>
-                <p class="small text-muted mt-3 mb-0">The order number decides the sequence (Nursery → Class 8) used in lists and when promoting students.</p>
+                <p class="small text-muted mt-3 mb-0">The order number decides the sequence (Nursery → Class 12) used in lists and when promoting students.</p>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">Add sections to many classes</div>
+            <div class="card-body">
+                <form method="POST" action="{{ route('sections.bulk') }}">
+                    @csrf
+                    <input name="names" class="form-control mb-2" placeholder="e.g. C, D  or  A-F" required>
+                    <div class="border rounded p-2 mb-2" style="max-height:180px;overflow:auto">
+                        <div class="form-check"><input type="checkbox" class="form-check-input" id="allCls" onclick="document.querySelectorAll('.bulk-cls').forEach(c => c.checked = this.checked)"><label for="allCls" class="form-check-label fw-semibold">All classes</label></div>
+                        @foreach($classes as $c)
+                            <div class="form-check"><input type="checkbox" name="class_ids[]" value="{{ $c->id }}" class="form-check-input bulk-cls" id="bc{{ $c->id }}"><label for="bc{{ $c->id }}" class="form-check-label">{{ $c->name }} <span class="text-muted small">({{ $c->sections->pluck('name')->implode(', ') ?: 'none' }})</span></label></div>
+                        @endforeach
+                    </div>
+                    <button class="btn btn-outline-primary w-100">Add sections</button>
+                </form>
             </div>
         </div>
     </div>
@@ -35,7 +51,7 @@
                                 @endforeach
                                 <form method="POST" action="{{ route('sections.store', $c) }}" class="d-inline-flex gap-1 align-middle">
                                     @csrf
-                                    <input name="name" class="form-control form-control-sm" style="width:70px" placeholder="A" required>
+                                    <input name="name" class="form-control form-control-sm" style="width:90px" placeholder="{{ chr(65 + min(25, $c->sections->count())) }} or C-F" value="{{ chr(65 + min(25, $c->sections->count())) }}" required title="One section (C), several (C,D) or a range (C-F)">
                                     <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus"></i></button>
                                 </form>
                             </td>

@@ -18,14 +18,15 @@
 </style>
 @endpush
 @section('content')
+@php($idLogo = school_image('logo'))
 <div class="cards">
     @forelse($students as $s)
         <div class="idc">
-            <div class="top"><span>Student Identity Card</span><b>{{ school('name') }}</b></div>
+            <div class="top">@if($idLogo)<img src="{{ $idLogo }}" alt="" style="height:20px;max-width:40px;object-fit:contain;background:#fff;border-radius:4px;padding:1px;display:block;margin:0 auto 2px">@endif<span>Student Identity Card</span><b>{{ school('name') }}</b></div>
             <div class="ph">@if($s->photo)<img src="{{ route('students.photo', $s) }}" alt="">@else{{ strtoupper(substr($s->first_name, 0, 1)) }}@endif</div>
             <div class="nm">{{ $s->full_name }}</div>
             <dl>
-                <dt>Adm. No</dt><dd>{{ $s->admission_no }}</dd>
+                @if($s->student_code)<dt>Student ID</dt><dd>{{ $s->student_code }}</dd>@endif<dt>Adm. No</dt><dd>{{ $s->admission_no }}</dd>
                 <dt>Class</dt><dd>{{ $s->class_label }}</dd>
                 @if($s->roll_no)<dt>Roll No</dt><dd>{{ $s->roll_no }}</dd>@endif
                 <dt>DOB</dt><dd>{{ $s->dob?->format('d-m-Y') }}</dd>

@@ -47,16 +47,23 @@ abstract class SchoolTestCase extends TestCase
             'dob' => '2019-05-10',
             'father_name' => 'Rakesh Sharma',
             'father_phone' => '9876543210',
-            'confirm_now' => 1,
         ], $overrides);
     }
 
-    protected function admit(array $overrides = []): Student
+    /** Reception saves the form (pending), then the admin approves it, so the student is active. */
+    protected function admit(array $overrides = [], bool $approve = true): Student
     {
-        $this->actingAs($this->user('admission_staff'))
+        $this->actingAs($this->user('receptionist'))
             ->post(route('admissions.store'), $this->admissionData($overrides))
             ->assertSessionHasNoErrors();
+        $student = Student::latest('id')->first();
 
-        return Student::latest('id')->first();
+        if ($approve) {
+            $this->actingAs($this->user('admin'))->post(route('admissions.confirm', $student))->assertSessionHasNoErrors();
+            $student->refresh();
+            $this->flushSession(); // drop the flash message
+        }
+
+        return $student;
     }
 }

@@ -19,6 +19,9 @@ class Payment extends Model
         'online' => 'Online Gateway',
     ];
 
+    /** set by FeeService::collect when this payment confirmed a pending admission */
+    public bool $confirmedAdmission = false;
+
     protected $fillable = ['school_id', 
         'receipt_no', 'student_id', 'payment_date', 'amount', 'method', 'reference_no',
         'bank_name', 'cheque_date', 'remarks', 'received_by',

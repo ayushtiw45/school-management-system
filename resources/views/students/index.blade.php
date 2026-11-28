@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'All Students')
 @section('content')
-@php($canEdit = auth()->user()->hasRole('admin', 'admission_staff'))
+@php($canEdit = auth()->user()->canAdmit())
 <div class="card">
     <div class="card-header">
         <form class="row g-2 align-items-center">
@@ -38,12 +38,12 @@
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
-            <thead><tr><th></th><th>Adm. No</th><th>Student</th><th>Class</th><th>Roll</th><th>Father / Mobile</th><th>Status</th><th class="text-end"></th></tr></thead>
+            <thead><tr><th></th><th>Student ID / Adm. No</th><th>Student</th><th>Class</th><th>Roll</th><th>Father / Mobile</th><th>Status</th><th class="text-end"></th></tr></thead>
             <tbody>
             @forelse($students as $s)
                 <tr>
                     <td style="width:46px">@include('students.avatar', ['s' => $s])</td>
-                    <td>{{ $s->admission_no }}</td>
+                    <td><span class="fw-semibold">{{ $s->student_code ?: '—' }}</span><div class="small text-muted">{{ $s->admission_no }}</div></td>
                     <td><a href="{{ route('students.show', $s) }}" class="fw-semibold">{{ $s->full_name }}</a><div class="text-muted small">{{ ucfirst($s->gender) }}</div></td>
                     <td>{{ $s->class_label }}</td>
                     <td>{{ $s->roll_no }}</td>

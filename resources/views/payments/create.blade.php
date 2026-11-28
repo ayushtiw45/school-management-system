@@ -4,7 +4,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <form class="d-flex gap-2">
-            <input name="q" value="{{ request('q') }}" class="form-control" placeholder="Search by student name, admission no, father's name or mobile" autofocus>
+            <input name="q" value="{{ request('q') }}" class="form-control" placeholder="Search by student name, Student ID, admission no, father's name or mobile">
             <button class="btn btn-primary text-nowrap"><i class="bi bi-search"></i> Find Student</button>
         </form>
     </div>
@@ -13,7 +13,7 @@
             @foreach($matches as $m)
                 <a href="{{ route('payments.create', ['student_id' => $m->id]) }}" class="list-group-item list-group-item-action d-flex gap-2 align-items-center">
                     @include('students.avatar', ['s' => $m])
-                    <div><strong>{{ $m->full_name }}</strong> <span class="text-muted small">· {{ $m->admission_no }} · {{ $m->class_label }}</span><div class="small text-muted">Father: {{ $m->father_name }} · {{ $m->parent_phone }}</div></div>
+                    <div><strong>{{ $m->full_name }}</strong> <span class="text-muted small">· {{ $m->student_code ?: $m->admission_no }} · {{ $m->class_label }}</span>@if($m->status === 'pending') <span class="badge text-bg-warning">Admission pending</span>@endif<div class="small text-muted">Father: {{ $m->father_name }} · {{ $m->parent_phone }}</div></div>
                 </a>
             @endforeach
         </div>
@@ -21,6 +21,10 @@
         <div class="card-footer text-muted">No student found.</div>
     @endif
 </div>
+
+@if($browse)
+    @include('payments.browse')
+@endif
 
 @if($student)
 <form method="POST" action="{{ route('payments.store', $student) }}" id="payForm">
@@ -30,7 +34,7 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center gap-2">
                     @include('students.avatar', ['s' => $student])
-                    <div><a href="{{ route('students.show', $student) }}">{{ $student->full_name }}</a> <span class="text-muted small fw-normal">· {{ $student->admission_no }} · {{ $student->class_label }}</span></div>
+                    <div><a href="{{ route('students.show', $student) }}">{{ $student->full_name }}</a> <span class="text-muted small fw-normal">· {{ $student->student_code ?: $student->admission_no }} · {{ $student->class_label }}</span>@if($student->status === 'pending') <span class="badge text-bg-warning">Admission pending — confirmed after this payment</span>@endif</div>
                     @if($student->status !== 'active')<span class="ms-auto">@include('students.status-badge', ['status' => $student->status])</span>@endif
                 </div>
                 <div class="table-responsive">

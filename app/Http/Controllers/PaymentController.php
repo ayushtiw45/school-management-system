@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\StudentFee;
 use App\Services\FeeService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -39,7 +41,7 @@ class PaymentController extends Controller
         if ($request->student_id) {
             $student = Student::with(['schoolClass', 'section'])->findOrFail($request->student_id);
         } elseif ($request->q) {
-            $matches = Student::with(['schoolClass', 'section'])->whereIn('status', ['active', 'inactive', 'left'])
+            $matches = Student::with(['schoolClass', 'section'])->whereIn('status', ['pending', 'active', 'inactive', 'left'])
                 ->search($request->q)->orderBy('first_name')->limit(20)->get();
             if ($matches->count() === 1) {
                 $student = $matches->first();
@@ -47,11 +49,74 @@ class PaymentController extends Controller
         }
 
         if ($student) {
+            $fees->prepareAdmission($student);
             $dues = $student->fees()->with('feeHead')->outstanding()->get()
                 ->each(fn ($f) => $f->suggested_fine = $fees->suggestedFine($f));
         }
 
-        return view('payments.create', compact('student', 'dues', 'matches'));
+        $browse = (! $student && ! $request->q) ? $this->browse($request) : null;
+
+        return view('payments.create', compact('student', 'dues', 'matches', 'browse'));
+    }
+
+    /** Collect-fee home: boxes per class → per section → students with dues. */
+    private function browse(Request $request): array
+    {
+        // admissions saved before v1.2.0 have no dues yet: create them so the admission fee shows
+        $fees = app(FeeService::class);
+        Student::where('status', 'pending')->whereDoesntHave('fees')->limit(50)->get()->each(fn ($st) => $fees->prepareAdmission($st));
+
+        $due = 'COALESCE(SUM(student_fees.amount - student_fees.discount + student_fees.fine - student_fees.paid), 0)';
+        $sub = fn (bool $overdue) => StudentFee::selectRaw($due)->whereColumn('student_fees.student_id', 'students.id')
+            ->where('student_fees.status', '!=', 'paid')->when($overdue, fn ($q) => $q->whereDate('student_fees.due_date', '<', now()->toDateString()));
+
+        $all = Student::whereIn('students.status', ['pending', 'active'])
+            ->select('students.id', 'students.school_class_id', 'students.section_id', 'students.status')
+            ->selectSub($sub(false), 'due')->selectSub($sub(true), 'overdue')
+            ->get();
+
+        $stats = fn ($rows) => ['students' => $rows->count(), 'pending' => $rows->where('due', '>', 0.001)->count(),
+            'due' => (float) $rows->sum('due'), 'overdue' => (float) $rows->sum('overdue')];
+
+        $classes = SchoolClass::ordered()->with('sections')->get();
+        $byClass = $all->groupBy('school_class_id');
+        $class = $request->class_id ? $classes->firstWhere('id', (int) $request->class_id) : null;
+
+        $sections = null;
+        $list = null;
+        if ($class) {
+            $rows = $byClass->get($class->id, collect());
+            $bySection = $rows->groupBy(fn ($r) => $r->section_id ?: 'none');
+            $sections = $class->sections->map(fn ($sec) => ['id' => $sec->id, 'name' => $sec->name] + $stats($bySection->get($sec->id, collect())));
+            if ($bySection->has('none')) {
+                $sections->push(['id' => 'none', 'name' => 'No section'] + $stats($bySection->get('none')));
+            }
+
+            $sectionId = $request->section_id ?? ($class->sections->isEmpty() ? 'none' : null);
+            if ($sectionId !== null) {
+                $ids = $rows->filter(fn ($r) => (string) ($r->section_id ?: 'none') === (string) $sectionId)
+                    ->when(! $request->boolean('everyone'), fn ($c) => $c->where('due', '>', 0.001))->keyBy('id');
+                $list = Student::with(['schoolClass', 'section'])->whereIn('id', $ids->keys())->orderBy('roll_no')->orderBy('first_name')->get()
+                    ->each(function ($st) use ($ids) {
+                        $st->due_total = (float) $ids[$st->id]->due;
+                        $st->overdue_total = (float) $ids[$st->id]->overdue;
+                    });
+            }
+        }
+
+        $awaiting = Student::with(['schoolClass', 'section'])->where('status', 'pending')->latest('id')->limit(12)->get()
+            ->each(fn ($st) => $st->due_total = (float) ($all->firstWhere('id', $st->id)->due ?? 0));
+
+        return [
+            'classes' => $classes->map(fn ($c) => ['id' => $c->id, 'name' => $c->name] + $stats($byClass->get($c->id, collect()))),
+            'class' => $class,
+            'sections' => $sections,
+            'section' => $request->section_id ?? ($class && $class->sections->isEmpty() ? 'none' : null),
+            'list' => $list,
+            'awaiting' => $awaiting,
+            'awaitingCount' => $all->where('status', 'pending')->count(),
+            'total' => $stats($all),
+        ];
     }
 
     public function store(Request $request, Student $student, FeeService $fees, NotificationService $notifier)
@@ -71,8 +136,14 @@ class PaymentController extends Controller
 
         $payment = $fees->collect($student, $data['lines'], $data, $request->user()->id);
         $notifier->paymentReceived($payment);
+        $msg = "Payment recorded. Receipt No: {$payment->receipt_no}";
+        if ($payment->confirmedAdmission) {
+            $student->refresh();
+            $notifier->admissionConfirmed($student);
+            $msg .= ". Admission confirmed — Student ID {$student->student_code}.";
+        }
 
-        return redirect()->route('payments.show', $payment)->with('success', "Payment recorded. Receipt No: {$payment->receipt_no}");
+        return redirect()->route('payments.show', $payment)->with('success', $msg);
     }
 
     public function show(Payment $payment)

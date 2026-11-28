@@ -23,5 +23,8 @@
     <a class="btn btn-outline-secondary btn-sm" href="{{ url()->previous() }}">Back</a>
 </div>
 @yield('content')
+@unless(\App\Support\Tenant::school()?->isWhiteLabel())
+    <div class="text-center small text-muted my-2" style="font-size:.7rem">Made with TDS School Management · thedigitalstrokes.in</div>
+@endunless
 </body>
 </html>

@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // the school of the current request, for branding in every view (null on the public site)
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            if (! array_key_exists('brandSchool', $view->getData())) {
+                $view->with('brandSchool', \App\Support\Tenant::school());
+            }
+        });
     }
 }

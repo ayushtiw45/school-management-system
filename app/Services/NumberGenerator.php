@@ -25,6 +25,18 @@ class NumberGenerator
         return $base.str_pad((string) (self::lastSequence(Payment::class, 'receipt_no', $base) + 1), 6, '0', STR_PAD_LEFT);
     }
 
+    /** Unique student ID inside the school, e.g. STU26-0001 (given when the admission is confirmed). */
+    public static function studentCode(): string
+    {
+        $base = strtoupper((string) Setting::get('student_code_prefix')).now()->format('y').'-';
+        $next = self::lastSequence(Student::class, 'student_code', $base) + 1;
+        do {
+            $code = $base.str_pad((string) $next++, 4, '0', STR_PAD_LEFT);
+        } while (Student::where('student_code', $code)->exists());
+
+        return $code;
+    }
+
     private static function lastSequence(string $model, string $column, string $base): int
     {
         return (int) $model::where($column, 'like', $base.'%')

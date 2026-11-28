@@ -57,6 +57,18 @@ class StudentFeeController extends Controller
     }
 
     /** Add a one-off fee (custom / additional) to a student. */
+    /** Printable fee slip (demand note) with bank details and a UPI QR code for the pending amount. */
+    public function slip(Request $request, Student $student, FeeService $fees)
+    {
+        $fees->prepareAdmission($student);
+        $student->load(['schoolClass', 'section', 'academicSession']);
+        $upto = $request->date('upto');
+        $dues = $student->fees()->with('feeHead')->outstanding()
+            ->when($upto, fn ($q) => $q->whereDate('due_date', '<=', $upto))->get();
+
+        return view('fees.slip', ['student' => $student, 'dues' => $dues, 'upto' => $upto, 'total' => $dues->sum(fn ($f) => $f->balance())]);
+    }
+
     public function store(Request $request, Student $student)
     {
         $data = $request->validate([

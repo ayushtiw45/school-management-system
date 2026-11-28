@@ -42,7 +42,7 @@
 
 <header class="hero">
     <div class="container">
-        <div class="eyebrow">{{ __('For Nursery to Class 8') }}</div>
+        <div class="eyebrow">{{ __('For Nursery to Class 12') }}</div>
         <h1 class="my-3">TDS School <span>Management</span> Software</h1>
         <p class="lead fs-5">{{ __('Admissions, student records, fee collection, receipts, reports and parent reminders — online, in one simple software. Open it in any browser on laptop, tablet or phone.') }}</p>
         <p class="tagline">{{ __('No installation. Your school\'s data is private and safe.') }}</p>
@@ -84,7 +84,7 @@
                 ['A', __('Admin Dashboard'), [__('Total students & admissions'), __('Today\'s and session fee collection'), __('Pending fees, class-wise strength')]],
                 ['B', __('Admissions'), [__('Office and online admission form'), __('Auto admission number, photo & documents'), __('Print admission form & receipt')]],
                 ['C', __('Student Records'), [__('Search, filters, full profile'), __('ID cards for a student or whole class'), __('Promotion and TC / leaving records')]],
-                ['D', __('Classes & Sections'), [__('Nursery to Class 8 ready'), __('Sections A, B, C…'), __('Academic sessions (April–March)')]],
+                ['D', __('Classes & Sections'), [__('Nursery to Class 12 ready'), __('Sections A, B, C…'), __('Academic sessions (April–March)')]],
                 ['E', __('Fee Management'), [__('Class-wise fee structure'), __('Monthly / quarterly / yearly fees, concessions'), __('Dues created automatically')]],
                 ['F', __('Payments & Receipts'), [__('Cash, UPI, bank, cheque'), __('Partial payments, late fine, discount'), __('Printable receipts with unique numbers')]],
                 ['G', __('Fee Reports'), [__('Daily, monthly, class-wise, student-wise'), __('Pending, discount, collection summary'), __('Download in Excel or PDF')]],
@@ -135,7 +135,7 @@
             @foreach([
                 [__('Register your school'), __('Enter your school name, mobile number and create your login.')],
                 [__('Pay ₹:trial', ['trial' => $trialPrice]), __('All features unlock for :days days. Autopay continues at ₹:monthly/month.', ['days' => $trialDays, 'monthly' => $monthlyPrice])],
-                [__('Set up classes & fees'), __('Nursery to Class 8 are ready. Enter your fee amounts once.')],
+                [__('Set up classes & fees'), __('Nursery to Class 12 are ready. Enter your fee amounts once.')],
                 [__('Add your staff'), __('Create logins for the accountant and admission desk, and start admissions.')],
             ] as $i => [$t, $p])
                 <div class="col-sm-6 col-lg-3"><div class="step"><div class="num">{{ $i + 1 }}</div><h3>{{ $t }}</h3><p>{{ $p }}</p></div></div>
