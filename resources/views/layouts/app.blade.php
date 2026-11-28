@@ -130,6 +130,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ route('password.edit') }}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                <li><a class="dropdown-item" href="{{ route('whats-new') }}" target="_blank"><i class="bi bi-stars me-2"></i>What's new (v{{ trim((string) @file_get_contents(base_path('VERSION'))) }})</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><form method="POST" action="{{ route('logout') }}">@csrf<button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button></form></li>
             </ul>

@@ -1,0 +1,155 @@
+{
+  "_how": "Add a new entry at the top for every release (same version as the VERSION file). scripts/build-update.sh refuses to build without it.",
+  "releases": [
+    {
+      "version": "1.2.2",
+      "date": "2026-11-28",
+      "title": {
+        "en": "\"What's new\" page",
+        "hi": "\"नया क्या है\" पेज"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "New \"What's new\" page on the website lists what changed in every version; the latest update is also shown on the home page.",
+          "hi": "वेबसाइट पर नया \"नया क्या है\" पेज, जिसमें हर वर्ज़न के बदलाव दिखते हैं; नया अपडेट होम पेज पर भी दिखता है।"
+        },
+        {
+          "type": "improved",
+          "en": "Open \"What's new\" from your name menu inside the software.",
+          "hi": "सॉफ्टवेयर में अपने नाम वाले मेन्यू से \"नया क्या है\" खोलें।"
+        }
+      ]
+    },
+    {
+      "version": "1.2.1",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Menu scrolling fix",
+        "hi": "मेन्यू स्क्रॉल सुधार"
+      },
+      "changes": [
+        {
+          "type": "fixed",
+          "en": "The left menu now scrolls, so every module can be opened on small laptop screens and phones.",
+          "hi": "बायाँ मेन्यू अब नीचे तक स्क्रॉल होता है, छोटे लैपटॉप और मोबाइल पर भी हर मॉड्यूल खुलता है।"
+        }
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Reception, Principal and Accounts logins, enquiries, Student ID and your school's branding",
+        "hi": "रिसेप्शन, प्रिंसिपल और अकाउंट्स लॉगिन, एनक्वायरी, स्टूडेंट ID और आपके स्कूल की ब्रांडिंग"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "4 separate logins: Admin, Principal (sees everything including accounts, but cannot change fees), Reception and Accounts.",
+          "hi": "4 अलग लॉगिन: एडमिन, प्रिंसिपल (अकाउंट्स समेत सब देख सकते हैं, पर फीस बदल नहीं सकते), रिसेप्शन और अकाउंट्स।"
+        },
+        {
+          "type": "new",
+          "en": "Reception desk: record visitor enquiries, set follow-up dates, see follow-ups due today and a printable daily report.",
+          "hi": "रिसेप्शन डेस्क: विज़िटर की एनक्वायरी लिखें, फॉलो-अप की तारीख रखें, आज के फॉलो-अप देखें और रोज़ की रिपोर्ट प्रिंट करें।"
+        },
+        {
+          "type": "new",
+          "en": "Start an admission straight from an enquiry — the form opens already filled.",
+          "hi": "एनक्वायरी से सीधे एडमिशन शुरू करें — फॉर्म पहले से भरा हुआ खुलता है।"
+        },
+        {
+          "type": "new",
+          "en": "Admission stays pending until the admission fee is paid; then it is confirmed automatically and the child gets a unique Student ID (e.g. STU26-0001).",
+          "hi": "एडमिशन फीस जमा होने तक पेंडिंग रहता है; फीस मिलते ही अपने आप कन्फर्म होता है और बच्चे को यूनिक स्टूडेंट ID (जैसे STU26-0001) मिलती है।"
+        },
+        {
+          "type": "improved",
+          "en": "Collect Fee: pick a class box, then a section box, and see only students with pending fees. One click shows all pending and overdue fees.",
+          "hi": "फीस जमा: क्लास का बॉक्स, फिर सेक्शन का बॉक्स चुनें और सिर्फ़ बकाया वाले छात्र देखें। एक क्लिक में पूरे स्कूल की बकाया फीस।"
+        },
+        {
+          "type": "new",
+          "en": "Classes up to Class 12, and add many sections at once (type A-F).",
+          "hi": "कक्षा 12 तक की क्लास, और एक साथ कई सेक्शन जोड़ें (A-F लिखें)।"
+        },
+        {
+          "type": "new",
+          "en": "School settings: legal name, state, website, bank account, UPI ID, accounts signatory, signature and logo upload, receipt and fee slip terms.",
+          "hi": "स्कूल सेटिंग्स: लीगल नाम, राज्य, वेबसाइट, बैंक खाता, UPI ID, अकाउंट्स साइनेटरी, सिग्नेचर और लोगो अपलोड, रसीद व फीस स्लिप की शर्तें।"
+        },
+        {
+          "type": "improved",
+          "en": "Receipts show the school logo, accounts signature, amount in words and your terms.",
+          "hi": "रसीद पर स्कूल का लोगो, अकाउंट्स का सिग्नेचर, राशि शब्दों में और आपकी शर्तें।"
+        },
+        {
+          "type": "new",
+          "en": "Fee slip with bank details and a UPI QR code parents can scan to pay.",
+          "hi": "बैंक डिटेल और UPI QR कोड वाली फीस स्लिप, जिसे स्कैन करके अभिभावक भुगतान कर सकते हैं।"
+        },
+        {
+          "type": "new",
+          "en": "Print a blank admission form, and share the online admission link on WhatsApp — the preview shows your school's name and logo.",
+          "hi": "खाली एडमिशन फॉर्म प्रिंट करें और ऑनलाइन एडमिशन लिंक WhatsApp पर भेजें — प्रीव्यू में आपके स्कूल का नाम और लोगो दिखता है।"
+        },
+        {
+          "type": "new",
+          "en": "Once your plan is active, the software shows your school's own name and logo everywhere.",
+          "hi": "प्लान एक्टिव होते ही सॉफ्टवेयर में हर जगह आपके स्कूल का नाम और लोगो दिखता है।"
+        }
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-11-27",
+      "title": {
+        "en": "Automatic, safe updates",
+        "hi": "अपने आप, सुरक्षित अपडेट"
+      },
+      "changes": [
+        {
+          "type": "improved",
+          "en": "New features reach every school without any work on your side. A full backup is taken before every update.",
+          "hi": "नए फीचर हर स्कूल तक बिना आपकी किसी मेहनत के पहुँचते हैं। हर अपडेट से पहले पूरा बैकअप लिया जाता है।"
+        },
+        {
+          "type": "improved",
+          "en": "Look and feel of The Digital Strokes, Hindi and English.",
+          "hi": "The Digital Strokes जैसा डिज़ाइन, हिंदी और अंग्रेज़ी में।"
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-11-26",
+      "title": {
+        "en": "Launch: online school management for every school",
+        "hi": "लॉन्च: हर स्कूल के लिए ऑनलाइन स्कूल मैनेजमेंट"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "Admissions with online form, student records, ID cards, promotion and TC.",
+          "hi": "ऑनलाइन फॉर्म के साथ एडमिशन, छात्र रिकॉर्ड, ID कार्ड, प्रमोशन और TC।"
+        },
+        {
+          "type": "new",
+          "en": "Fee structure, automatic dues, fee collection with printable receipts, pending fee reminders on SMS/WhatsApp.",
+          "hi": "फीस स्ट्रक्चर, अपने आप बकाया, प्रिंट होने वाली रसीद के साथ फीस जमा, SMS/WhatsApp पर बकाया रिमाइंडर।"
+        },
+        {
+          "type": "new",
+          "en": "Reports in Excel and PDF, expenses and salary records.",
+          "hi": "Excel और PDF में रिपोर्ट, खर्च और सैलरी रिकॉर्ड।"
+        },
+        {
+          "type": "new",
+          "en": "Each school's data is private. Start with a ₹1 seven-day trial, then ₹599 per month by Autopay.",
+          "hi": "हर स्कूल का डेटा अलग और सुरक्षित। ₹1 में 7 दिन का ट्रायल, फिर ₹599 महीना ऑटोपे से।"
+        }
+      ]
+    }
+  ]
+}

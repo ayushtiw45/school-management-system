@@ -36,6 +36,7 @@ Route::view('/contact', 'site.contact')->name('contact');
 Route::get('/install/finish', [InstallController::class, 'finish'])->name('install.finish');
 Route::post('/razorpay/webhook', [BillingController::class, 'webhook'])->name('razorpay.webhook');
 
+Route::view('/whats-new', 'site.whats-new')->name('whats-new');
 Route::get('/logo/{school:slug}', [SchoolAssetController::class, 'logo'])->name('school.logo');
 
 // Public online admission form of a school: /apply/{school-slug}

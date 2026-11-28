@@ -60,6 +60,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#screens">{{ __('Screenshots') }}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#pricing">{{ __('Pricing') }}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#faq">{{ __('FAQ') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ request()->routeIs('whats-new') ? 'active' : '' }}" href="{{ route('whats-new') }}">{{ __("What's new") }}</a></li>
                 <li class="nav-item lang-switch d-flex gap-1 mx-lg-2 my-2 my-lg-0">
                     @foreach(\App\Http\Middleware\SetLocale::LOCALES as $code => $label)
                         <a href="{{ route('locale', $code) }}" class="{{ app()->getLocale() === $code ? 'on' : '' }}">{{ $label }}</a>
@@ -86,6 +87,7 @@
             @if($wa)<a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>@endif
             @if(\App\Models\PlatformSetting::get('contact_phone'))<a href="tel:{{ preg_replace('/[^\d+]/', '', \App\Models\PlatformSetting::get('contact_phone')) }}"><i class="bi bi-telephone"></i> {{ \App\Models\PlatformSetting::get('contact_phone') }}</a>@endif
             @if(\App\Models\PlatformSetting::get('contact_email'))<a href="mailto:{{ \App\Models\PlatformSetting::get('contact_email') }}"><i class="bi bi-envelope"></i> {{ \App\Models\PlatformSetting::get('contact_email') }}</a>@endif
+            <a href="{{ route('whats-new') }}">{{ __("What's new") }}</a>
             <a href="{{ route('contact') }}">{{ __('Contact us') }}</a>
             <a href="{{ route('privacy') }}">{{ __('Privacy Policy') }}</a>
             <a href="{{ route('terms') }}">{{ __('Terms') }}</a>

@@ -42,6 +42,13 @@
 
 <header class="hero">
     <div class="container">
+        @php($latest = \App\Support\Changelog::latest())
+        @if($latest)
+            <a href="{{ route('whats-new') }}" class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-1 rounded-pill text-decoration-none small" style="background:#FFEEEB;color:#E23A22">
+                <span class="badge rounded-pill" style="background:#FF4B32">{{ __('New') }} v{{ $latest['version'] }}</span>
+                <span class="text-truncate" style="max-width:420px">{{ \App\Support\Changelog::text($latest['title']) }}</span><i class="bi bi-arrow-right"></i>
+            </a><br>
+        @endif
         <div class="eyebrow">{{ __('For Nursery to Class 12') }}</div>
         <h1 class="my-3">TDS School <span>Management</span> Software</h1>
         <p class="lead fs-5">{{ __('Admissions, student records, fee collection, receipts, reports and parent reminders — online, in one simple software. Open it in any browser on laptop, tablet or phone.') }}</p>

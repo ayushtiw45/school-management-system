@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds an update package for Owner panel → Software Update.
-# Usage: scripts/build-update.sh [--with-vendor] ["what's new 1" "what's new 2" ...]
+# Usage: scripts/build-update.sh [--with-vendor] ["extra note" ...]   (notes come from resources/data/changelog.json)
 #   --with-vendor  include the PHP libraries (needed when composer.lock changed; the panel tells you if it is missing)
 # Output: tds-update-<VERSION>[-full].zip   (VERSION comes from the VERSION file — bump it before building)
 set -euo pipefail
@@ -25,7 +25,16 @@ if [[ $WITH_VENDOR == 1 ]]; then
      && find vendor -name .git -type d -prune -exec rm -rf {} + && rm -f bootstrap/cache/*.php)
 fi
 
-NOTES_JSON="$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1:]))' "$@")"
+# What's new: from resources/data/changelog.json (the same text the website shows). Extra arguments are added after it.
+NOTES_JSON="$(python3 - "$ROOT/resources/data/changelog.json" "$VERSION" "$@" <<'PY'
+import json, sys
+path, version, extra = sys.argv[1], sys.argv[2], sys.argv[3:]
+rel = next((r for r in json.load(open(path, encoding='utf-8'))['releases'] if r['version'] == version), None)
+if rel is None:
+    sys.exit(f"No entry for version {version} in resources/data/changelog.json - add the release notes first (they appear on the website).")
+print(json.dumps([c['en'] for c in rel['changes']] + extra))
+PY
+)"
 cat > "$WORK/update.json" <<JSON
 {
   "app": "tds-school",
