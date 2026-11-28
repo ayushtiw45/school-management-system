@@ -2,6 +2,26 @@
   "_how": "Add a new entry at the top for every release (same version as the VERSION file). scripts/build-update.sh refuses to build without it.",
   "releases": [
     {
+      "version": "1.6.0",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Coupon codes",
+        "hi": "कूपन कोड"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "Coupon codes: enter a coupon on Plan & Billing to get a lower monthly price or extra free days before the first monthly payment.",
+          "hi": "कूपन कोड: प्लान और बिलिंग पेज पर कूपन डालें — महीने की कम कीमत या पहली मासिक पेमेंट से पहले अतिरिक्त मुफ़्त दिन पाएँ।"
+        },
+        {
+          "type": "improved",
+          "en": "The new price is shown before you pay, and the coupon is shown in your Autopay history.",
+          "hi": "पेमेंट से पहले नई कीमत दिखती है, और कूपन आपके ऑटोपे इतिहास में दिखता है।"
+        }
+      ]
+    },
+    {
       "version": "1.5.0",
       "date": "2026-11-28",
       "title": {

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Coupon;
+use App\Models\CouponRedemption;
 use App\Models\PlatformSetting as P;
 use App\Models\School;
 use App\Models\Subscription;
@@ -47,24 +49,75 @@ class Billing
             && ! $school->subscriptions()->whereIn('status', Subscription::STARTED)->exists();
     }
 
-    public function start(School $school): Subscription
+    /**
+     * Can this school use this code now? Returns the coupon, or throws with a plain message.
+     */
+    public function coupon(?string $code, School $school): ?Coupon
     {
+        $code = strtoupper(trim((string) $code));
+        if ($code === '') {
+            return null;
+        }
+        $c = Coupon::where('code', $code)->first();
+        $fail = fn (string $m) => throw new \RuntimeException($m);
+        if (! $c || ! $c->is_active) {
+            $fail('This coupon code is not valid.');
+        }
+        if ($c->valid_from && $c->valid_from->isFuture()) {
+            $fail('This coupon can be used from '.$c->valid_from->format('d M Y').'.');
+        }
+        if ($c->valid_until && $c->valid_until->copy()->endOfDay()->isPast()) {
+            $fail('This coupon has expired.');
+        }
+        if ($c->max_uses !== null && $c->used_count >= $c->max_uses) {
+            $fail('This coupon has already been used the maximum number of times.');
+        }
+        if ($c->school_id && $c->school_id !== $school->id) {
+            $fail('This coupon is not for your school.');
+        }
+        if ($c->new_schools_only && ($school->paid_until || $school->subscriptions()->where('paid_count', '>', 0)->exists())) {
+            $fail('This coupon is only for new schools.');
+        }
+        if (CouponRedemption::where('coupon_id', $c->id)->where('school_id', $school->id)->exists()) {
+            $fail('Your school has already used this coupon.');
+        }
+
+        return $c;
+    }
+
+    /** What the school would pay with a coupon (for the billing page). */
+    public function quote(School $school, ?Coupon $coupon): array
+    {
+        $list = self::monthlyPaise();
+        $monthly = $coupon ? $coupon->apply($list) : $list;
         $trial = $this->trialAvailable($school);
-        $planId = $this->razorpay->monthlyPlanId(self::monthlyPaise(), P::get('company_name').' - Monthly');
+        $extra = $coupon?->extra_days ?? 0;
+
+        return ['list' => $list, 'monthly' => $monthly, 'trial' => $trial, 'trial_paise' => $trial ? self::trialPaise() : 0,
+            'free_days' => ($trial ? self::trialDays() : 0) + $extra, 'extra_days' => $extra];
+    }
+
+    public function start(School $school, ?Coupon $coupon = null): Subscription
+    {
+        $q = $this->quote($school, $coupon);
+        $planId = $this->razorpay->monthlyPlanId($q['monthly'], P::get('company_name').' - Monthly'.($q['monthly'] !== $q['list'] ? ' (₹'.($q['monthly'] / 100).')' : ''));
 
         $rzp = $this->razorpay->createSubscription(
             $planId,
-            $trial ? now()->addDays(self::trialDays())->timestamp : null,
-            $trial ? self::trialPaise() : 0,
+            $q['free_days'] > 0 ? now()->addDays($q['free_days'])->timestamp : null,
+            $q['trial_paise'],
             self::trialDays().'-day trial',
-            ['school_id' => (string) $school->id, 'school' => mb_substr($school->name, 0, 200)],
+            ['school_id' => (string) $school->id, 'school' => mb_substr($school->name, 0, 200)] + ($coupon ? ['coupon' => $coupon->code] : []),
         );
 
         return $school->subscriptions()->create([
             'razorpay_subscription_id' => $rzp['id'],
             'razorpay_plan_id' => $planId,
-            'monthly_amount' => self::monthlyPaise(),
-            'trial_amount' => $trial ? self::trialPaise() : 0,
+            'monthly_amount' => $q['monthly'],
+            'trial_amount' => $q['trial_paise'],
+            'coupon_id' => $coupon?->id,
+            'list_amount' => $q['list'],
+            'extra_days' => $q['extra_days'],
         ]);
     }
 
@@ -79,9 +132,14 @@ class Billing
                 $sub->status = 'authenticated';
             }
             $school = $sub->school;
+            $this->redeem($sub);
             if ($sub->trial_amount > 0) {
-                $sub->trial_ends_at ??= now()->addDays(self::trialDays());
+                $sub->trial_ends_at ??= now()->addDays(self::trialDays() + (int) $sub->extra_days);
                 $school->trial_used = true;
+                $school->extendUntil($sub->trial_ends_at);
+            } elseif ($sub->extra_days > 0) {
+                // coupon free days: first monthly charge after them
+                $sub->trial_ends_at ??= now()->addDays((int) $sub->extra_days);
                 $school->extendUntil($sub->trial_ends_at);
             } else {
                 // no trial: the first month is charged with the authorisation
@@ -91,6 +149,17 @@ class Billing
 
             return $sub;
         });
+    }
+
+    /** The coupon counts as used once the school has paid / approved Autopay (once per school). */
+    private function redeem(Subscription $sub): void
+    {
+        if (! $sub->coupon_id || CouponRedemption::where('coupon_id', $sub->coupon_id)->where('school_id', $sub->school_id)->exists()) {
+            return;
+        }
+        CouponRedemption::create(['coupon_id' => $sub->coupon_id, 'school_id' => $sub->school_id, 'subscription_id' => $sub->id,
+            'monthly_before' => $sub->list_amount ?? $sub->monthly_amount, 'monthly_after' => $sub->monthly_amount, 'extra_days' => $sub->extra_days]);
+        Coupon::whereKey($sub->coupon_id)->increment('used_count');
     }
 
     public function charged(string $subscriptionId, ?int $currentEnd): ?Subscription

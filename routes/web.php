@@ -73,6 +73,12 @@ Route::middleware(['auth', 'super'])->prefix('super')->name('super.')->group(fun
     Route::post('/schools/{school}/extend', [Super\SchoolController::class, 'extend'])->name('schools.extend');
     Route::post('/schools/{school}/block', [Super\SchoolController::class, 'toggleBlock'])->name('schools.block');
     Route::get('/subscriptions', [Super\SubscriptionController::class, 'index'])->name('subscriptions');
+    Route::get('/coupons', [Super\CouponController::class, 'index'])->name('coupons');
+    Route::post('/coupons', [Super\CouponController::class, 'store'])->name('coupons.store');
+    Route::get('/coupons/{coupon}/edit', [Super\CouponController::class, 'edit'])->name('coupons.edit');
+    Route::put('/coupons/{coupon}', [Super\CouponController::class, 'update'])->name('coupons.update');
+    Route::post('/coupons/{coupon}/toggle', [Super\CouponController::class, 'toggle'])->name('coupons.toggle');
+    Route::delete('/coupons/{coupon}', [Super\CouponController::class, 'destroy'])->name('coupons.destroy');
     Route::get('/settings', [Super\SettingController::class, 'edit'])->name('settings');
     Route::put('/settings', [Super\SettingController::class, 'update'])->name('settings.update');
     Route::get('/update', [Super\UpdateController::class, 'index'])->name('update');
@@ -89,6 +95,7 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
     Route::get('/billing', [BillingController::class, 'show'])->name('billing');
     Route::post('/billing/start', [BillingController::class, 'start'])->middleware('throttle:10,1')->name('billing.start');
     Route::post('/billing/verify', [BillingController::class, 'verify'])->name('billing.verify');
+    Route::post('/billing/coupon', [BillingController::class, 'coupon'])->middleware('throttle:20,1')->name('billing.coupon');
     Route::post('/billing/{subscription}/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
 
     Route::get('/school-signature', [SchoolAssetController::class, 'signature'])->name('school.signature');

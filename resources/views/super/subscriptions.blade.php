@@ -14,7 +14,7 @@
                 <td>{{ $s->created_at->format('d M Y') }}</td>
                 <td><a href="{{ route('super.schools.show', $s->school) }}">{{ $s->school->name }}</a><div class="small text-muted">{{ $s->school->phone }}</div></td>
                 <td><span class="badge {{ ['active' => 'text-bg-success', 'authenticated' => 'text-bg-info', 'pending' => 'text-bg-warning', 'halted' => 'text-bg-danger', 'cancelled' => 'text-bg-secondary'][$s->status] ?? 'text-bg-light' }}">{{ $s->label() }}</span></td>
-                <td>₹{{ number_format($s->monthly_amount / 100) }}</td><td>{{ $s->trial_ends_at?->format('d M Y') }}</td><td>{{ $s->current_end?->format('d M Y') }}</td><td>{{ $s->paid_count }}</td>
+                <td>₹{{ number_format($s->monthly_amount / 100) }}@if($s->coupon)<div class="small text-success">{{ $s->coupon->code }}</div>@endif</td><td>{{ $s->trial_ends_at?->format('d M Y') }}</td><td>{{ $s->current_end?->format('d M Y') }}</td><td>{{ $s->paid_count }}</td>
                 <td class="small">{{ $s->razorpay_subscription_id }}</td>
             </tr>
         @empty

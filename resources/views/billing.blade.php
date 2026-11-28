@@ -82,7 +82,7 @@
             <tbody>
             @foreach($subscriptions as $sub)
                 <tr>
-                    <td>{{ $sub->created_at->format('d M Y') }}</td><td>{{ $sub->label() }}</td><td>₹{{ number_format($sub->monthly_amount / 100) }}</td>
+                    <td>{{ $sub->created_at->format('d M Y') }}</td><td>{{ $sub->label() }}</td><td>₹{{ number_format($sub->monthly_amount / 100) }}@if($sub->coupon)<div class="small text-success">coupon {{ $sub->coupon->code }}</div>@endif</td>
                     <td>{{ $sub->trial_ends_at?->format('d M Y') }}</td><td>{{ $sub->current_end?->format('d M Y') }}</td><td>{{ $sub->paid_count }}</td>
                     <td class="text-end">@if($sub->isLive() && $isAdmin)
                         <form method="POST" action="{{ route('billing.cancel', $sub) }}" data-confirm="Cancel Autopay? The software keeps working until the paid period ends.">@csrf<button class="btn btn-sm btn-outline-danger">Cancel Autopay</button></form>

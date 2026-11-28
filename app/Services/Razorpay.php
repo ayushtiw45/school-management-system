@@ -24,11 +24,15 @@ class Razorpay
         return Http::withBasicAuth((string) P::get('razorpay_key_id'), (string) P::get('razorpay_key_secret'))->timeout(20)->asJson();
     }
 
-    /** Monthly plan for the configured price; created once in Razorpay and remembered. */
+    /** Monthly plan for a price; created once in Razorpay per amount and remembered (coupons use their own amount). */
     public function monthlyPlanId(int $amountPaise, string $name): string
     {
         if (P::get('razorpay_plan_id') && (int) P::get('razorpay_plan_amount') === $amountPaise) {
             return P::get('razorpay_plan_id');
+        }
+        $key = 'razorpay_plan_'.$amountPaise;
+        if ($id = P::get($key)) {
+            return $id;
         }
 
         $res = $this->api()->post('https://api.razorpay.com/v1/plans', [
@@ -39,8 +43,11 @@ class Razorpay
         if (! $res->successful() || ! $res->json('id')) {
             throw new RuntimeException('Razorpay plan failed: '.($res->json('error.description') ?? $res->status()));
         }
-        P::put('razorpay_plan_id', $res->json('id'));
-        P::put('razorpay_plan_amount', (string) $amountPaise);
+        if (! P::get('razorpay_plan_id')) {
+            P::put('razorpay_plan_id', $res->json('id'));
+            P::put('razorpay_plan_amount', (string) $amountPaise);
+        }
+        P::put($key, $res->json('id'));
 
         return $res->json('id');
     }

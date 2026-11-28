@@ -43,7 +43,13 @@ class BillingController extends Controller
         }
 
         try {
-            $sub = $billing->start($school);
+            $coupon = $billing->coupon($request->input('coupon'), $school);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        try {
+            $sub = $billing->start($school, $coupon);
         } catch (\Throwable $e) {
             report($e);
 
@@ -56,11 +62,33 @@ class BillingController extends Controller
             'key' => $razorpay->keyId(),
             'subscription_id' => $sub->razorpay_subscription_id,
             'name' => PlatformSetting::get('company_name'),
-            'description' => $sub->trial_amount
-                ? Billing::trialDays().'-day trial for ₹'.($sub->trial_amount / 100).', then ₹'.($sub->monthly_amount / 100).' per month'
-                : '₹'.($sub->monthly_amount / 100).' per month',
+            'description' => ($sub->trial_amount
+                ? (Billing::trialDays() + $sub->extra_days).'-day trial for ₹'.($sub->trial_amount / 100).', then ₹'.($sub->monthly_amount / 100).' per month'
+                : ($sub->extra_days ? $sub->extra_days.' days free, then ' : '').'₹'.($sub->monthly_amount / 100).' per month').($coupon ? ' (coupon '.$coupon->code.')' : ''),
             'prefill' => ['name' => $user->name, 'email' => $user->email, 'contact' => $school->phone ?: $user->phone],
         ]);
+    }
+
+    /** Check a coupon code and show the new price (billing page). */
+    public function coupon(Request $request, Billing $billing)
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+        $school = Tenant::school();
+        try {
+            $coupon = $billing->coupon($request->input('code'), $school);
+        } catch (\RuntimeException $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 422);
+        }
+        if (! $coupon) {
+            return response()->json(['ok' => false, 'message' => 'Enter a coupon code.'], 422);
+        }
+        $q = $billing->quote($school, $coupon);
+        $msg = 'Coupon applied: '.$coupon->label().'. ';
+        $msg .= $q['trial'] ? 'Pay ₹'.($q['trial_paise'] / 100).' now, '.$q['free_days'].' days free, then ' : ($q['free_days'] ? $q['free_days'].' days free, then ' : '');
+        $msg .= '₹'.number_format($q['monthly'] / 100).' per month'.($q['monthly'] < $q['list'] ? ' instead of ₹'.number_format($q['list'] / 100) : '').'.';
+
+        return response()->json(['ok' => true, 'code' => $coupon->code, 'message' => $msg,
+            'button' => $q['trial'] ? 'Pay ₹'.($q['trial_paise'] / 100).' & start trial' : ($q['free_days'] ? 'Start '.$q['free_days'].' free days' : 'Pay ₹'.number_format($q['monthly'] / 100).' & activate')]);
     }
 
     public function verify(Request $request, Razorpay $razorpay, Billing $billing)
