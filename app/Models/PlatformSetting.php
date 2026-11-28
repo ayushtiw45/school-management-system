@@ -24,6 +24,7 @@ class PlatformSetting extends Model
         'razorpay_webhook_secret' => '',
         'razorpay_plan_id' => '',
         'razorpay_plan_amount' => '',
+        'migrated_version' => '',
     ];
 
     public static function get(string $key): ?string

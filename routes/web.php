@@ -66,6 +66,12 @@ Route::middleware(['auth', 'super'])->prefix('super')->name('super.')->group(fun
     Route::get('/subscriptions', [Super\SubscriptionController::class, 'index'])->name('subscriptions');
     Route::get('/settings', [Super\SettingController::class, 'edit'])->name('settings');
     Route::put('/settings', [Super\SettingController::class, 'update'])->name('settings.update');
+    Route::get('/update', [Super\UpdateController::class, 'index'])->name('update');
+    Route::post('/update/upload', [Super\UpdateController::class, 'upload'])->middleware('throttle:10,1')->name('update.upload');
+    Route::post('/update/apply', [Super\UpdateController::class, 'apply'])->name('update.apply');
+    Route::post('/update/cancel', [Super\UpdateController::class, 'cancel'])->name('update.cancel');
+    Route::post('/update/{log}/rollback', [Super\UpdateController::class, 'rollback'])->name('update.rollback');
+    Route::get('/backups/{file}', [Super\UpdateController::class, 'download'])->where('file', '[A-Za-z0-9._-]+')->name('backups.download');
 });
 
 // ---------------- School software (locked until the ₹1 trial is paid) ----------------

@@ -65,6 +65,23 @@ stays in the main `public_html`; this app goes only into the subdomain's folder 
 
 Never share the Razorpay Key Secret in chat or email; enter it only in Owner panel → Settings.
 
+## Updating the live site (no File Manager needed)
+
+Owner panel → **Software Update**: choose the update file, enter your password → **Upload & check** → **Update now**.
+The updater first saves a code backup and a full database backup (SQL, importable in phpMyAdmin; last 3 kept and
+downloadable), puts the site in maintenance mode for about a minute, replaces the program files — never `.env`,
+`storage` (uploads, logs), the installer or `bootstrap/cache` — runs new database migrations and brings the site back.
+If anything fails the previous code is restored automatically. **Undo** in the history puts back the code from before
+an update (the database is left as it is).
+
+Building an update file (for the developer):
+1. Bump the `VERSION` file (e.g. `1.1.0` → `1.2.0`).
+2. `scripts/build-update.sh "What changed 1" "What changed 2"` → `tds-update-1.2.0.zip` (code only, ~1–2 MB).
+   If `composer.lock` changed, use `scripts/build-update.sh --with-vendor …` → `tds-update-1.2.0-full.zip`;
+   the panel refuses a code-only file when libraries changed.
+
+If new code is ever copied by hand instead, opening the owner panel once runs any new database migrations.
+
 ## Local development
 
 ```bash

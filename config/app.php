@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Software version (VERSION file, replaced by every update package)
+    'version' => trim((string) @file_get_contents(base_path('VERSION'))) ?: 'dev',
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
