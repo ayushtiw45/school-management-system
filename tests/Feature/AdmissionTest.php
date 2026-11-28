@@ -75,7 +75,7 @@ class AdmissionTest extends SchoolTestCase
     {
         $data = collect($this->admissionData())->except(['admission_date', 'section_id', 'confirm_now'])->all();
 
-        $this->post(route('apply.store'), $data)->assertRedirect();
+        $this->post(route('apply.store', $this->school), $data)->assertRedirect();
 
         $s = Student::latest('id')->first();
         $this->assertSame('online', $s->admission_type);

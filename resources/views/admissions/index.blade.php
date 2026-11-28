@@ -21,7 +21,7 @@
             </div>
             <div class="col"><input name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Search name, admission no, father, mobile"></div>
             <div class="col-auto"><button class="btn btn-sm btn-primary">Search</button></div>
-            <div class="col-auto"><a href="{{ route('apply') }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Online form link</a></div>
+            <div class="col-auto"><a href="{{ route('apply', \App\Support\Tenant::school()) }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Online form link</a></div>
         </form>
     </div>
     <div class="table-responsive">

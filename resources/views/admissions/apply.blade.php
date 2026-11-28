@@ -9,7 +9,7 @@
     </div>
     <div class="bg-light rounded-4 p-3 p-md-4">
         @include('partials.flash')
-        <form method="POST" action="{{ route('apply.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('apply.store', $school) }}" enctype="multipart/form-data">
             @csrf
             @include('partials.student-fields', ['student' => null, 'classes' => $classes, 'public' => true])
             <button class="btn btn-primary btn-lg w-100">Submit Application</button>

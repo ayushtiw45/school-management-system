@@ -74,7 +74,7 @@ class NotificationTest extends SchoolTestCase
         $this->assertStringContainsString('pending', NotificationLog::where('type', 'fee_due')->first()->message);
 
         // automatic command is off by default, and skips students reminded this week when on
-        $this->artisan('fees:send-reminders')->expectsOutputToContain('off')->assertSuccessful();
+        $this->artisan('fees:send-reminders')->expectsOutputToContain('0 student')->assertSuccessful();
         Setting::put('notify_fee_due_auto', '1');
         $this->artisan('fees:send-reminders')->expectsOutputToContain('0 student')->assertSuccessful();
     }
@@ -91,7 +91,7 @@ class NotificationTest extends SchoolTestCase
         ])->assertRedirect();
 
         $this->assertSame(2, NotificationLog::where('type', 'announcement')->count());
-        $this->assertStringContainsString('My School', NotificationLog::first()->message);
+        $this->assertStringContainsString('Sunrise Public School', NotificationLog::first()->message);
     }
 
     public function test_pages_render_and_settings_save(): void

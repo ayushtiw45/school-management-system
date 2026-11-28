@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
+use App\Support\Tenant;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
+/** Settings of the current school (school name, prefixes, message templates…). */
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value'];
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 'key', 'value'];
+
+    /** @var array<int, array<string, string>> per-request cache, keyed by school id */
+    private static array $cache = [];
 
     public const DEFAULTS = [
         'school_name' => 'My School',
@@ -33,16 +40,23 @@ class Setting extends Model
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        $all = Cache::rememberForever('settings', function () {
-            return Schema::hasTable('settings') ? static::pluck('value', 'key')->all() : [];
-        });
+        $sid = Tenant::id();
+        if (! $sid) {
+            return $default ?? (self::DEFAULTS[$key] ?? null);
+        }
+        self::$cache[$sid] ??= Schema::hasTable('settings') ? static::pluck('value', 'key')->all() : [];
 
-        return $all[$key] ?? $default ?? (self::DEFAULTS[$key] ?? null);
+        return self::$cache[$sid][$key] ?? $default ?? (self::DEFAULTS[$key] ?? null);
     }
 
     public static function put(string $key, ?string $value): void
     {
         static::updateOrCreate(['key' => $key], ['value' => $value]);
-        Cache::forget('settings');
+        unset(self::$cache[Tenant::id()]);
+    }
+
+    public static function flush(): void
+    {
+        self::$cache = [];
     }
 }

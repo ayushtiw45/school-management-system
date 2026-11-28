@@ -1,0 +1,47 @@
+name: Build Hostinger zip
+
+# Tests the app and builds tds-school-hostinger.zip (extract inside public_html on Hostinger).
+# Push a tag like v1.0.0 to attach the zip to a GitHub release.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, pdo_mysql, sodium, curl, fileinfo, intl, gd, zip
+          tools: composer
+          coverage: none
+
+      - name: Test
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress
+          cp .env.example .env && php artisan key:generate
+          php artisan test
+
+      - name: Build zip
+        run: scripts/build-hostinger-zip.sh tds-school-hostinger.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tds-school-hostinger
+          path: tds-school-hostinger.zip
+
+      - name: Attach to release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tds-school-hostinger.zip

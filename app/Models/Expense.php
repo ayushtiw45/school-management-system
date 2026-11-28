@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Expense extends Model
 {
-    protected $fillable = [
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 
         'expense_category_id', 'expense_date', 'amount', 'title', 'paid_to', 'salary_month',
         'payment_method', 'reference_no', 'bill_path', 'notes', 'created_by',
     ];

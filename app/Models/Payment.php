@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Payment extends Model
 {
+    use BelongsToSchool;
+
     public const METHODS = [
         'cash' => 'Cash',
         'upi' => 'UPI',
@@ -16,7 +19,7 @@ class Payment extends Model
         'online' => 'Online Gateway',
     ];
 
-    protected $fillable = [
+    protected $fillable = ['school_id', 
         'receipt_no', 'student_id', 'payment_date', 'amount', 'method', 'reference_no',
         'bank_name', 'cheque_date', 'remarks', 'received_by',
     ];

@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\FeeService;
 use App\Services\NumberGenerator;
+use App\Support\Tenant;
+use App\Models\School;
 use Illuminate\Database\Seeder;
 
 /** Optional sample students and payments for a demo: php artisan db:seed --class=DemoDataSeeder */
@@ -17,12 +19,18 @@ class DemoDataSeeder extends Seeder
 {
     public function run(FeeService $fees): void
     {
+        $school = School::where('email', 'office@sunrise.test')->first() ?? School::first();
+        Tenant::run($school, fn () => $this->fill($fees, $school));
+    }
+
+    private function fill(FeeService $fees, School $school): void
+    {
         $session = AcademicSession::current();
-        $admin = User::where('role', 'admin')->first();
+        $admin = User::where('school_id', $school->id)->where('role', 'admin')->first();
         $faker = fake('en_IN');
 
-        User::firstOrCreate(['email' => 'accounts@school.test'], ['name' => 'Accountant', 'role' => 'accountant', 'password' => 'password']);
-        User::firstOrCreate(['email' => 'office@school.test'], ['name' => 'Admission Desk', 'role' => 'admission_staff', 'password' => 'password']);
+        User::firstOrCreate(['email' => 'accounts@school.test'], ['school_id' => $school->id, 'name' => 'Accountant', 'role' => 'accountant', 'password' => 'password']);
+        User::firstOrCreate(['email' => 'office@school.test'], ['school_id' => $school->id, 'name' => 'Admission Desk', 'role' => 'admission_staff', 'password' => 'password']);
 
         foreach (SchoolClass::with('sections')->get() as $class) {
             foreach (range(1, 4) as $n) {

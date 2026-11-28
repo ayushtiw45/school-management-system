@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\School;
+use App\Support\Tenant;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Services\NumberGenerator;
@@ -14,19 +16,22 @@ use Illuminate\Support\Facades\Validator;
 /** Public form parents can fill online. Creates a "pending" admission for staff to review. */
 class OnlineAdmissionController extends Controller
 {
-    public function create()
+    public function create(School $school)
     {
+        $this->open($school);
         $session = AcademicSession::current();
         abort_unless($session, 503, 'Online admissions are not open yet.');
 
         return view('admissions.apply', [
+            'school' => $school,
             'session' => $session,
             'classes' => SchoolClass::ordered()->get(),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, School $school)
     {
+        $this->open($school);
         $session = AcademicSession::current();
         abort_unless($session, 503);
 
@@ -46,11 +51,19 @@ class OnlineAdmissionController extends Controller
             return StudentForm::save($student, $data, $request);
         });
 
-        return redirect()->route('apply.thanks', $student->admission_no);
+        return redirect()->route('apply.thanks', [$school, $student->admission_no]);
     }
 
-    public function thanks(string $admissionNo)
+    public function thanks(School $school, string $admissionNo)
     {
-        return view('admissions.thanks', compact('admissionNo'));
+        $this->open($school);
+        return view('admissions.thanks', compact('admissionNo', 'school'));
+    }
+
+    /** The public form works as the school in the link, and only while its plan is active. */
+    private function open(School $school): void
+    {
+        abort_unless($school->accessState() === 'active', 404);
+        Tenant::set($school);
     }
 }

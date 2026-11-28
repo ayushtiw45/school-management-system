@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpenseCategory extends Model
 {
-    protected $fillable = ['name', 'is_salary'];
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 'name', 'is_salary'];
 
     protected function casts(): array
     {

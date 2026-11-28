@@ -38,7 +38,7 @@ class FeeStructureController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'session_id' => ['required', 'exists:academic_sessions,id'],
+            'session_id' => ['required', \App\Support\Tenant::exists('academic_sessions')],
             'amounts' => ['array'],
             'amounts.*' => ['array'],
             'amounts.*.*' => ['nullable', 'numeric', 'min:0', 'max:9999999'],
@@ -64,8 +64,8 @@ class FeeStructureController extends Controller
     public function generate(Request $request, FeeService $fees)
     {
         $data = $request->validate([
-            'session_id' => ['required', 'exists:academic_sessions,id'],
-            'class_id' => ['nullable', 'exists:school_classes,id'],
+            'session_id' => ['required', \App\Support\Tenant::exists('academic_sessions')],
+            'class_id' => ['nullable', \App\Support\Tenant::exists('school_classes')],
         ]);
         $session = AcademicSession::findOrFail($data['session_id']);
 

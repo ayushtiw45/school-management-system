@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $table->string('key');
+            $table->unique(['school_id', 'key']);
             $table->text('value')->nullable();
             $table->timestamps();
         });
 
         Schema::create('academic_sessions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->string('name'); // e.g. 2026-27
             $table->date('start_date');
             $table->date('end_date');
@@ -26,6 +29,7 @@ return new class extends Migration
 
         Schema::create('school_classes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();
@@ -33,6 +37,7 @@ return new class extends Migration
 
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('school_class_id')->constrained()->cascadeOnDelete();
             $table->string('name', 20);
             $table->unsignedSmallInteger('capacity')->nullable();
@@ -42,7 +47,9 @@ return new class extends Migration
 
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->string('admission_no')->unique();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $table->string('admission_no');
+            $table->unique(['school_id', 'admission_no']);
             $table->date('admission_date');
             $table->string('admission_type', 10)->default('manual'); // manual, online
             $table->string('status', 15)->default('pending'); // pending, active, inactive, left
@@ -96,6 +103,7 @@ return new class extends Migration
 
         Schema::create('student_documents', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->string('path');
@@ -104,6 +112,7 @@ return new class extends Migration
 
         Schema::create('fee_heads', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('frequency', 15)->default('monthly'); // one_time, monthly, quarterly, half_yearly, yearly
             $table->boolean('concession_applicable')->default(true);
@@ -113,6 +122,7 @@ return new class extends Migration
 
         Schema::create('fee_structures', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('academic_session_id')->constrained()->cascadeOnDelete();
             $table->foreignId('school_class_id')->constrained()->cascadeOnDelete();
             $table->foreignId('fee_head_id')->constrained()->cascadeOnDelete();
@@ -123,6 +133,7 @@ return new class extends Migration
 
         Schema::create('student_fees', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->foreignId('academic_session_id')->constrained();
             $table->foreignId('fee_head_id')->nullable()->constrained()->nullOnDelete();
@@ -140,7 +151,9 @@ return new class extends Migration
 
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('receipt_no')->unique();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $table->string('receipt_no');
+            $table->unique(['school_id', 'receipt_no']);
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->date('payment_date');
             $table->decimal('amount', 10, 2);
@@ -156,6 +169,7 @@ return new class extends Migration
 
         Schema::create('payment_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('payment_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_fee_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2);

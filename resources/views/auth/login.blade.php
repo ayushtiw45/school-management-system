@@ -1,31 +1,23 @@
-@extends('layouts.guest')
-@section('title', 'Login')
+@extends('layouts.site')
+@section('title', __('Login'))
 @section('content')
-<div class="container d-flex align-items-center justify-content-center" style="min-height:100vh">
-    <div class="card shadow p-4" style="max-width:400px;width:100%">
-        <div class="text-center mb-4">
-            <div class="small text-uppercase accent fw-semibold" style="letter-spacing:.1em">School Management System</div>
-            <h1 class="h4 fw-bold mt-1">{{ school('name') }}</h1>
-            <p class="text-muted small mb-0">Sign in to the admin panel</p>
-        </div>
-        @include('partials.flash')
+<div class="bg-light py-5">
+<div class="container" style="max-width:460px">
+    <div class="card p-4 p-md-5 shadow-sm">
+        <h1 class="h3 fw-bold text-center">{{ __('Log in') }}</h1>
+        <p class="text-muted text-center">{{ __('New here?') }} <a href="{{ route('register') }}">{{ __('Register your school') }}</a></p>
+        @include('site.flash')
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" class="form-control" required autofocus>
+            <div class="mb-3"><label class="form-label">{{ __('Email') }}</label><input type="email" name="email" value="{{ old('email') }}" class="form-control" required autofocus></div>
+            <div class="mb-2"><label class="form-label">{{ __('Password') }}</label><input type="password" name="password" class="form-control" required></div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="remember" id="rem" checked><label class="form-check-label small" for="rem">{{ __('Remember me') }}</label></div>
+                <a href="{{ route('password.request') }}" class="small">{{ __('Forgot password?') }}</a>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                <label class="form-check-label small" for="remember">Remember me</label>
-            </div>
-            <button class="btn btn-primary w-100">Login</button>
+            <button class="btn btn-navy btn-lg w-100">{{ __('Log in') }}</button>
         </form>
-        <div class="text-center mt-3 small"><a href="{{ route('apply') }}">Online Admission Form →</a></div>
     </div>
+</div>
 </div>
 @endsection

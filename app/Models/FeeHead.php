@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FeeHead extends Model
 {
+    use BelongsToSchool;
+
     public const FREQUENCIES = [
         'one_time' => 'One Time (at admission)',
         'monthly' => 'Monthly',
@@ -23,7 +26,7 @@ class FeeHead extends Model
         'yearly' => 1,
     ];
 
-    protected $fillable = ['name', 'frequency', 'concession_applicable', 'description'];
+    protected $fillable = ['school_id', 'name', 'frequency', 'concession_applicable', 'description'];
 
     protected function casts(): array
     {

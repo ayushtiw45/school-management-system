@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NotificationLog extends Model
 {
+    use BelongsToSchool;
+
     public const TYPES = [
         'fee_due' => 'Fee Due Reminder',
         'payment' => 'Payment Confirmation',
@@ -14,7 +17,7 @@ class NotificationLog extends Model
         'announcement' => 'Announcement',
     ];
 
-    protected $fillable = ['student_id', 'channel', 'type', 'recipient', 'message', 'status', 'response', 'sent_by'];
+    protected $fillable = ['school_id', 'student_id', 'channel', 'type', 'recipient', 'message', 'status', 'response', 'sent_by'];
 
     public function student(): BelongsTo
     {

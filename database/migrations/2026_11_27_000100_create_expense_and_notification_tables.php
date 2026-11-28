@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->unique(['school_id', 'name']);
             $table->boolean('is_salary')->default(false); // shows staff name + salary month fields
             $table->timestamps();
         });
 
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('expense_category_id')->constrained()->restrictOnDelete();
             $table->date('expense_date');
             $table->decimal('amount', 10, 2);
@@ -34,6 +37,7 @@ return new class extends Migration
 
         Schema::create('notification_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->nullable()->constrained()->nullOnDelete();
             $table->string('channel', 10);      // sms, whatsapp
             $table->string('type', 20);         // fee_due, payment, admission, announcement

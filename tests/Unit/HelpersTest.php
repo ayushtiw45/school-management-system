@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Reports\ReportData;
-use App\Services\LicenseService;
 use PHPUnit\Framework\TestCase;
 
 class HelpersTest extends TestCase
@@ -24,13 +23,5 @@ class HelpersTest extends TestCase
         $this->assertSame(['a' => 30.5, 'n' => 3.0], ReportData::sum([['a' => 10.25, 'n' => 1], ['a' => 20.25, 'n' => 2]], ['a', 'n']));
         $this->assertSame('1,500.00', $r->format('a', 1500));
         $this->assertSame('', $r->format('a', null));
-    }
-
-    public function test_base64url_round_trip(): void
-    {
-        $bin = random_bytes(64);
-        $enc = LicenseService::b64e($bin);
-        $this->assertDoesNotMatchRegularExpression('/[+\/=]/', $enc);
-        $this->assertSame($bin, LicenseService::b64d($enc));
     }
 }

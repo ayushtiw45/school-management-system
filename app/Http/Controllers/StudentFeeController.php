@@ -60,7 +60,7 @@ class StudentFeeController extends Controller
     public function store(Request $request, Student $student)
     {
         $data = $request->validate([
-            'fee_head_id' => ['nullable', 'exists:fee_heads,id'],
+            'fee_head_id' => ['nullable', \App\Support\Tenant::exists('fee_heads')],
             'title' => ['required', 'string', 'max:150'],
             'amount' => ['required', 'numeric', 'min:1'],
             'discount' => ['nullable', 'numeric', 'min:0', 'lte:amount'],
@@ -80,7 +80,7 @@ class StudentFeeController extends Controller
 
     public function generate(Request $request, Student $student, FeeService $fees)
     {
-        $data = $request->validate(['session_id' => ['required', 'exists:academic_sessions,id']]);
+        $data = $request->validate(['session_id' => ['required', \App\Support\Tenant::exists('academic_sessions')]]);
         abort_unless($student->status === 'active', 422, 'Student is not active.');
 
         $created = $fees->generateForStudent($student, AcademicSession::find($data['session_id']));

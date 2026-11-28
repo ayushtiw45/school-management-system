@@ -50,8 +50,8 @@ class NotificationController extends Controller
     public function announce(Request $request, NotificationService $notifier)
     {
         $data = $request->validate([
-            'class_id' => ['nullable', 'exists:school_classes,id'],
-            'section_id' => ['nullable', Rule::exists('sections', 'id')->where('school_class_id', $request->class_id)],
+            'class_id' => ['nullable', \App\Support\Tenant::exists('school_classes')],
+            'section_id' => ['nullable', \App\Support\Tenant::exists('sections')->where('school_class_id', $request->class_id)],
             'channel' => ['required', Rule::in(['sms', 'whatsapp', 'both'])],
             'message' => ['required', 'string', 'max:1000'],
         ]);

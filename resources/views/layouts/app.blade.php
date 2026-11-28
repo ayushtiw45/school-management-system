@@ -19,6 +19,8 @@
         .sidebar a.nav-link:hover { color:#fff; background:rgba(255,255,255,.05); }
         .sidebar a.nav-link.active { color:#fff; background:rgba(233,162,59,.12); border-left-color:var(--amber); }
         .sidebar a.nav-link i { width:1.5rem; display:inline-block; }
+        .sidebar.locked a.nav-link:not(.billing-link) { opacity:.55; }
+        .sidebar.locked a.nav-link:not(.billing-link)::after { content:'\F47B'; font-family:'bootstrap-icons'; float:right; color:var(--amber); }
         .main { margin-left:250px; }
         .topbar { background:#fff; border-bottom:1px solid #e5e7eb; }
         .card { border:1px solid #e7eaf0; border-radius:.75rem; box-shadow:0 1px 2px rgba(16,24,40,.04); }
@@ -43,8 +45,8 @@
 </head>
 <body>
 @php($u = auth()->user())
-<nav class="sidebar" id="sidebar">
-    <div class="brand"><small>{{ config('license.enabled') ? 'TDS School Management' : 'School Management' }}</small>{{ school('name') }}</div>
+<nav class="sidebar {{ ($access['state'] ?? null) === 'locked' ? 'locked' : '' }}" id="sidebar">
+    <div class="brand"><small>TDS School Management</small>{{ school('name') }}</div>
     <div class="nav flex-column py-2">
         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
 
@@ -88,9 +90,8 @@
             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-shield-lock"></i>Users & Roles</a>
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.edit') }}"><i class="bi bi-gear"></i>Settings</a>
         @endif
-        @if(config('license.enabled'))
-            <a class="nav-link {{ request()->routeIs('license') ? 'active' : '' }}" href="{{ route('license') }}"><i class="bi bi-patch-check"></i>License</a>
-        @endif
+        <div class="nav-head">Plan</div>
+        <a class="nav-link billing-link {{ request()->routeIs('billing') ? 'active' : '' }}" href="{{ route('billing') }}"><i class="bi bi-credit-card"></i>Plan & Billing</a>
     </div>
 </nav>
 
@@ -111,25 +112,21 @@
         </div>
     </header>
 
-    @isset($license)
-        @if($license['state'] === 'trial')
-            <div class="px-3 py-2 small d-flex align-items-center gap-2 no-print" style="background:#fff7e6;border-bottom:1px solid #f5d9a6">
-                <i class="bi bi-hourglass-split"></i> Free trial: <strong>{{ $license['days_left'] }} day(s) left</strong>
-                <a href="{{ route('license') }}" class="ms-auto">Buy license</a>
-            </div>
-        @elseif($license['state'] === 'expired' && $license['plan'] === 'none')
+    @isset($access)
+        @if($access['state'] === 'locked')
             <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white no-print" style="background:#14213d">
-                <i class="bi bi-key"></i> Activate the software: start your 7-day trial for just ₹1.
-                <a href="{{ route('license') }}" class="ms-auto btn btn-sm fw-semibold" style="background:#e9a23b;color:#14213d">Start trial</a>
+                <i class="bi bi-lock-fill"></i> All features are locked. Start your 7-day trial for just ₹1 to unlock everything.
+                <a href="{{ route('billing') }}" class="ms-auto btn btn-sm fw-semibold" style="background:#e9a23b;color:#14213d">Start trial for ₹1</a>
             </div>
-        @elseif($license['state'] === 'expired')
+        @elseif($access['state'] === 'expired')
             <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white bg-danger no-print">
-                <i class="bi bi-lock"></i> {{ $license['plan'] === 'trial' ? 'Free trial has ended' : 'License expired' }}. Read-only mode: your data is safe, but new entries are disabled.
-                <a href="{{ route('license') }}" class="ms-auto text-white fw-semibold">Activate license</a>
+                <i class="bi bi-lock"></i> Your plan has ended. Read-only mode: you can view and print, but new entries are disabled.
+                <a href="{{ route('billing') }}" class="ms-auto text-white fw-semibold">Renew</a>
             </div>
-        @elseif($license['days_left'] !== null && $license['days_left'] <= 15)
-            <div class="px-3 py-2 small d-flex align-items-center gap-2 no-print" style="background:#fff7e6">
-                <i class="bi bi-bell"></i> License expires in {{ $license['days_left'] }} day(s). <a href="{{ route('license') }}" class="ms-auto">Renew</a>
+        @elseif($access['days'] !== null && $access['days'] <= 3)
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 no-print" style="background:#fff7e6;border-bottom:1px solid #f5d9a6">
+                <i class="bi bi-hourglass-split"></i> Your plan renews or ends in <strong>{{ $access['days'] }} day(s)</strong>.
+                <a href="{{ route('billing') }}" class="ms-auto">Plan & Billing</a>
             </div>
         @endif
     @endisset

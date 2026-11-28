@@ -20,7 +20,7 @@ class SchoolClassController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:50', 'unique:school_classes,name'],
+            'name' => ['required', 'string', 'max:50', \App\Support\Tenant::unique('school_classes', 'name')],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
         ]);
         $data['sort_order'] ??= (int) SchoolClass::max('sort_order') + 1;
@@ -32,7 +32,7 @@ class SchoolClassController extends Controller
     public function update(Request $request, SchoolClass $schoolClass)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:50', 'unique:school_classes,name,'.$schoolClass->id],
+            'name' => ['required', 'string', 'max:50', \App\Support\Tenant::unique('school_classes', 'name')->ignore($schoolClass->id)],
             'sort_order' => ['required', 'integer', 'min:0', 'max:999'],
         ]);
         $schoolClass->update($data);

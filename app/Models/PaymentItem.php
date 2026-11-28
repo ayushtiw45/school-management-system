@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentItem extends Model
 {
-    protected $fillable = ['payment_id', 'student_fee_id', 'amount', 'fine', 'discount'];
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 'payment_id', 'student_fee_id', 'amount', 'fine', 'discount'];
 
     protected function casts(): array
     {

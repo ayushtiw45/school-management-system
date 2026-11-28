@@ -130,7 +130,7 @@ class StudentController extends Controller
 
     public function idCards(Request $request)
     {
-        $request->validate(['class_id' => ['required', 'exists:school_classes,id']]);
+        $request->validate(['class_id' => ['required', \App\Support\Tenant::exists('school_classes')]]);
 
         $students = Student::with(['schoolClass', 'section', 'academicSession'])
             ->where('status', 'active')
@@ -199,10 +199,10 @@ class StudentController extends Controller
     {
         $data = $request->validate([
             'student_ids' => ['required', 'array', 'min:1'],
-            'student_ids.*' => ['integer', 'exists:students,id'],
-            'to_session_id' => ['required', 'exists:academic_sessions,id'],
-            'to_class_id' => ['required', 'exists:school_classes,id'],
-            'to_section_id' => ['nullable', Rule::exists('sections', 'id')->where('school_class_id', $request->to_class_id)],
+            'student_ids.*' => ['integer', \App\Support\Tenant::exists('students')],
+            'to_session_id' => ['required', \App\Support\Tenant::exists('academic_sessions')],
+            'to_class_id' => ['required', \App\Support\Tenant::exists('school_classes')],
+            'to_section_id' => ['nullable', \App\Support\Tenant::exists('sections')->where('school_class_id', $request->to_class_id)],
             'generate_fees' => ['nullable', 'boolean'],
         ]);
 

@@ -11,8 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // One row per school using the software (tenant)
+        Schema::create('schools', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->string('phone', 20)->nullable();
+            $table->string('email')->nullable();
+            $table->string('city', 80)->nullable();
+            $table->string('state', 80)->nullable();
+            $table->boolean('trial_used')->default(false);
+            $table->timestamp('paid_until')->nullable(); // null = never paid → everything locked
+            $table->timestamp('activated_at')->nullable();
+            $table->boolean('is_blocked')->default(false);
+            $table->timestamps();
+        });
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_id')->nullable()->constrained()->cascadeOnDelete(); // null = platform owner
+            $table->boolean('is_super_admin')->default(false);
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -46,6 +64,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('schools');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

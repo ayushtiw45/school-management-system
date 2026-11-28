@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\AcademicSession;
+use App\Models\School;
+use App\Support\Tenant;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\User;
@@ -14,15 +16,21 @@ abstract class SchoolTestCase extends TestCase
 {
     use RefreshDatabase;
 
+    /** The demo school created by DatabaseSeeder (active plan). */
+    protected School $school;
+
     protected function setUp(): void
     {
         parent::setUp();
+        Tenant::set(null);
         $this->seed(DatabaseSeeder::class);
+        $this->school = School::where('email', 'office@sunrise.test')->firstOrFail();
+        Tenant::set($this->school);
     }
 
-    protected function user(string $role = 'admin'): User
+    protected function user(string $role = 'admin', ?School $school = null): User
     {
-        return User::factory()->create(['role' => $role, 'is_active' => true]);
+        return User::factory()->create(['role' => $role, 'is_active' => true, 'school_id' => ($school ?? $this->school)->id]);
     }
 
     protected function admissionData(array $overrides = []): array

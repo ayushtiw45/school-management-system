@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StudentFee extends Model
 {
-    protected $fillable = [
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 
         'student_id', 'academic_session_id', 'fee_head_id', 'title', 'due_date',
         'amount', 'discount', 'fine', 'paid', 'status',
     ];

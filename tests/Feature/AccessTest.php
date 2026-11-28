@@ -12,7 +12,8 @@ class AccessTest extends SchoolTestCase
     {
         $this->get('/dashboard')->assertRedirect('/login');
         $this->get('/login')->assertOk();
-        $this->get('/apply')->assertOk();
+        $this->get('/apply/'.$this->school->slug)->assertOk();
+        $this->get('/')->assertOk()->assertSee('TDS School');
     }
 
     public function test_login_and_inactive_user_blocked(): void

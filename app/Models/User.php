@@ -18,7 +18,7 @@ class User extends Authenticatable
         'admission_staff' => 'Admission Staff',
     ];
 
-    protected $fillable = ['name', 'email', 'phone', 'role', 'is_active', 'password'];
+    protected $fillable = ['school_id', 'name', 'email', 'phone', 'role', 'is_active', 'password'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -28,7 +28,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'is_super_admin' => 'boolean',
         ];
+    }
+
+    public function school(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(School::class);
     }
 
     public function hasRole(string ...$roles): bool

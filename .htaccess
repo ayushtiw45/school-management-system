@@ -1,0 +1,10 @@
+# Hostinger / shared hosting: the whole app lives in public_html and every request is served from public/.
+# Files outside public/ (.env, storage, vendor …) can never be opened from the web.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

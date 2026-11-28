@@ -1,201 +1,81 @@
-# School Management System (Nursery to Class 8)
+# TDS School Management Software (online, multi-school)
 
-A web-based admin panel for a school's admissions, student records, fees and payments.
-Built with **Laravel 13 (PHP 8.3+) + MySQL**, using Bootstrap 5. Works on mobile, tablet and desktop.
+Web software for Nursery to Class 8 schools, sold as a monthly plan from your own website.
+Any school registers on the website, gets its **own private account** (data is separated per school),
+pays **₹1 for a 7-day trial** and then **₹599/month by Razorpay Autopay**. Until the ₹1 is paid every feature is locked.
 
-## What is built (Phase 1)
+Built with Laravel 13 (PHP 8.3+) and MySQL. Runs on normal shared hosting (Hostinger) — no VPS needed.
+
+## What a school gets
 
 | Module | Features |
 |---|---|
-| **Admin Dashboard** | Total students, admissions (+ pending), total fees collected this session, today's collection, pending fees, class-wise boys/girls, recent admissions, recent payments |
-| **Admission Management** | Manual admission form, public **online admission form** (`/apply`), auto admission number, class & section assignment, personal / parent / guardian / previous school details, photo and document upload, admission confirmation, printable admission form & receipt |
-| **Student Management** | List with search and filters (class, section, status, gender), student profile, edit, documents, ID card (single or whole class), active / inactive, bulk promotion to the next class, transfer / leaving records |
-| **Class & Section Management** | Classes (Nursery → Class 8 seeded), sections A/B/C…, academic sessions with a "current" session, class-wise listing |
-| **Fees Management** | Custom fee categories (one-time, monthly, quarterly, half-yearly, yearly), class-wise fee structure grid, automatic assignment of dues to students (skips months before a mid-year admission), student concession %, extra/custom fees per student, edit discount / fine / due date, pending fee list |
-| **Payment Management** | Cash, UPI, bank transfer, cheque, online (reference no.), partial payments, multiple fees in one receipt, late fine and discount at collection, unique receipt numbers, printable receipt (Print / Save as PDF), payment history with date & mode filters, admin can cancel a receipt (dues are restored) |
-| **User & Role Management** | Secure login/logout, multiple staff accounts, roles: **Admin**, **Accountant**, **Admission Staff** |
-| **Fee Reports & Analytics** | Daily, monthly, date-wise, class-wise, student-wise, pending, paid & unpaid, discount reports and the session collection summary. Every report downloads as **Excel (.xlsx)** or **PDF** |
-| **Expense Management** | Staff salary (staff name + salary month), electricity & utilities, maintenance and custom categories, bill/voucher upload, expense register, monthly expense report with income vs expense |
-| **Notifications & Reminders** | Fee-due reminders (manual from Pending Fees, or automatic daily), payment confirmation, admission confirmation, announcements to all / a class / a section, editable message templates, message log with retry, free WhatsApp click-to-chat button |
+| Dashboard | Students, admissions, today's and session fee collection, pending fees, class-wise strength, income vs expense |
+| Admissions | Office form and a public online form per school (`/apply/{school}`), auto admission no., photo & documents, print form |
+| Students | Search & filters, profile, ID cards, active/inactive, promotion, TC / leaving |
+| Classes & sessions | Nursery–Class 8 created on sign-up, sections, academic sessions |
+| Fees | Fee categories, class-wise structure, automatic dues, concession, extra fees, pending list |
+| Payments | Cash / UPI / bank / cheque, partial payments, fine & discount, printable receipts, cancel receipt |
+| Reports | 11 reports (daily, monthly, class-wise, student-wise, pending, discount, summary, expenses…) in Excel & PDF |
+| Expenses | Categories, salary records, bills, monthly income vs expense |
+| Users & roles | Admin, Accountant, Admission Staff logins per school |
+| SMS / WhatsApp | Fee reminders, payment & admission messages, announcements, free WhatsApp click-to-chat |
 
-### Roles
+## How the business works
 
-- **Admin**: everything, including classes, sessions, users, settings, announcements, message settings and cancelling receipts.
-- **Accountant**: fee categories, fee structure, fee collection, receipts, pending fees, reports, expenses, fee reminders. Can view students.
-- **Admission Staff**: admissions, student records, documents, ID cards, promotion. No fee screens.
+- **Website** (`/`): company page in English and Hindi, pricing, FAQ, privacy / terms / refund / contact pages.
+- **Register** (`/register`): school name, contact, mobile, email, password → school account with default classes, fee
+  categories and settings. The school lands on **Plan & Billing**; every other screen is locked (🔒).
+- **₹1 trial**: Razorpay Subscription with a ₹1 add-on paid now and the first ₹599 charged after 7 days by
+  UPI Autopay / card. One ₹1 trial per school. Webhooks extend access after every monthly payment (+2 grace days).
+- **Plan ends / Autopay cancelled / payment fails**: the school becomes read-only (view, print, reports), data is kept.
+- **Owner panel** (`/super`): all schools (locked / active / ended), CSV export, give access manually (UPI / cash
+  payments), block a school, Autopay list and monthly revenue, settings (contact, ₹1 / 7 days / ₹599, Razorpay keys).
 
-## Local setup
+Data separation: every table has `school_id`; a global scope limits every query to the logged-in user's school and is
+applied before route-model binding, so another school's records return "not found". Validation rules
+(`exists`/`unique`) are scoped the same way. Tests cover this.
+
+## Put it on Hostinger (shared hosting)
+
+1. Get `tds-school-hostinger.zip` (GitHub → Actions → "Build Hostinger zip" → latest run → Artifacts, or from a
+   release, or run `scripts/build-hostinger-zip.sh`).
+2. hPanel → **Databases → MySQL Databases**: create a database and user.
+3. hPanel → **Advanced → PHP Configuration**: PHP 8.3+, extensions `sodium`, `pdo_mysql`, `mbstring`, `fileinfo`,
+   `zip`, `gd` on.
+4. hPanel → **File Manager → public_html**: delete the old files inside it, upload the zip into `public_html` and
+   **Extract** there. `public_html` must directly contain `.htaccess`, `app`, `public`, `vendor` …
+   (the root `.htaccess` serves everything from `public/`; `.env`, `storage`, `vendor` can't be opened from the web).
+5. Open your domain → the **installer** checks the server and asks for the database details and your owner login.
+   It deletes itself when done.
+6. Log in → **Owner panel → Settings**: phone, WhatsApp, email and Razorpay:
+   - Razorpay → API Keys: Key ID + Key Secret (Test mode first, then Live mode)
+   - Razorpay → Webhooks: URL `https://your-domain/razorpay/webhook`, events `subscription.authenticated`,
+     `subscription.charged`, `subscription.pending`, `subscription.halted`, `subscription.cancelled`,
+     `subscription.completed`; paste the webhook secret in Settings
+   - Subscriptions (UPI Autopay / card recurring) must be enabled on the Razorpay account
+7. hPanel → **Security → SSL**: on. Optional: hPanel → Advanced → **Cron Jobs**, every minute:
+   `cd ~/domains/your-domain/public_html && php artisan schedule:run` (daily automatic fee reminders).
+
+Never share the Razorpay Key Secret in chat or email; enter it only in Owner panel → Settings.
+
+## Local development
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite        # SQLite for quick local testing
-php artisan migrate --seed
+touch database/database.sqlite
+php artisan migrate --seed            # owner@tds.test / password (owner), admin@school.test / password (demo school)
+php artisan db:seed --class=DemoDataSeeder   # optional sample students, payments, expenses
 php artisan serve
 ```
-
-Open http://localhost:8000 and log in with **admin@school.test / password**.
-**Change this password right after the first login** (top-right menu → Change Password).
-
-Optional demo data (44 students, payments, expenses, 2 online applications and logins accounts@school.test / office@school.test, password `password`):
-
-```bash
-php artisan db:seed --class=DemoDataSeeder
-```
-
-## Hosting with MySQL (shared hosting / VPS)
-
-1. Create a MySQL database and user in cPanel / your server.
-2. Upload the project and run `composer install --no-dev --optimize-autoloader`.
-3. In `.env` set:
-   ```
-   APP_ENV=production
-   APP_DEBUG=false
-   APP_URL=https://your-school-domain.com
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=school_db
-   DB_USERNAME=school_user
-   DB_PASSWORD=your-password
-   ADMIN_EMAIL=principal@yourschool.com
-   ADMIN_PASSWORD=a-strong-password
-   ```
-4. Run `php artisan key:generate`, `php artisan migrate --seed --force`, then `php artisan config:cache`.
-5. Point the domain's document root to the **`public/`** folder.
-6. Make `storage/` and `bootstrap/cache/` writable by the web server.
-
-7. Add **one cron job** (cPanel → Cron Jobs, every minute). It sends queued SMS/WhatsApp messages and the daily automatic reminders:
-   ```
-   * * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
-   ```
-
-Student photos, documents and expense bills are stored privately in `storage/app/private` and are only shown to logged-in staff.
-**Back up the database and the `storage/` folder daily.**
-
-## First-time setup in the app
-
-1. **Settings**: school name, address, phone, admission/receipt prefix, fee due day, late fine.
-2. **Academic Sessions**: check the current session (e.g. 2026-27, April to March).
-3. **Classes & Sections**: Nursery to Class 8 with sections A and B are created. Add or rename as needed.
-4. **Fee Categories** and **Fee Structure**: set the amount per instalment for each class (the seeded amounts are only samples).
-5. **Users & Roles**: create accounts for the accountant and admission staff.
-
-## How fees work
-
-- Each fee category has a frequency. When an admission is confirmed, the student's dues for the session are created
-  from the class fee structure: monthly = 12 dues, quarterly = 4, half-yearly = 2, yearly = 1, one-time = 1 (admission only).
-  Instalments that end before the admission month are skipped.
-- A student's **concession %** is applied to categories marked "concession applicable".
-- If the fee structure changes later, use **Fee Structure → Assign to all students** to add the new dues. Existing dues are never duplicated.
-- On promotion, the new session's dues can be assigned automatically (without the admission fee). Old pending dues stay on the student's account.
-
-## Desktop app for schools (TDS School Management Software)
-
-Schools download **TDS-School-Setup.exe** from your website, install it on a Windows laptop and use it offline.
-Each installation keeps its data on that laptop in `%APPDATA%\TDS School Data` (database, photos, documents).
-Installing a new version over the old one keeps the data.
-
-**How it works**
-- The installer contains a portable PHP and this app (`desktop/`), installs per-user (no admin rights) and adds
-  *TDS School Management Software* and *Stop TDS School Management* shortcuts.
-- `desktop/launch.ps1` creates the data folder and a per-computer `APP_KEY`, runs migrations, starts PHP's built-in
-  server on `127.0.0.1:8765` (next free port up to 8775) and opens the browser.
-- First launch shows a setup screen (school name + admin login). There is no default password in the desktop build.
-- **Licensing:** after setup the software is read-only until it is activated. The License screen opens your website's
-  activation page; the school pays **₹1 for a 7-day trial** and sets up **Autopay (₹599/month)** with Razorpay
-  Subscriptions. The software fetches its key from the website automatically (`/api/license/{installation id}`) and
-  picks up each monthly renewal by itself (hourly check when online, every 10 minutes when about to lock). Keys are
-  Ed25519-signed and checked offline; a key works only for its Installation ID. Payment stops → read-only, data kept.
-  (Set the variable `TDS_TRIAL_DAYS` to give free days before activation instead.)
-
-**One-time setup**
-1. Put the website (TDS Portal, below) on Hostinger and log in to its admin panel.
-2. Admin → **Signing Key**: copy the public key and download the backup (keep it safe; it holds the secret signing key).
-3. GitHub → this repository → Settings → Secrets and variables → Actions → **Variables**, add:
-   `TDS_LICENSE_PUBLIC_KEY` (required), `TDS_VENDOR_WEBSITE` (your website address, used by the software's
-   "Buy online" button), and optionally `TDS_VENDOR_PHONE`, `TDS_VENDOR_WHATSAPP` (e.g. 919876543210),
-   `TDS_VENDOR_EMAIL`, `TDS_TRIAL_DAYS`.
-4. Publish a version: GitHub → Releases → Draft a new release → new tag `v1.0.0` → Publish (or
-   `git tag v1.0.0 && git push origin v1.0.0`). The workflows build and test `TDS-School-Setup.exe` on Windows and
-   `tds-portal-hostinger.zip`, and attach both to the release. The website's download always points to the latest release.
-
-**Selling:** fully automatic. School installs → clicks *Start trial for ₹1* → logs in / signs up on your website → pays
-₹1 and approves Autopay → software unlocks by itself → ₹599 is charged every month and the software renews itself.
-One ₹1 trial per account and per computer. For UPI / cash payments you can still create a key in Admin → Licenses.
-
-**What you need from Razorpay** (Admin → Settings): an activated account (KYC), **Subscriptions** enabled with UPI
-Autopay / card recurring, API Key ID + Secret, and a webhook (URL and events are shown in Settings) with its secret.
-Razorpay reviews your website: privacy, terms, refund/cancellation and contact pages are included.
-
-Notes: the installer is not code-signed, so Windows SmartScreen shows "Windows protected your PC" (More info → Run
-anyway) until you buy a code-signing certificate. PHP source is readable on the school's laptop, so the license stops
-ordinary users but cannot stop a determined programmer.
-
-## Website: TDS Portal (`portal/`)
-
-A separate Laravel app for your domain:
-- **Home page** (company page) in English and Hindi with a language switch, features, screenshots, pricing, FAQ.
-- **Install for Windows** → sign up (school name, contact, mobile, city, email) → the installer download starts.
-- **Activation** (`/activate?installation_id=…`, opened from the software): ₹1 for a 7-day trial + Autopay ₹599/month
-  (Razorpay Subscriptions). Prices and trial days are set in Admin → Settings.
-- **School account**: download, Autopay status and cancel, license keys, payments, profile, password reset by email.
-  Optional one-time plans (1 year / 2 years / lifetime) if you set their prices.
-- **Admin panel** (`/admin`): schools (search, CSV export, WhatsApp), Autopay subscriptions and monthly revenue,
-  licenses (manual keys), one-time payments, settings (contact, ₹1 trial / ₹599 monthly / trial days, Razorpay keys),
-  signing key + backup.
-
-**Install on Hostinger**
-1. Download `tds-portal-hostinger.zip` from the latest GitHub release (or the "Build website (Hostinger)" run's Artifacts).
-2. hPanel → Databases → MySQL: create a database and user. hPanel → Advanced → PHP Configuration: PHP 8.3+,
-   extensions `sodium` and `pdo_mysql` on.
-3. hPanel → File Manager → your domain folder (the one that **contains** `public_html`): empty `public_html`, upload
-   the zip there and extract. You get `public_html/` and `tds-portal/` side by side (the app and its secrets stay
-   outside the web root).
-4. Open `https://your-domain/`: the installer checks the server and asks for the database and your admin login
-   (and optionally an email account for "forgot password" mails). It deletes itself when done.
-5. Log in at `/login` → Admin → **Settings**: phone, WhatsApp, email, trial and monthly price, Razorpay keys. In
-   Razorpay add the webhook shown there with the listed `subscription.*` and payment events. Use Razorpay **Test**
-   keys first (test UPI Autopay / cards), then **Live** keys.
-6. Turn on SSL (hPanel → Security → SSL).
-
-Local development: `cd portal && composer install && cp .env.example .env && php artisan key:generate &&
-touch database/database.sqlite && php artisan migrate && php artisan serve`. Make yourself admin with
-`php artisan tinker --execute 'App\Models\User::first()->forceFill(["is_admin" => true])->save();'`.
-
-## Notifications (SMS / WhatsApp)
-
-Without a gateway, every message is saved in **Message Log** with status "Not sent (no gateway)", so nothing is lost.
-The **WhatsApp button** on Pending Fees opens WhatsApp with the reminder already typed. It is free and needs no gateway.
-
-To send messages automatically, buy an SMS or WhatsApp plan from any provider that has an HTTP API (MSG91, Fast2SMS, Textlocal,
-Interakt, WATI, AiSensy …) and add its details to `.env`. `{to}` becomes the mobile number (e.g. 919876543210) and `{message}` the text.
-
-```
-# SMS via a GET link
-SMS_DRIVER=http
-SMS_HTTP_METHOD=get
-SMS_HTTP_URL="https://provider.example/api/send?apikey=YOUR_KEY&sender=SCHOOL&to={to}&message={message}"
-
-# WhatsApp via a JSON POST
-WHATSAPP_DRIVER=http
-WHATSAPP_HTTP_METHOD=post
-WHATSAPP_HTTP_URL="https://provider.example/v1/messages"
-WHATSAPP_HTTP_TOKEN=YOUR_TOKEN
-WHATSAPP_HTTP_BODY='{"phone":"{to}","text":"{message}"}'
-```
-
-Then run `php artisan config:cache`. Choose SMS / WhatsApp / both and edit the message templates in **Message Settings**.
-Indian SMS needs the templates registered on **DLT**, and WhatsApp business messages need **approved templates** from your
-provider. Keep the wording in Message Settings the same as the approved template.
-
-Automatic fee-due reminders are **off** by default. Switch them on in Message Settings. They run daily at 10 AM, only for fees
-overdue by the chosen number of days, and at most once a week per student. Run them by hand with `php artisan fees:send-reminders --force`.
 
 ## Tests
 
 ```bash
-php artisan test              # school software
-cd portal && php artisan test  # website
+php artisan test
 ```
+
+Covers fees, payments, reports & exports, expenses, notifications, data separation between schools, the lock,
+sign-up, Razorpay billing (₹1 trial, monthly charge, webhooks) and the owner panel. They also pass on MySQL/MariaDB.

@@ -88,7 +88,7 @@ class ExpenseController extends Controller
         $isSalary = ExpenseCategory::whereKey($request->expense_category_id)->value('is_salary');
 
         return $request->validate([
-            'expense_category_id' => ['required', 'exists:expense_categories,id'],
+            'expense_category_id' => ['required', \App\Support\Tenant::exists('expense_categories')],
             'expense_date' => ['required', 'date', 'before_or_equal:today'],
             'title' => ['required', 'string', 'max:150'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999'],

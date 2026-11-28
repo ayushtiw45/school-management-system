@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentDocument extends Model
 {
-    protected $fillable = ['student_id', 'title', 'path'];
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 'student_id', 'title', 'path'];
 
     public function student(): BelongsTo
     {

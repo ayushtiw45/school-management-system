@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FeeStructure extends Model
 {
-    protected $fillable = ['academic_session_id', 'school_class_id', 'fee_head_id', 'amount'];
+    use BelongsToSchool;
+
+    protected $fillable = ['school_id', 'academic_session_id', 'school_class_id', 'fee_head_id', 'amount'];
 
     protected function casts(): array
     {

@@ -56,7 +56,7 @@ class FeeHeadController extends Controller
     private function validated(Request $request, ?FeeHead $head = null): array
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:100', Rule::unique('fee_heads')->ignore($head?->id)],
+            'name' => ['required', 'string', 'max:100', \App\Support\Tenant::unique('fee_heads')->ignore($head?->id)],
             'frequency' => ['required', Rule::in(array_keys(FeeHead::FREQUENCIES))],
             'concession_applicable' => ['nullable', 'boolean'],
             'description' => ['nullable', 'string', 'max:500'],

@@ -14,8 +14,8 @@ class StudentForm
     public static function rules(bool $public = false): array
     {
         $rules = [
-            'school_class_id' => ['required', 'exists:school_classes,id'],
-            'section_id' => ['nullable', 'exists:sections,id'],
+            'school_class_id' => ['required', \App\Support\Tenant::exists('school_classes')],
+            'section_id' => ['nullable', \App\Support\Tenant::exists('sections')],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['nullable', 'string', 'max:100'],
             'gender' => ['required', Rule::in(['male', 'female', 'other'])],

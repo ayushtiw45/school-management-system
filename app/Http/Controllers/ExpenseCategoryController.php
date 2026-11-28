@@ -40,7 +40,7 @@ class ExpenseCategoryController extends Controller
     private function validated(Request $request, ?ExpenseCategory $cat = null): array
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:100', Rule::unique('expense_categories')->ignore($cat?->id)],
+            'name' => ['required', 'string', 'max:100', \App\Support\Tenant::unique('expense_categories')->ignore($cat?->id)],
         ]);
         $data['is_salary'] = $request->boolean('is_salary');
 

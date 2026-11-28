@@ -3,12 +3,14 @@
 use App\Http\Controllers\AcademicSessionController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeeHeadController;
 use App\Http\Controllers\FeeStructureController;
-use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InstallController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnlineAdmissionController;
 use App\Http\Controllers\PaymentController;
@@ -16,36 +18,63 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFeeController;
+use App\Http\Controllers\Super;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+// ---------------- Public website ----------------
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/lang/{locale}', [HomeController::class, 'locale'])->name('locale');
+Route::view('/privacy', 'site.privacy')->name('privacy');
+Route::view('/terms', 'site.terms')->name('terms');
+Route::view('/refund-policy', 'site.refund')->name('refund');
+Route::view('/contact', 'site.contact')->name('contact');
+Route::get('/install/finish', [InstallController::class, 'finish'])->name('install.finish');
+Route::post('/razorpay/webhook', [BillingController::class, 'webhook'])->name('razorpay.webhook');
 
-// Public online admission form
-Route::get('/apply', [OnlineAdmissionController::class, 'create'])->name('apply');
-Route::post('/apply', [OnlineAdmissionController::class, 'store'])->middleware('throttle:10,1')->name('apply.store');
-Route::get('/apply/thanks/{admissionNo}', [OnlineAdmissionController::class, 'thanks'])->name('apply.thanks');
-
-// First-run setup (only while no user exists)
-Route::get('/setup', [SetupController::class, 'create'])->name('setup');
-Route::post('/setup', [SetupController::class, 'store'])->middleware('throttle:10,1')->name('setup.store');
+// Public online admission form of a school: /apply/{school-slug}
+Route::get('/apply/{school:slug}', [OnlineAdmissionController::class, 'create'])->name('apply');
+Route::post('/apply/{school:slug}', [OnlineAdmissionController::class, 'store'])->middleware('throttle:10,1')->name('apply.store');
+Route::get('/apply/{school:slug}/thanks/{admissionNo}', [OnlineAdmissionController::class, 'thanks'])->name('apply.thanks');
 
 Route::middleware('guest')->group(function () {
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+    Route::get('/forgot-password', [AuthController::class, 'showForgot'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:3,1')->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showReset'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'reset'])->name('password.store');
 });
 
 Route::middleware(['auth', 'role'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/account/password', [AuthController::class, 'editPassword'])->name('password.edit');
     Route::put('/account/password', [AuthController::class, 'updatePassword'])->name('password.update');
-    Route::get('/license', [LicenseController::class, 'show'])->name('license');
-    Route::post('/license', [LicenseController::class, 'activate'])->name('license.activate');
-    Route::post('/license/check', [LicenseController::class, 'check'])->middleware('throttle:20,1')->name('license.check');
+});
+
+// ---------------- Platform owner ----------------
+Route::middleware(['auth', 'super'])->prefix('super')->name('super.')->group(function () {
+    Route::get('/', Super\DashboardController::class)->name('dashboard');
+    Route::get('/schools', [Super\SchoolController::class, 'index'])->name('schools');
+    Route::get('/schools/{school}', [Super\SchoolController::class, 'show'])->name('schools.show');
+    Route::post('/schools/{school}/extend', [Super\SchoolController::class, 'extend'])->name('schools.extend');
+    Route::post('/schools/{school}/block', [Super\SchoolController::class, 'toggleBlock'])->name('schools.block');
+    Route::get('/subscriptions', [Super\SubscriptionController::class, 'index'])->name('subscriptions');
+    Route::get('/settings', [Super\SettingController::class, 'edit'])->name('settings');
+    Route::put('/settings', [Super\SettingController::class, 'update'])->name('settings.update');
+});
+
+// ---------------- School software (locked until the ₹1 trial is paid) ----------------
+Route::middleware(['auth', 'role', 'school'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/billing', [BillingController::class, 'show'])->name('billing');
+    Route::post('/billing/start', [BillingController::class, 'start'])->middleware('throttle:10,1')->name('billing.start');
+    Route::post('/billing/verify', [BillingController::class, 'verify'])->name('billing.verify');
+    Route::post('/billing/{subscription}/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
 
     // Sections list for dropdowns (JSON)
     Route::get('/classes/{schoolClass}/sections.json', [SectionController::class, 'forClass'])->name('classes.sections.json');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -11,7 +12,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        return view('users.index', ['users' => User::orderBy('name')->get()]);
+        return view('users.index', ['users' => User::where('school_id', Tenant::id())->orderBy('name')->get()]);
     }
 
     public function create()
@@ -21,18 +22,21 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        User::create($this->validated($request));
+        User::create($this->validated($request) + ['school_id' => Tenant::id()]);
 
         return redirect()->route('users.index')->with('success', 'User account created.');
     }
 
     public function edit(User $user)
     {
+        $this->ownSchool($user);
+
         return view('users.form', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
+        $this->ownSchool($user);
         $data = $this->validated($request, $user);
         if ($user->is($request->user())) {
             // Admin cannot lock themselves out
@@ -49,12 +53,19 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user)
     {
+        $this->ownSchool($user);
         if ($user->is($request->user())) {
             return back()->with('error', 'You cannot delete your own account.');
         }
         $user->delete();
 
         return back()->with('success', 'User deleted.');
+    }
+
+    /** Staff accounts of other schools are invisible. */
+    private function ownSchool(User $user): void
+    {
+        abort_unless($user->school_id && $user->school_id === Tenant::id(), 404);
     }
 
     private function validated(Request $request, ?User $user = null): array
