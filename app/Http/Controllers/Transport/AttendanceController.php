@@ -38,7 +38,7 @@ class AttendanceController extends Controller
         $ids = TransportStaff::whereIn('id', array_keys($data['att']))->pluck('id')->all();
         foreach ($data['att'] as $id => $a) {
             if (in_array((int) $id, $ids, true)) {
-                StaffAttendance::updateOrCreate(['transport_staff_id' => $id, 'date' => $data['date']], $a);
+                StaffAttendance::updateOrCreate(['transport_staff_id' => $id, 'date' => \Carbon\Carbon::parse($data['date'])->startOfDay()], $a);
             }
         }
 
@@ -105,7 +105,7 @@ class AttendanceController extends Controller
         }
         foreach (CarbonPeriod::create($leave->from_date, $leave->to_date) as $d) {
             if ($d->lte(now())) {
-                StaffAttendance::firstOrCreate(['transport_staff_id' => $leave->transport_staff_id, 'date' => $d->toDateString()], ['status' => 'leave']);
+                StaffAttendance::firstOrCreate(['transport_staff_id' => $leave->transport_staff_id, 'date' => $d->copy()->startOfDay()], ['status' => 'leave']);
             }
         }
         if ($leave->substitute_id) {

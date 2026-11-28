@@ -11,7 +11,7 @@ class Section extends Model
 {
     use BelongsToSchool;
 
-    protected $fillable = ['school_id', 'school_class_id', 'name', 'capacity'];
+    protected $fillable = ['school_id', 'school_class_id', 'name', 'capacity', 'class_teacher_id'];
 
     public function schoolClass(): BelongsTo
     {
@@ -21,5 +21,10 @@ class Section extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    public function classTeacher(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Hr\Employee::class, 'class_teacher_id');
     }
 }

@@ -55,6 +55,7 @@ class SchoolProvisioner
             foreach ([['Staff Salary', true], ['Electricity & Utilities', false], ['Maintenance & Repairs', false], ['Stationery & Printing', false], ['Transport / Fuel', false], ['Other Expenses', false]] as [$name, $salary]) {
                 ExpenseCategory::firstOrCreate(['name' => $name], ['is_salary' => $salary]);
             }
+            StaffService::seedDefaults($school->id);
         });
     }
 }

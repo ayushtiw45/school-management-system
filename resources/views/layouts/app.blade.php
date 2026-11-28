@@ -81,6 +81,18 @@
             <a class="nav-link {{ request()->routeIs('students.promote') ? 'active' : '' }}" href="{{ route('students.promote') }}"><i class="bi bi-arrow-up-circle"></i>Promote Students</a>
         @endif
 
+        @if($u->canSeeStaff())
+            <div class="nav-head">Staff & Teachers @if(! $u->canManageStaff())<span class="badge text-bg-secondary ms-1" style="font-size:.6rem">view only</span>@endif</div>
+            <a class="nav-link {{ request()->routeIs('staff.dashboard') ? 'active' : '' }}" href="{{ route('staff.dashboard') }}"><i class="bi bi-person-workspace"></i>Staff Dashboard</a>
+            <a class="nav-link {{ request()->routeIs('staff.employees.*', 'staff.letter', 'staff.idcards') ? 'active' : '' }}" href="{{ route('staff.employees.index') }}"><i class="bi bi-people-fill"></i>All Staff</a>
+            <a class="nav-link {{ request()->routeIs('staff.attendance.*') ? 'active' : '' }}" href="{{ route('staff.attendance.index') }}"><i class="bi bi-calendar2-check"></i>Staff Attendance</a>
+            <a class="nav-link {{ request()->routeIs('staff.leaves.*') ? 'active' : '' }}" href="{{ route('staff.leaves.index') }}"><i class="bi bi-calendar2-x"></i>Leave</a>
+            <a class="nav-link {{ request()->routeIs('staff.timetable.*', 'staff.substitutions.*') ? 'active' : '' }}" href="{{ route('staff.timetable.index') }}"><i class="bi bi-table"></i>Timetable</a>
+            <a class="nav-link {{ request()->routeIs('staff.academics') ? 'active' : '' }}" href="{{ route('staff.academics') }}"><i class="bi bi-journal-bookmark"></i>Subjects & Class Teachers</a>
+            <a class="nav-link {{ request()->routeIs('staff.payroll.*', 'staff.advances.*') ? 'active' : '' }}" href="{{ route('staff.payroll.index') }}"><i class="bi bi-wallet2"></i>Payroll</a>
+            <a class="nav-link {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}" href="{{ route('staff.reports.index') }}"><i class="bi bi-file-earmark-bar-graph"></i>Staff Reports</a>
+        @endif
+
         @if($u->canSeeAccounts())
             <div class="nav-head">Fees & Payments @if(! $u->canManageFees())<span class="badge text-bg-secondary ms-1" style="font-size:.6rem">view only</span>@endif</div>
             <a class="nav-link {{ request()->routeIs('payments.create') ? 'active' : '' }}" href="{{ route('payments.create') }}"><i class="bi bi-cash-coin"></i>{{ $u->canManageFees() ? 'Collect Fee' : 'Fees by Class' }}</a>
@@ -173,6 +185,14 @@
 
     <main class="p-3 p-md-4">
         @php($accountsPage = request()->routeIs('payments.*', 'fees.*', 'fee-structure.*', 'fee-heads.*', 'student-fees.*', 'expenses.*', 'expense-categories.*', 'notifications.index', 'transport.*'))
+        @php($staffReadOnly = ($u->role === 'accountant' && request()->routeIs('staff.*') && ! request()->routeIs('staff.payroll.*', 'staff.advances.*'))
+            || ($u->role === 'principal' && request()->routeIs('staff.payroll.*', 'staff.advances.*')))
+        @if($staffReadOnly)
+            <div class="alert alert-secondary py-2 small no-print"><i class="bi bi-eye"></i> View only on this page.</div>
+            @push('scripts')
+            <script>document.querySelectorAll('main form').forEach(f => { if ((f.getAttribute('method') || 'get').toLowerCase() !== 'get') { f.querySelectorAll('button, input[type=submit]').forEach(b => { b.disabled = true; b.title = 'View only'; }); } });</script>
+            @endpush
+        @endif
         @if($u->role === 'principal' && $accountsPage)
             <div class="alert alert-secondary py-2 small no-print"><i class="bi bi-eye"></i> View only — {{ request()->routeIs('transport.*') ? 'transport is managed by the transport and accounts team' : 'accounts are managed by the Accounts team' }}.</div>
             @push('scripts')

@@ -24,6 +24,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\Super;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Hr as H;
 use App\Http\Controllers\Transport as T;
 use Illuminate\Support\Facades\Route;
 
@@ -182,6 +183,61 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
         Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
         Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
     });
+
+    // Staff & teachers (accounts can only view; payroll: admin & accounts, principal views)
+    Route::middleware('role:admin,principal,accountant:read')->prefix('staff')->name('staff.')->group(function () {
+        Route::get('/', H\DashboardController::class)->name('dashboard');
+        Route::resource('employees', H\EmployeeController::class)->except(['destroy']);
+        Route::post('/employees/{employee}/exit', [H\EmployeeController::class, 'exit'])->name('employees.exit');
+        Route::get('/employees/{employee}/photo', [H\EmployeeController::class, 'photo'])->name('employees.photo');
+        Route::post('/employees/{employee}/documents', [H\EmployeeController::class, 'storeDocument'])->name('documents.store');
+        Route::get('/documents/{document}', [H\EmployeeController::class, 'showDocument'])->name('documents.show');
+        Route::delete('/documents/{document}', [H\EmployeeController::class, 'destroyDocument'])->name('documents.destroy');
+        Route::get('/id-cards', [H\EmployeeController::class, 'idCards'])->name('idcards');
+        Route::get('/employees/{employee}/letter/{type}', [H\EmployeeController::class, 'letter'])->name('letter');
+
+        Route::get('/academics', [H\AcademicController::class, 'index'])->name('academics');
+        Route::post('/subjects', [H\AcademicController::class, 'storeSubject'])->name('subjects.store');
+        Route::delete('/subjects/{subject}', [H\AcademicController::class, 'destroySubject'])->name('subjects.destroy');
+        Route::post('/class-teachers', [H\AcademicController::class, 'classTeachers'])->name('classteachers');
+        Route::post('/assignments', [H\AcademicController::class, 'storeAssignment'])->name('assignments.store');
+        Route::delete('/assignments/{assignment}', [H\AcademicController::class, 'destroyAssignment'])->name('assignments.destroy');
+
+        Route::get('/attendance', [H\AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('/attendance', [H\AttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('/attendance/month', [H\AttendanceController::class, 'monthly'])->name('attendance.monthly');
+        Route::get('/leaves', [H\LeaveController::class, 'index'])->name('leaves.index');
+        Route::post('/leaves', [H\LeaveController::class, 'store'])->name('leaves.store');
+        Route::put('/leaves/{leave}', [H\LeaveController::class, 'decide'])->name('leaves.decide');
+        Route::post('/leave-types', [H\LeaveController::class, 'types'])->name('leaves.types');
+
+        Route::get('/timetable', [H\TimetableController::class, 'index'])->name('timetable.index');
+        Route::post('/timetable', [H\TimetableController::class, 'save'])->name('timetable.save');
+        Route::post('/timetable/copy', [H\TimetableController::class, 'copyDay'])->name('timetable.copy');
+        Route::get('/timetable/teacher', [H\TimetableController::class, 'teacher'])->name('timetable.teacher');
+        Route::post('/periods', [H\TimetableController::class, 'periods'])->name('periods.save');
+        Route::get('/substitutions', [H\TimetableController::class, 'substitutions'])->name('substitutions.index');
+        Route::post('/substitutions', [H\TimetableController::class, 'assignSubstitute'])->name('substitutions.store');
+
+        Route::get('/reports', [H\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{type}', [H\ReportController::class, 'show'])->name('reports.show');
+    });
+    Route::middleware('role:admin,accountant,principal:read')->prefix('staff')->name('staff.')->group(function () {
+        Route::put('/employees/{employee}/salary', [H\EmployeeController::class, 'salary'])->name('employees.salary');
+        Route::get('/payroll', [H\PayrollController::class, 'index'])->name('payroll.index');
+        Route::post('/payroll/generate', [H\PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::post('/payroll/pay', [H\PayrollController::class, 'pay'])->name('payroll.pay');
+        Route::get('/payroll-slips', [H\PayrollController::class, 'slips'])->name('payroll.slips');
+        Route::get('/payroll/{payroll}/edit', [H\PayrollController::class, 'edit'])->name('payroll.edit');
+        Route::put('/payroll/{payroll}', [H\PayrollController::class, 'update'])->name('payroll.update');
+        Route::post('/payroll/{payroll}/refresh', [H\PayrollController::class, 'refresh'])->name('payroll.refresh');
+        Route::delete('/payroll/{payroll}', [H\PayrollController::class, 'destroy'])->name('payroll.destroy');
+        Route::get('/payroll/{payroll}/slip', [H\PayrollController::class, 'slip'])->name('payroll.slip');
+        Route::get('/advances', [H\PayrollController::class, 'advances'])->name('advances.index');
+        Route::post('/advances', [H\PayrollController::class, 'storeAdvance'])->name('advances.store');
+        Route::delete('/advances/{advance}', [H\PayrollController::class, 'destroyAdvance'])->name('advances.destroy');
+    });
+    Route::middleware('role:admin')->post('/staff/payroll/{payroll}/unpay', [H\PayrollController::class, 'unpay'])->name('staff.payroll.unpay');
 
     // Transport (principal can only view; salaries: admin & accounts)
     Route::middleware('role:admin,transport,accountant,principal:read')->prefix('transport')->name('transport.')->group(function () {

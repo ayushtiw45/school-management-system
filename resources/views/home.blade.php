@@ -83,7 +83,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <div class="eyebrow">{{ __('Everything a school office needs') }}</div>
-            <h2 class="fw-bold mt-2">{{ __('12 modules, one simple program') }}</h2>
+            <h2 class="fw-bold mt-2">{{ __('13 modules, one simple program') }}</h2>
             <p class="text-muted">{{ __('From the admission form to the year-end fee summary.') }}</p>
         </div>
         <div class="row g-3">
@@ -99,6 +99,7 @@
                 ['I', __('Users & Roles'), [__('Admin, Principal, Reception, Accounts, Transport'), __('Each sees only their screens'), __('Secure login')]],
                 ['J', __('SMS & WhatsApp'), [__('Fee due reminders, payment messages'), __('Announcements to parents'), __('Free one-click WhatsApp reminders')]],
                 ['K', __('Transport Management'), [__('Buses, routes, stops, drivers & conductors'), __('Fuel, service, repairs, insurance & PUC reminders'), __('Bus-wise and route-wise profit & loss')]],
+                ['M', __('Staff & Teachers'), [__('Staff profiles, documents, ID cards, letters'), __('Attendance, leave balance, timetable & substitutes'), __('Payroll with loss of pay, advances and salary slips')]],
                 ['L', __('Reception & Enquiries'), [__('Visitor enquiries and follow-ups'), __('Admission pending until fee is paid'), __('Unique Student ID')]],
             ] as [$tag, $title, $items])
                 <div class="col-sm-6 col-lg-4 col-xl-3"><div class="card p-3 h-100 feat">

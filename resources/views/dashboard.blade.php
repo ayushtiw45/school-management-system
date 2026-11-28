@@ -29,6 +29,16 @@
     <div class="alert alert-warning">Setup is not complete. Create an <a href="{{ route('sessions.index') }}">academic session</a>, add <a href="{{ route('classes.index') }}">classes & sections</a>, then set the <a href="{{ route('fee-structure.index') }}">fee structure</a>.</div>
 @endif
 
+@if($u->canManageStaff())
+    @php($pendingLeave = \App\Models\Hr\EmployeeLeave::where('status', 'pending')->count())
+    @php($bdays = \App\Models\Hr\Employee::active()->whereNotNull('dob')->get()->filter(fn ($e) => $e->dob->format('m-d') === now()->format('m-d')))
+    @if($pendingLeave || $bdays->isNotEmpty())
+        <div class="alert alert-light border d-flex flex-wrap align-items-center gap-3 py-2"><i class="bi bi-person-workspace"></i>
+            @if($pendingLeave)<span><strong>{{ $pendingLeave }}</strong> staff leave request(s) waiting · <a href="{{ route('staff.leaves.index') }}">Review</a></span>@endif
+            @if($bdays->isNotEmpty())<span><i class="bi bi-cake2 text-danger"></i> Birthday today: {{ $bdays->pluck('name')->implode(', ') }}</span>@endif
+        </div>
+    @endif
+@endif
 @if($u->canSeeTransport() && \App\Models\Transport\Vehicle::exists())
     @php($tr = app(\App\Services\TransportService::class)->reminders(15))
     @if($tr->isNotEmpty())

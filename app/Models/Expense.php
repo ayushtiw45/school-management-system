@@ -12,7 +12,7 @@ class Expense extends Model
 
     protected $fillable = ['school_id', 
         'expense_category_id', 'expense_date', 'amount', 'title', 'paid_to', 'salary_month',
-        'payment_method', 'reference_no', 'bill_path', 'notes', 'created_by',
+        'payment_method', 'reference_no', 'bill_path', 'notes', 'created_by', 'payroll_id',
     ];
 
     protected function casts(): array

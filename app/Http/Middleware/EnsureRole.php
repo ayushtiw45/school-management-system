@@ -28,7 +28,8 @@ class EnsureRole
                 }
             }
             if (! $allowed) {
-                abort(403, $user->role === 'principal' ? 'The principal can view accounts but cannot change them.' : 'You do not have permission to open this page.');
+                $readOnly = collect($roles)->contains(fn ($r) => $r === $user->role.':read');
+                abort(403, $readOnly ? 'You can view this page but cannot change it.' : 'You do not have permission to open this page.');
             }
         }
 

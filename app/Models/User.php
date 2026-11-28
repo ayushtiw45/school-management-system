@@ -23,9 +23,9 @@ class User extends Authenticatable
     /** What each role is for (shown on the Users page). */
     public const ROLE_HELP = [
         'admin' => 'Everything: setup, users, settings, plan, fees and records.',
-        'principal' => 'Sees everything incl. fees and reports; manages admissions, students, classes. Cannot collect fees or change accounts.',
+        'principal' => 'Sees everything incl. fees and reports; manages admissions, students, classes, staff, attendance, leave and timetable. Cannot collect fees or pay salaries.',
         'receptionist' => 'Enquiries & follow-ups, new admissions, student records, own daily report. No fees or settings.',
-        'accountant' => 'Fee collection, receipts, fee structure, pending fees, expenses and reports. Also transport costs and salaries.',
+        'accountant' => 'Fee collection, receipts, fee structure, pending fees, expenses and reports. Also transport costs, staff payroll and salaries.',
         'transport' => 'Transport only: vehicles, routes, drivers & conductors, trips, attendance, fuel, maintenance, students on buses, transport reports.',
     ];
 
@@ -66,6 +66,21 @@ class User extends Authenticatable
     }
 
     /** Can take enquiries and admissions. */
+    public function canSeeStaff(): bool
+    {
+        return $this->hasRole('admin', 'principal', 'accountant');
+    }
+
+    public function canManageStaff(): bool
+    {
+        return $this->hasRole('admin', 'principal');
+    }
+
+    public function canManagePayroll(): bool
+    {
+        return $this->hasRole('admin', 'accountant');
+    }
+
     public function canSeeTransport(): bool
     {
         return $this->hasRole('admin', 'transport', 'accountant', 'principal');

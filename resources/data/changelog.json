@@ -2,6 +2,71 @@
   "_how": "Add a new entry at the top for every release (same version as the VERSION file). scripts/build-update.sh refuses to build without it.",
   "releases": [
     {
+      "version": "1.4.0",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Staff & Teachers Management",
+        "hi": "स्टाफ और शिक्षक मैनेजमेंट"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "Staff & Teachers: profiles of teaching and non-teaching staff with employee ID, photo, designation, department, qualification, experience, employment type, bank, PAN, PF and emergency contact.",
+          "hi": "स्टाफ और शिक्षक: शिक्षण और गैर-शिक्षण स्टाफ की प्रोफ़ाइल — कर्मचारी ID, फोटो, पद, विभाग, योग्यता, अनुभव, नौकरी का प्रकार, बैंक, PAN, PF और इमरजेंसी संपर्क।"
+        },
+        {
+          "type": "new",
+          "en": "Upload degrees, ID proofs and verification documents; print staff ID cards, appointment letter, experience certificate and relieving letter.",
+          "hi": "डिग्री, ID प्रूफ और वेरिफिकेशन डॉक्यूमेंट अपलोड करें; स्टाफ ID कार्ड, नियुक्ति पत्र, अनुभव प्रमाण पत्र और रिलीविंग लेटर प्रिंट करें।"
+        },
+        {
+          "type": "new",
+          "en": "Subjects, class teacher of every section, and which teacher teaches which subject in which class.",
+          "hi": "विषय, हर सेक्शन के क्लास टीचर, और कौन शिक्षक किस क्लास में कौन सा विषय पढ़ाता है।"
+        },
+        {
+          "type": "new",
+          "en": "Timetable: periods and timings, class timetable grid, teacher timetable, workload — a teacher cannot be put in two classes at the same time.",
+          "hi": "टाइमटेबल: पीरियड और समय, क्लास टाइमटेबल, शिक्षक टाइमटेबल, वर्कलोड — एक शिक्षक को एक समय में दो क्लास में नहीं लगाया जा सकता।"
+        },
+        {
+          "type": "new",
+          "en": "Substitute teachers: periods of absent teachers are listed with free teachers to choose from; print the day's arrangement.",
+          "hi": "सब्स्टीट्यूट टीचर: अनुपस्थित शिक्षकों के पीरियड और खाली शिक्षकों की सूची; दिन की व्यवस्था प्रिंट करें।"
+        },
+        {
+          "type": "new",
+          "en": "Daily staff attendance (present, late, half day, absent, leave) with in/out time and a monthly sheet.",
+          "hi": "स्टाफ की रोज़ की हाज़िरी (उपस्थित, देर, आधा दिन, अनुपस्थित, छुट्टी) आने-जाने के समय के साथ, और मासिक शीट।"
+        },
+        {
+          "type": "new",
+          "en": "Leave: CL, SL, EL, LWP and your own types with yearly quota, requests, approval and balance of everyone.",
+          "hi": "छुट्टी: CL, SL, EL, LWP और अपने प्रकार — सालाना कोटा, आवेदन, मंज़ूरी और सबका बैलेंस।"
+        },
+        {
+          "type": "new",
+          "en": "Payroll: salary structure (basic, HRA, DA, allowances, PF, ESI, TDS), monthly salary made from attendance with loss of pay, salary advances recovered in instalments, salary slips, and paid salary added to school expenses automatically.",
+          "hi": "सैलरी: वेतन ढांचा (बेसिक, HRA, DA, भत्ते, PF, ESI, TDS), हाज़िरी से महीने की सैलरी और कटौती, किस्तों में एडवांस वसूली, सैलरी स्लिप, और दी गई सैलरी अपने आप स्कूल के खर्च में।"
+        },
+        {
+          "type": "new",
+          "en": "Staff reports: directory, monthly attendance, leave register, teacher workload, salary register and annual salary statement — in Excel and PDF.",
+          "hi": "स्टाफ रिपोर्ट: डायरेक्टरी, मासिक हाज़िरी, छुट्टी रजिस्टर, शिक्षक वर्कलोड, सैलरी रजिस्टर और सालाना सैलरी — Excel और PDF में।"
+        },
+        {
+          "type": "improved",
+          "en": "Staff dashboard with birthdays, work anniversaries, contracts ending, leave requests and today's absentees.",
+          "hi": "स्टाफ डैशबोर्ड — जन्मदिन, नौकरी की सालगिरह, खत्म होते कॉन्ट्रैक्ट, छुट्टी के आवेदन और आज के अनुपस्थित।"
+        },
+        {
+          "type": "improved",
+          "en": "The Principal manages staff, attendance, leave and timetable; Accounts handle salary; each sees only what they need.",
+          "hi": "प्रिंसिपल स्टाफ, हाज़िरी, छुट्टी और टाइमटेबल संभालते हैं; अकाउंट्स सैलरी; हर किसी को सिर्फ़ उसका काम दिखता है।"
+        }
+      ]
+    },
+    {
       "version": "1.3.0",
       "date": "2026-11-28",
       "title": {
