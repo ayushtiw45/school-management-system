@@ -26,8 +26,10 @@ class WhatsNewTest extends SchoolTestCase
     {
         Tenant::set(null);
         $latest = Changelog::latest();
+        $releases = Changelog::releases();
         $this->get(route('whats-new'))->assertOk()->assertSee("What's new")->assertSee('v'.$latest['version'])
-            ->assertSee($latest['changes'][0]['en'])->assertSee('v1.2.0');
+            ->assertSee($latest['changes'][0]['en'])->assertSee('v'.$releases[1]['version'])->assertSee('Previous update')
+            ->assertDontSee('v'.$releases[2]['version'].'<', false);
         $this->get('/')->assertOk()->assertSee('v'.$latest['version'])->assertSee(route('whats-new'));
         $this->get('/lang/hi');
         $this->get(route('whats-new'))->assertOk()->assertSee('नया क्या है')->assertSee($latest['changes'][0]['hi']);

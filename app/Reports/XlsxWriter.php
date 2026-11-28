@@ -29,6 +29,22 @@ class XlsxWriter
         return self::build($rows, count($r->columns));
     }
 
+    /**
+     * Plain table: bold header row, then data rows (numbers stay numbers). Used for data export and import templates.
+     *
+     * @param  array<int, string>  $headers
+     * @param  iterable<array<int, mixed>>  $rows
+     */
+    public static function table(array $headers, iterable $rows): string
+    {
+        $out = [array_map(fn ($h) => [(string) $h, 1], $headers)];
+        foreach ($rows as $row) {
+            $out[] = array_map(fn ($v) => [is_int($v) || is_float($v) ? $v : (string) ($v ?? ''), 0], array_values($row));
+        }
+
+        return self::build($out, count($headers));
+    }
+
     private static function line(ReportData $r, array $row, bool $bold): array
     {
         $out = [];

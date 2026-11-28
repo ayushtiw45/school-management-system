@@ -7,13 +7,13 @@
 <div class="container py-5" style="max-width:860px">
     <div class="eyebrow mb-2">{{ __('Changelog') }}</div>
     <h1 class="fw-bold mb-2">{{ __("What's new") }}</h1>
-    <p class="text-muted mb-4">{{ __('Every update reaches all schools automatically — no download, no reinstall. Here is what changed in each version.') }}</p>
+    <p class="text-muted mb-4">{{ __('Every update reaches all schools automatically — no download, no reinstall. Here is what changed in the latest update and the one before it.') }}</p>
 
-    @foreach($C::releases() as $i => $r)
+    @foreach(array_slice($C::releases(), 0, 2) as $i => $r)
         <div class="card p-4 mb-3 {{ $i === 0 ? 'border-2' : '' }}" id="v{{ $r['version'] }}" @if($i === 0) style="border-color:#FF4B32" @endif>
             <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <span class="badge rounded-pill" style="background:#17191C">v{{ $r['version'] }}</span>
-                @if($i === 0)<span class="badge rounded-pill" style="background:#FF4B32">{{ __('Latest') }}</span>@endif
+                <span class="badge rounded-pill" style="background:{{ $i === 0 ? '#FF4B32' : '#6E7882' }}">{{ $i === 0 ? __('Latest update') : __('Previous update') }}</span>
                 <span class="text-muted small">{{ \Illuminate\Support\Carbon::parse($r['date'])->translatedFormat('d M Y') }}</span>
             </div>
             <h2 class="h5 fw-bold mb-3">{{ $C::text($r['title']) }}</h2>

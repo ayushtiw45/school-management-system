@@ -24,6 +24,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\Super;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DataController;
 use App\Http\Controllers\Hr as H;
 use App\Http\Controllers\Transport as T;
 use Illuminate\Support\Facades\Route;
@@ -182,6 +183,17 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
         Route::post('/sessions/{session}/current', [AcademicSessionController::class, 'makeCurrent'])->name('sessions.current');
         Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
         Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
+    });
+
+    // Import & export (principal can download; only admin imports)
+    Route::middleware('role:admin,principal:read')->group(function () {
+        Route::get('/data', [DataController::class, 'index'])->name('data.index');
+        Route::get('/data/export/{type}', [DataController::class, 'export'])->name('data.export');
+        Route::get('/data/export-all', [DataController::class, 'exportAll'])->name('data.export.all');
+        Route::get('/data/template/{type}', [DataController::class, 'template'])->name('data.template');
+        Route::post('/data/import/{type}', [DataController::class, 'upload'])->middleware('throttle:20,1')->name('data.upload');
+        Route::get('/data/preview/{token}', [DataController::class, 'preview'])->name('data.preview');
+        Route::post('/data/preview/{token}', [DataController::class, 'confirm'])->name('data.confirm');
     });
 
     // Staff & teachers (accounts can only view; payroll: admin & accounts, principal views)

@@ -141,6 +141,9 @@
             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-shield-lock"></i>Users & Roles</a>
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.edit') }}"><i class="bi bi-building-gear"></i>School Settings</a>
         @endif
+        @if($u->hasRole('admin', 'principal'))
+            <a class="nav-link {{ request()->routeIs('data.*') ? 'active' : '' }}" href="{{ route('data.index') }}"><i class="bi bi-arrow-down-up"></i>Import & Export</a>
+        @endif
         <div class="nav-head">Plan</div>
         <a class="nav-link billing-link {{ request()->routeIs('billing') ? 'active' : '' }}" href="{{ route('billing') }}"><i class="bi bi-credit-card"></i>Plan & Billing</a>
     </div>

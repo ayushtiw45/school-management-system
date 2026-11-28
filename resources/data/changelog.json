@@ -2,6 +2,41 @@
   "_how": "Add a new entry at the top for every release (same version as the VERSION file). scripts/build-update.sh refuses to build without it.",
   "releases": [
     {
+      "version": "1.5.0",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Import & export data with Excel",
+        "hi": "Excel से डेटा इम्पोर्ट और एक्सपोर्ट"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "Import & Export page: download students, staff, pending fees, payments, expenses, enquiries and vehicles to Excel — or everything in one zip.",
+          "hi": "इम्पोर्ट और एक्सपोर्ट पेज: छात्र, स्टाफ, बकाया फीस, भुगतान, खर्च, एनक्वायरी और गाड़ियाँ Excel में डाउनलोड करें — या सब कुछ एक zip में।"
+        },
+        {
+          "type": "new",
+          "en": "Import students, staff & teachers and old pending fees from Excel or CSV, with a ready template.",
+          "hi": "छात्र, स्टाफ व शिक्षक और पुरानी बकाया फीस Excel या CSV से इम्पोर्ट करें — तैयार टेम्पलेट के साथ।"
+        },
+        {
+          "type": "new",
+          "en": "Every row is checked before saving: a preview shows rows with problems (wrong class, missing mobile, repeated admission no.) so nothing wrong goes in.",
+          "hi": "सेव करने से पहले हर लाइन जाँची जाती है: प्रीव्यू में गलत लाइनें दिखती हैं (गलत क्लास, मोबाइल नहीं, दोहराया एडमिशन नंबर) ताकि कुछ गलत न जाए।"
+        },
+        {
+          "type": "new",
+          "en": "Imported students can be admitted directly with Student IDs and fee dues created from the fee structure.",
+          "hi": "इम्पोर्ट किए गए छात्रों को सीधे एडमिट कर सकते हैं — स्टूडेंट ID और फीस स्ट्रक्चर से बकाया अपने आप।"
+        },
+        {
+          "type": "improved",
+          "en": "The website's \"What's new\" page now shows the latest update and the one before it.",
+          "hi": "वेबसाइट के \"नया क्या है\" पेज पर अब नया अपडेट और उससे पिछला अपडेट दिखता है।"
+        }
+      ]
+    },
+    {
       "version": "1.4.0",
       "date": "2026-11-28",
       "title": {
