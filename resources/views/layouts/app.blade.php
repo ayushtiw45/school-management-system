@@ -12,7 +12,7 @@
     <style>
         :root { --navy:#17191C; --amber:#FF4B32; }
         body { font-family: 'Inter', system-ui, sans-serif; background:#f4f6fa; font-size:.92rem; }
-        .sidebar { width:250px; background:var(--navy); min-height:100vh; position:fixed; top:0; left:0; z-index:1030; overflow-y:auto; transition:transform .2s; }
+        .sidebar { width:250px; background:var(--navy); height:100vh; height:100dvh; position:fixed; top:0; bottom:0; left:0; overscroll-behavior:contain; z-index:1030; overflow-y:auto; transition:transform .2s; }
         .sidebar .brand { color:#fff; font-weight:700; padding:1.1rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.08); }
         .sidebar .brand small { color:var(--amber); display:block; font-weight:500; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; }
         .sidebar .nav-head { color:rgba(255,255,255,.4); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; padding:1rem 1.25rem .35rem; }
