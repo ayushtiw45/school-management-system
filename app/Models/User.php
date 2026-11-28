@@ -17,6 +17,7 @@ class User extends Authenticatable
         'principal' => 'Principal',
         'receptionist' => 'Receptionist',
         'accountant' => 'Accounts',
+        'transport' => 'Transport Manager',
     ];
 
     /** What each role is for (shown on the Users page). */
@@ -24,7 +25,8 @@ class User extends Authenticatable
         'admin' => 'Everything: setup, users, settings, plan, fees and records.',
         'principal' => 'Sees everything incl. fees and reports; manages admissions, students, classes. Cannot collect fees or change accounts.',
         'receptionist' => 'Enquiries & follow-ups, new admissions, student records, own daily report. No fees or settings.',
-        'accountant' => 'Fee collection, receipts, fee structure, pending fees, expenses and reports.',
+        'accountant' => 'Fee collection, receipts, fee structure, pending fees, expenses and reports. Also transport costs and salaries.',
+        'transport' => 'Transport only: vehicles, routes, drivers & conductors, trips, attendance, fuel, maintenance, students on buses, transport reports.',
     ];
 
     protected $fillable = ['school_id', 'name', 'email', 'phone', 'role', 'is_active', 'password'];
@@ -64,6 +66,16 @@ class User extends Authenticatable
     }
 
     /** Can take enquiries and admissions. */
+    public function canSeeTransport(): bool
+    {
+        return $this->hasRole('admin', 'transport', 'accountant', 'principal');
+    }
+
+    public function canManageTransport(): bool
+    {
+        return $this->hasRole('admin', 'transport', 'accountant');
+    }
+
     public function canAdmit(): bool
     {
         return $this->hasRole('admin', 'receptionist', 'principal');

@@ -83,7 +83,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <div class="eyebrow">{{ __('Everything a school office needs') }}</div>
-            <h2 class="fw-bold mt-2">{{ __('10 modules, one simple program') }}</h2>
+            <h2 class="fw-bold mt-2">{{ __('12 modules, one simple program') }}</h2>
             <p class="text-muted">{{ __('From the admission form to the year-end fee summary.') }}</p>
         </div>
         <div class="row g-3">
@@ -96,8 +96,10 @@
                 ['F', __('Payments & Receipts'), [__('Cash, UPI, bank, cheque'), __('Partial payments, late fine, discount'), __('Printable receipts with unique numbers')]],
                 ['G', __('Fee Reports'), [__('Daily, monthly, class-wise, student-wise'), __('Pending, discount, collection summary'), __('Download in Excel or PDF')]],
                 ['H', __('Expenses'), [__('Staff salary, electricity, maintenance'), __('Bill upload'), __('Monthly income vs expense')]],
-                ['I', __('Users & Roles'), [__('Admin, Accountant, Admission Staff'), __('Each sees only their screens'), __('Secure login')]],
+                ['I', __('Users & Roles'), [__('Admin, Principal, Reception, Accounts, Transport'), __('Each sees only their screens'), __('Secure login')]],
                 ['J', __('SMS & WhatsApp'), [__('Fee due reminders, payment messages'), __('Announcements to parents'), __('Free one-click WhatsApp reminders')]],
+                ['K', __('Transport Management'), [__('Buses, routes, stops, drivers & conductors'), __('Fuel, service, repairs, insurance & PUC reminders'), __('Bus-wise and route-wise profit & loss')]],
+                ['L', __('Reception & Enquiries'), [__('Visitor enquiries and follow-ups'), __('Admission pending until fee is paid'), __('Unique Student ID')]],
             ] as [$tag, $title, $items])
                 <div class="col-sm-6 col-lg-4 col-xl-3"><div class="card p-3 h-100 feat">
                     <span class="tag mb-2">{{ $tag }}</span>

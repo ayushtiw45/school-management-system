@@ -23,6 +23,7 @@
             <h2 class="h5 fw-bold mb-1">{{ $s->full_name }} @include('students.status-badge', ['status' => $s->status])</h2>
             <div class="text-muted small">@if($s->student_code)Student ID <strong class="text-body">{{ $s->student_code }}</strong> · @endif Adm. No <strong>{{ $s->admission_no }}</strong> · {{ $s->class_label ?: '—' }} @if($s->roll_no)· Roll {{ $s->roll_no }}@endif · Session {{ $s->academicSession->name }}</div>
             <div class="text-muted small">Father: {{ $s->father_name }} · <i class="bi bi-telephone"></i> {{ $s->parent_phone }}</div>
+            @if($s->transportRoute)<div class="small mt-1"><i class="bi bi-bus-front"></i> {{ $s->transportRoute->label() }}@if($s->routeStop) · {{ $s->routeStop->name }}@endif · {{ inr($s->transport_fee) }}/month</div>@endif
         </div>
         <div class="ms-auto d-flex flex-wrap gap-2">
             @if($s->status === 'pending' && auth()->user()->hasRole('admin', 'principal'))
@@ -36,6 +37,7 @@
                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">More</button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{{ route('students.idcard', $s) }}"><i class="bi bi-person-badge me-2"></i>ID Card</a></li>
+                    @if(auth()->user()->canManageTransport())<li><a class="dropdown-item" href="{{ route('transport.student.edit', $s) }}"><i class="bi bi-bus-front me-2"></i>Bus / Transport</a></li>@endif
                     @if(auth()->user()->canSeeAccounts())<li><a class="dropdown-item" href="{{ route('students.feeslip', $s) }}"><i class="bi bi-receipt me-2"></i>Fee Slip (with UPI QR)</a></li>@endif
                     @if($canEdit)
                         <li><a class="dropdown-item" href="{{ route('admissions.print', $s) }}"><i class="bi bi-printer me-2"></i>Admission Form</a></li>

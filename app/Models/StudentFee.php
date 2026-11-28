@@ -14,7 +14,7 @@ class StudentFee extends Model
 
     protected $fillable = ['school_id', 
         'student_id', 'academic_session_id', 'fee_head_id', 'title', 'due_date',
-        'amount', 'discount', 'fine', 'paid', 'status',
+        'amount', 'discount', 'fine', 'paid', 'status', 'transport_route_id',
     ];
 
     protected function casts(): array

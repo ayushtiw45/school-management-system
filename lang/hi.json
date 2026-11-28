@@ -184,5 +184,15 @@
     "Improved": "बेहतर",
     "Fixed": "ठीक किया",
     "Every update reaches all schools automatically — no download, no reinstall. Here is what changed in each version.": "हर अपडेट सभी स्कूलों तक अपने आप पहुँचता है — न डाउनलोड, न दोबारा इंस्टॉल। हर वर्ज़न में क्या बदला, यहाँ देखें।",
-    "Latest updates to TDS School Management Software: new features, improvements and fixes in every version.": "TDS स्कूल मैनेजमेंट सॉफ्टवेयर के नए अपडेट: हर वर्ज़न के नए फीचर, सुधार और फिक्स।"
+    "Latest updates to TDS School Management Software: new features, improvements and fixes in every version.": "TDS स्कूल मैनेजमेंट सॉफ्टवेयर के नए अपडेट: हर वर्ज़न के नए फीचर, सुधार और फिक्स।",
+    "12 modules, one simple program": "12 मॉड्यूल, एक आसान प्रोग्राम",
+    "Admin, Principal, Reception, Accounts, Transport": "एडमिन, प्रिंसिपल, रिसेप्शन, अकाउंट्स, ट्रांसपोर्ट",
+    "Transport Management": "ट्रांसपोर्ट मैनेजमेंट",
+    "Buses, routes, stops, drivers & conductors": "बसें, रूट, स्टॉप, ड्राइवर व कंडक्टर",
+    "Fuel, service, repairs, insurance & PUC reminders": "फ्यूल, सर्विस, रिपेयर, इंश्योरेंस व PUC रिमाइंडर",
+    "Bus-wise and route-wise profit & loss": "बस-वार और रूट-वार लाभ-हानि",
+    "Reception & Enquiries": "रिसेप्शन व एनक्वायरी",
+    "Visitor enquiries and follow-ups": "विज़िटर एनक्वायरी और फॉलो-अप",
+    "Admission pending until fee is paid": "फीस जमा होने तक एडमिशन पेंडिंग",
+    "Unique Student ID": "यूनिक स्टूडेंट ID"
 }

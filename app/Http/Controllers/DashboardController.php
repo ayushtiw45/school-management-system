@@ -14,6 +14,9 @@ class DashboardController extends Controller
 {
     public function __invoke()
     {
+        if (auth()->user()->role === 'transport') {
+            return redirect()->route('transport.dashboard');
+        }
         $session = AcademicSession::current();
         $today = now()->toDateString();
 

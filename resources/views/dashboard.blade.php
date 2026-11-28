@@ -29,6 +29,15 @@
     <div class="alert alert-warning">Setup is not complete. Create an <a href="{{ route('sessions.index') }}">academic session</a>, add <a href="{{ route('classes.index') }}">classes & sections</a>, then set the <a href="{{ route('fee-structure.index') }}">fee structure</a>.</div>
 @endif
 
+@if($u->canSeeTransport() && \App\Models\Transport\Vehicle::exists())
+    @php($tr = app(\App\Services\TransportService::class)->reminders(15))
+    @if($tr->isNotEmpty())
+        <div class="alert alert-warning d-flex align-items-center gap-2 py-2"><i class="bi bi-bus-front"></i>
+            <span><strong>Transport:</strong> {{ $tr->take(3)->map(fn ($r) => $r['what'].' – '.$r['name'])->implode(', ') }}{{ $tr->count() > 3 ? ' and '.($tr->count() - 3).' more' : '' }}</span>
+            <a href="{{ route('transport.dashboard') }}" class="ms-auto small text-nowrap">Open transport</a></div>
+    @endif
+@endif
+
 @if($u->canAdmit())
     @php($today = now()->toDateString())
     @php($rc = [

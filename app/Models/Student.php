@@ -29,6 +29,8 @@ class Student extends Model
             'leaving_date' => 'date',
             'confirmed_at' => 'datetime',
             'concession_percent' => 'decimal:2',
+            'transport_from' => 'date',
+            'transport_fee' => 'decimal:2',
         ];
     }
 
@@ -97,6 +99,16 @@ class Student extends Model
     public function enquiry(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Enquiry::class);
+    }
+
+    public function transportRoute(): BelongsTo
+    {
+        return $this->belongsTo(Transport\TransportRoute::class);
+    }
+
+    public function routeStop(): BelongsTo
+    {
+        return $this->belongsTo(Transport\RouteStop::class);
     }
 
     public function totalDue(): float

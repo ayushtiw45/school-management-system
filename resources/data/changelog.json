@@ -2,6 +2,71 @@
   "_how": "Add a new entry at the top for every release (same version as the VERSION file). scripts/build-update.sh refuses to build without it.",
   "releases": [
     {
+      "version": "1.3.0",
+      "date": "2026-11-28",
+      "title": {
+        "en": "Transport Management",
+        "hi": "ट्रांसपोर्ट मैनेजमेंट"
+      },
+      "changes": [
+        {
+          "type": "new",
+          "en": "Transport Management: add buses with registration, model, seats, owned or rented, insurance, pollution (PUC), permit and fitness details, photos and documents, and full vehicle history.",
+          "hi": "ट्रांसपोर्ट मैनेजमेंट: बसें जोड़ें — रजिस्ट्रेशन, मॉडल, सीटें, अपनी या किराए की, इंश्योरेंस, प्रदूषण (PUC), परमिट और फिटनेस, फोटो व डॉक्यूमेंट, और गाड़ी का पूरा इतिहास।"
+        },
+        {
+          "type": "new",
+          "en": "Unlimited routes with stops, pick-up and drop times, distance, morning/afternoon runs, several trips per bus, seat limit, and temporary changes of bus or driver.",
+          "hi": "अनगिनत रूट — स्टॉप, पिक-अप व ड्रॉप टाइम, दूरी, सुबह/दोपहर, एक बस के कई ट्रिप, सीट लिमिट, और बस या ड्राइवर का अस्थायी बदलाव।"
+        },
+        {
+          "type": "new",
+          "en": "Put students on a route and stop — their monthly Transport Fee is added to their dues automatically; changing or stopping transport updates future dues.",
+          "hi": "छात्र को रूट और स्टॉप दें — हर महीने की ट्रांसपोर्ट फीस अपने आप बकाया में जुड़ जाती है; रूट बदलने या बंद करने पर आगे की फीस अपने आप बदलती है।"
+        },
+        {
+          "type": "new",
+          "en": "Drivers & conductors: profile, employee ID, driving licence with expiry reminder, police verification, duty timing, assigned bus, daily attendance, leave with substitute, salary with slip, trip history and performance.",
+          "hi": "ड्राइवर व कंडक्टर: प्रोफ़ाइल, कर्मचारी ID, ड्राइविंग लाइसेंस व एक्सपायरी रिमाइंडर, पुलिस वेरिफिकेशन, ड्यूटी टाइम, बस, रोज़ की हाज़िरी, छुट्टी व सब्स्टीट्यूट, सैलरी स्लिप, ट्रिप इतिहास और परफॉर्मेंस।"
+        },
+        {
+          "type": "new",
+          "en": "Daily trip log with km readings — gives cost per kilometre for every bus.",
+          "hi": "रोज़ का ट्रिप लॉग किलोमीटर रीडिंग के साथ — हर बस का प्रति किलोमीटर खर्च।"
+        },
+        {
+          "type": "new",
+          "en": "Fuel: daily entries for petrol, diesel, CNG and EV charging with quantity, rate, bill photo, mileage and monthly fuel cost.",
+          "hi": "फ्यूल: पेट्रोल, डीज़ल, CNG और EV चार्जिंग की रोज़ की एंट्री — मात्रा, रेट, बिल फोटो, माइलेज और महीने का फ्यूल खर्च।"
+        },
+        {
+          "type": "new",
+          "en": "Maintenance: service schedule with due reminders (by date or km), engine, tyre, battery, repair and breakdown records, spare parts, mechanics and vendors, bill upload.",
+          "hi": "मेंटेनेंस: सर्विस शेड्यूल और ड्यू रिमाइंडर (तारीख या किलोमीटर से), इंजन, टायर, बैटरी, रिपेयर और ब्रेकडाउन रिकॉर्ड, स्पेयर पार्ट्स, मैकेनिक व वेंडर, बिल अपलोड।"
+        },
+        {
+          "type": "new",
+          "en": "Transport expenses: EMI, rent, insurance, road tax, toll and more — monthly EMI and rent added in one click.",
+          "hi": "ट्रांसपोर्ट खर्च: EMI, किराया, इंश्योरेंस, रोड टैक्स, टोल आदि — महीने की EMI और किराया एक क्लिक में।"
+        },
+        {
+          "type": "new",
+          "en": "Reports: bus-wise and route-wise profit & loss, monthly profitability, annual financial report, fuel, maintenance, driver performance and document expiry — in Excel and PDF.",
+          "hi": "रिपोर्ट: बस-वार और रूट-वार लाभ-हानि, मासिक मुनाफ़ा, सालाना वित्तीय रिपोर्ट, फ्यूल, मेंटेनेंस, ड्राइवर परफॉर्मेंस और डॉक्यूमेंट एक्सपायरी — Excel और PDF में।"
+        },
+        {
+          "type": "new",
+          "en": "New Transport Manager login. Accounts can manage transport and pay salaries; the Principal can view everything.",
+          "hi": "नया ट्रांसपोर्ट मैनेजर लॉगिन। अकाउंट्स ट्रांसपोर्ट संभाल सकते हैं और सैलरी दे सकते हैं; प्रिंसिपल सब देख सकते हैं।"
+        },
+        {
+          "type": "improved",
+          "en": "Transport reminders (insurance, PUC, permit, fitness, licence, service due) also show on the main dashboard.",
+          "hi": "ट्रांसपोर्ट रिमाइंडर (इंश्योरेंस, PUC, परमिट, फिटनेस, लाइसेंस, सर्विस) मुख्य डैशबोर्ड पर भी दिखते हैं।"
+        }
+      ]
+    },
+    {
       "version": "1.2.2",
       "date": "2026-11-28",
       "title": {

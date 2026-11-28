@@ -66,6 +66,11 @@ class AccessTest extends SchoolTestCase
     {
         $this->seed(DemoDataSeeder::class);
         foreach (array_keys(\App\Models\User::ROLES) as $role) {
+            if ($role === 'transport') {
+                $this->actingAs($this->user($role))->get(route('dashboard'))->assertRedirect(route('transport.dashboard'));
+
+                continue;
+            }
             $res = $this->actingAs($this->user($role))->get(route('dashboard'))->assertOk();
             $role === 'receptionist'
                 ? $res->assertSee('Follow-ups due')->assertDontSee('Total Fees Collected')->assertDontSee('Recent Payments')

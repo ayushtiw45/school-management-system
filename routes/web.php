@@ -24,6 +24,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\Super;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Transport as T;
 use Illuminate\Support\Facades\Route;
 
 // ---------------- Public website ----------------
@@ -180,6 +181,61 @@ Route::middleware(['auth', 'role', 'school'])->group(function () {
         Route::post('/sessions/{session}/current', [AcademicSessionController::class, 'makeCurrent'])->name('sessions.current');
         Route::get('/announcements', [NotificationController::class, 'announceForm'])->name('notifications.announce');
         Route::post('/announcements', [NotificationController::class, 'announce'])->name('notifications.announce.send');
+    });
+
+    // Transport (principal can only view; salaries: admin & accounts)
+    Route::middleware('role:admin,transport,accountant,principal:read')->prefix('transport')->name('transport.')->group(function () {
+        Route::get('/', T\DashboardController::class)->name('dashboard');
+        Route::resource('vehicles', T\VehicleController::class)->except(['destroy']);
+        Route::post('/vehicles/{vehicle}/toggle', [T\VehicleController::class, 'toggle'])->name('vehicles.toggle');
+        Route::resource('staff', T\StaffController::class)->except(['destroy'])->parameters(['staff' => 'staff']);
+        Route::post('/staff/{staff}/toggle', [T\StaffController::class, 'toggle'])->name('staff.toggle');
+        Route::resource('routes', T\RouteController::class)->parameters(['routes' => 'route']);
+        Route::post('/routes/{route}/stops', [T\RouteController::class, 'storeStop'])->name('stops.store');
+        Route::post('/routes/{route}/sort-stops', [T\RouteController::class, 'sortStops'])->name('stops.sort');
+        Route::put('/stops/{stop}', [T\RouteController::class, 'updateStop'])->name('stops.update');
+        Route::delete('/stops/{stop}', [T\RouteController::class, 'destroyStop'])->name('stops.destroy');
+        Route::post('/routes/{route}/changes', [T\RouteController::class, 'storeChange'])->name('changes.store');
+        Route::delete('/changes/{change}', [T\RouteController::class, 'destroyChange'])->name('changes.destroy');
+        Route::post('/routes/{route}/students', [T\RouteController::class, 'addStudents'])->name('routes.students');
+        Route::get('/students/{student}', [T\StudentTransportController::class, 'edit'])->name('student.edit');
+        Route::put('/students/{student}', [T\StudentTransportController::class, 'update'])->name('student.update');
+
+        Route::get('/trips', [T\TripController::class, 'index'])->name('trips.index');
+        Route::post('/trips', [T\TripController::class, 'store'])->name('trips.store');
+        Route::put('/trips/{trip}', [T\TripController::class, 'update'])->name('trips.update');
+        Route::delete('/trips/{trip}', [T\TripController::class, 'destroy'])->name('trips.destroy');
+        Route::get('/attendance', [T\AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('/attendance', [T\AttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('/attendance/month', [T\AttendanceController::class, 'monthly'])->name('attendance.monthly');
+        Route::get('/leaves', [T\AttendanceController::class, 'leaves'])->name('leaves.index');
+        Route::post('/leaves', [T\AttendanceController::class, 'storeLeave'])->name('leaves.store');
+        Route::put('/leaves/{leave}', [T\AttendanceController::class, 'updateLeave'])->name('leaves.update');
+        Route::delete('/leaves/{leave}', [T\AttendanceController::class, 'destroyLeave'])->name('leaves.destroy');
+
+        Route::resource('fuel', T\FuelController::class)->except(['show'])->parameters(['fuel' => 'fuel']);
+        Route::get('/fuel/{fuel}/bill', [T\FuelController::class, 'bill'])->name('fuel.bill');
+        Route::resource('maintenance', T\MaintenanceController::class)->except(['show'])->parameters(['maintenance' => 'maintenance']);
+        Route::get('/maintenance/{maintenance}/bill', [T\MaintenanceController::class, 'bill'])->name('maintenance.bill');
+        Route::get('/vendors', [T\VendorController::class, 'index'])->name('vendors.index');
+        Route::post('/vendors', [T\VendorController::class, 'store'])->name('vendors.store');
+        Route::put('/vendors/{vendor}', [T\VendorController::class, 'update'])->name('vendors.update');
+        Route::delete('/vendors/{vendor}', [T\VendorController::class, 'destroy'])->name('vendors.destroy');
+        Route::post('/expenses/recurring', [T\ExpenseController::class, 'recurring'])->name('expenses.recurring');
+        Route::resource('expenses', T\ExpenseController::class)->except(['show']);
+        Route::get('/expenses/{expense}/bill', [T\ExpenseController::class, 'bill'])->name('expenses.bill');
+        Route::post('/files', [T\FileController::class, 'store'])->name('files.store');
+        Route::get('/files/{file}', [T\FileController::class, 'show'])->name('files.show');
+        Route::delete('/files/{file}', [T\FileController::class, 'destroy'])->name('files.destroy');
+
+        Route::get('/reports', [T\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{type}', [T\ReportController::class, 'show'])->name('reports.show');
+    });
+    Route::middleware('role:admin,accountant,principal:read')->prefix('transport')->name('transport.')->group(function () {
+        Route::get('/salaries', [T\SalaryController::class, 'index'])->name('salaries.index');
+        Route::post('/salaries', [T\SalaryController::class, 'store'])->name('salaries.store');
+        Route::get('/salaries/{salary}/slip', [T\SalaryController::class, 'slip'])->name('salaries.slip');
+        Route::delete('/salaries/{salary}', [T\SalaryController::class, 'destroy'])->name('salaries.destroy');
     });
 
     // Admin only

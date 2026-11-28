@@ -97,6 +97,21 @@
             <div class="nav-head">Notifications</div>
             <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}" href="{{ route('notifications.index') }}"><i class="bi bi-chat-dots"></i>Message Log</a>
         @endif
+        @if($u->canSeeTransport())
+            <div class="nav-head">Transport @if(! $u->canManageTransport())<span class="badge text-bg-secondary ms-1" style="font-size:.6rem">view only</span>@endif</div>
+            <a class="nav-link {{ request()->routeIs('transport.dashboard') ? 'active' : '' }}" href="{{ route('transport.dashboard') }}"><i class="bi bi-bus-front"></i>Transport Dashboard</a>
+            <a class="nav-link {{ request()->routeIs('transport.routes.*', 'transport.student.*') ? 'active' : '' }}" href="{{ route('transport.routes.index') }}"><i class="bi bi-signpost-split"></i>Routes & Students</a>
+            <a class="nav-link {{ request()->routeIs('transport.vehicles.*') ? 'active' : '' }}" href="{{ route('transport.vehicles.index') }}"><i class="bi bi-truck-front"></i>Vehicles</a>
+            <a class="nav-link {{ request()->routeIs('transport.staff.*') ? 'active' : '' }}" href="{{ route('transport.staff.index') }}"><i class="bi bi-person-vcard"></i>Drivers & Conductors</a>
+            <a class="nav-link {{ request()->routeIs('transport.trips.*') ? 'active' : '' }}" href="{{ route('transport.trips.index') }}"><i class="bi bi-speedometer"></i>Daily Trips</a>
+            <a class="nav-link {{ request()->routeIs('transport.attendance.*', 'transport.leaves.*') ? 'active' : '' }}" href="{{ route('transport.attendance.index') }}"><i class="bi bi-calendar-check"></i>Staff Attendance</a>
+            @if($u->canSeeAccounts())<a class="nav-link {{ request()->routeIs('transport.salaries.*') ? 'active' : '' }}" href="{{ route('transport.salaries.index') }}"><i class="bi bi-cash-stack"></i>Staff Salary</a>@endif
+            <a class="nav-link {{ request()->routeIs('transport.fuel.*') ? 'active' : '' }}" href="{{ route('transport.fuel.index') }}"><i class="bi bi-fuel-pump"></i>Fuel</a>
+            <a class="nav-link {{ request()->routeIs('transport.maintenance.*', 'transport.vendors.*') ? 'active' : '' }}" href="{{ route('transport.maintenance.index') }}"><i class="bi bi-tools"></i>Maintenance</a>
+            <a class="nav-link {{ request()->routeIs('transport.expenses.*') ? 'active' : '' }}" href="{{ route('transport.expenses.index') }}"><i class="bi bi-receipt-cutoff"></i>Transport Expenses</a>
+            <a class="nav-link {{ request()->routeIs('transport.reports.*') ? 'active' : '' }}" href="{{ route('transport.reports.index') }}"><i class="bi bi-graph-up-arrow"></i>Transport Reports</a>
+        @endif
+
         @if($u->hasRole('admin', 'principal'))
             @if(! $u->canSeeAccounts())<div class="nav-head">Notifications</div>@endif
             <a class="nav-link {{ request()->routeIs('notifications.announce') ? 'active' : '' }}" href="{{ route('notifications.announce') }}"><i class="bi bi-megaphone"></i>Announcements</a>
@@ -157,9 +172,9 @@
     @endisset
 
     <main class="p-3 p-md-4">
-        @php($accountsPage = request()->routeIs('payments.*', 'fees.*', 'fee-structure.*', 'fee-heads.*', 'student-fees.*', 'expenses.*', 'expense-categories.*', 'notifications.index'))
+        @php($accountsPage = request()->routeIs('payments.*', 'fees.*', 'fee-structure.*', 'fee-heads.*', 'student-fees.*', 'expenses.*', 'expense-categories.*', 'notifications.index', 'transport.*'))
         @if($u->role === 'principal' && $accountsPage)
-            <div class="alert alert-secondary py-2 small no-print"><i class="bi bi-eye"></i> View only — accounts are managed by the Accounts team.</div>
+            <div class="alert alert-secondary py-2 small no-print"><i class="bi bi-eye"></i> View only — {{ request()->routeIs('transport.*') ? 'transport is managed by the transport and accounts team' : 'accounts are managed by the Accounts team' }}.</div>
             @push('scripts')
             <script>document.querySelectorAll('main form').forEach(f => { if ((f.getAttribute('method') || 'get').toLowerCase() !== 'get') { f.querySelectorAll('button, input[type=submit]').forEach(b => { b.disabled = true; b.title = 'View only'; }); } });</script>
             @endpush

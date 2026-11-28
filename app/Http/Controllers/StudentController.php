@@ -219,6 +219,8 @@ class StudentController extends Controller
                 ]);
                 if ($request->boolean('generate_fees')) {
                     $fees->generateForStudent($student->fresh(), $session, includeOneTime: false);
+                    // students on a bus keep their monthly transport fee in the new session
+                    app(\App\Services\TransportService::class)->generateDues($student->fresh(), $session->start_date->copy(), $session);
                 }
             }
 
