@@ -114,12 +114,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allOk) {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
 <title>Install · TDS School Management</title>
 <style>
-  body { margin:0; font-family:system-ui,"Segoe UI",Roboto,sans-serif; background:#14213d; color:#1f2937; }
+  body { margin:0; font-family:system-ui,"Segoe UI",Roboto,sans-serif; background:#17191C; color:#1f2937; }
   .box { max-width:720px; margin:40px auto; background:#fff; border-radius:14px; padding:28px; }
-  h1 { margin:0 0 4px; color:#14213d; } h2 { font-size:16px; margin:24px 0 10px; color:#14213d; }
+  h1 { margin:0 0 4px; color:#17191C; } h2 { font-size:16px; margin:24px 0 10px; color:#17191C; }
   .muted { color:#6b7280; font-size:14px; } .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   label { display:block; font-size:13px; font-weight:600; } input { width:100%; box-sizing:border-box; margin-top:4px; padding:9px 10px; border:1px solid #d1d5db; border-radius:8px; font:inherit; }
-  button { margin-top:22px; width:100%; padding:13px; border:0; border-radius:10px; background:#e9a23b; color:#14213d; font-weight:700; font-size:16px; cursor:pointer; }
+  button { margin-top:22px; width:100%; padding:13px; border:0; border-radius:10px; background:#FF4B32; color:#17191C; font-weight:700; font-size:16px; cursor:pointer; }
   ul.checks { list-style:none; padding:0; margin:0; font-size:14px; } ul.checks li { padding:3px 0; } .ok { color:#16a34a } .bad { color:#dc2626 }
   .err { background:#fee2e2; padding:12px; border-radius:8px; margin-top:14px; font-size:14px; }
   @media (max-width:600px) { .grid { grid-template-columns:1fr; } }

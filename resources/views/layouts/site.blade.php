@@ -6,35 +6,44 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@hasSection('title')@yield('title') · @endif{{ \App\Models\PlatformSetting::get('company_name') }}</title>
     <meta name="description" content="@yield('description', __('School management software for Nursery to Class 8: admissions, fees, receipts, reports and parent reminders. Runs on your own Windows laptop.'))">
-    <link rel="icon" href="{{ asset('assets/favicon.png') }}">
+    <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --navy:#14213d; --navy-2:#1d2d52; --amber:#e9a23b; --ink:#1f2937; --muted:#6b7280; --line:#e6e9f0; --bg:#f5f7fb; }
-        body { font-family:'Poppins','Noto Sans Devanagari',system-ui,sans-serif; color:var(--ink); background:#fff; }
-        html[lang=hi] body { font-family:'Noto Sans Devanagari','Poppins',system-ui,sans-serif; }
-        .site-nav { background:var(--navy); position:sticky; top:0; z-index:1030; }
-        .site-nav .navbar-brand { color:#fff; font-weight:700; display:flex; align-items:center; gap:10px; }
-        .site-nav .navbar-brand img { width:36px; height:36px; border-radius:8px; }
-        .site-nav .navbar-brand small { display:block; color:var(--amber); font-size:.6rem; letter-spacing:.12em; font-weight:600; line-height:1; text-transform:uppercase; }
-        .site-nav .nav-link { color:rgba(255,255,255,.8); }
-        .site-nav .nav-link:hover, .site-nav .nav-link.active { color:#fff; }
-        .site-nav .navbar-toggler { border-color:rgba(255,255,255,.3); }
-        .site-nav .navbar-toggler-icon { filter:invert(1); }
-        .btn-amber { background:var(--amber); color:var(--navy); font-weight:600; border:0; }
-        .btn-amber:hover { background:#f0b04f; color:var(--navy); }
-        .btn-navy { background:var(--navy); color:#fff; font-weight:500; }
-        .btn-navy:hover { background:#0d1730; color:#fff; }
-        .lang-switch a { color:rgba(255,255,255,.65); text-decoration:none; font-size:.85rem; padding:2px 6px; border-radius:6px; }
-        .lang-switch a.on { color:var(--navy); background:#fff; }
-        .eyebrow { color:var(--amber); text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; font-weight:600; }
-        h1, h2, h3, h4 { color:var(--navy); }
-        .card { border:1px solid var(--line); border-radius:14px; }
-        .form-label { font-weight:500; font-size:.88rem; margin-bottom:.3rem; }
-        .site-footer { background:var(--navy); color:rgba(255,255,255,.65); font-size:.9rem; }
-        .site-footer a { color:rgba(255,255,255,.8); text-decoration:none; }
+        /* The Digital Strokes brand */
+        :root { --b:#FF4B32; --bd:#E23A22; --bs:#FFEEEB; --k:#17191C; --k2:#2B2F35; --g:#929DA7; --gl:#C4CAD0; --ln:#E3E6EA; --sf:#F4F5F7; --mu:#6E7882;
+                --hf:'Bricolage Grotesque','Inter',system-ui,sans-serif; --bf:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+                /* names used by page styles */
+                --navy:var(--k); --navy-2:var(--k2); --amber:var(--b); --ink:var(--k2); --muted:var(--mu); --line:var(--ln); --bg:var(--sf); }
+        body { font-family:var(--bf); color:var(--k2); background:#fff; }
+        html[lang=hi] body { font-family:'Noto Sans Devanagari',var(--bf); }
+        h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4, .h5 { font-family:var(--hf); color:var(--k); letter-spacing:-.025em; font-weight:800; }
+        html[lang=hi] h1, html[lang=hi] h2, html[lang=hi] h3, html[lang=hi] h4 { font-family:'Noto Sans Devanagari',var(--hf); letter-spacing:0; }
+        a { color:var(--b); } a:hover { color:var(--bd); }
+        .site-nav { background:rgb(255 255 255 / .92); -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px); border-bottom:1px solid var(--ln); position:sticky; top:0; z-index:1030; }
+        .site-nav .navbar-brand { color:var(--k); font-family:var(--hf); font-weight:800; display:flex; align-items:center; gap:10px; letter-spacing:-.02em; }
+        .site-nav .navbar-brand img { width:40px; height:40px; border-radius:12px; object-fit:contain; background:#fff; box-shadow:0 0 0 1px var(--ln); }
+        .site-nav .navbar-brand b { color:var(--b); font-weight:800; }
+        .site-nav .navbar-brand small { display:block; color:var(--mu); font-family:var(--bf); font-size:.62rem; letter-spacing:.12em; font-weight:600; line-height:1; text-transform:uppercase; }
+        .site-nav .nav-link { color:var(--k2); font-weight:600; padding:8px 14px !important; border-radius:999px; }
+        .site-nav .nav-link:hover, .site-nav .nav-link.active { color:var(--b); background:var(--bs); }
+        .btn-amber { background:var(--b); color:#fff; font-family:var(--hf); font-weight:700; border:0; border-radius:999px; box-shadow:0 10px 24px -12px rgb(255 75 50 / .7); }
+        .btn-amber:hover, .btn-amber:focus { background:var(--bd); color:#fff; transform:translateY(-1px); }
+        .btn-navy { background:var(--k); color:#fff; font-family:var(--hf); font-weight:700; border-radius:999px; }
+        .btn-navy:hover { background:var(--k2); color:#fff; }
+        .btn-outline-light, .btn-outline-dark, .btn-outline-secondary { border-radius:999px; }
+        .btn-lg { padding:.75rem 1.6rem; }
+        .lang-switch a { color:var(--mu); text-decoration:none; font-size:.85rem; font-weight:600; padding:4px 10px; border-radius:999px; border:1px solid var(--ln); }
+        .lang-switch a.on { color:#fff; background:var(--k); border-color:var(--k); }
+        .eyebrow { color:var(--b); text-transform:uppercase; letter-spacing:.14em; font-size:.78rem; font-weight:700; }
+        .card { border:1px solid var(--ln); border-radius:18px; }
+        .form-control, .form-select { border-radius:12px; border-color:var(--ln); padding:.6rem .85rem; }
+        .form-control:focus, .form-select:focus { border-color:var(--b); box-shadow:0 0 0 .2rem rgb(255 75 50 / .15); }
+        .form-label { font-weight:600; font-size:.88rem; margin-bottom:.3rem; color:var(--k2); }
+        .site-footer { background:var(--k); color:var(--gl); font-size:.9rem; }
+        .site-footer a { color:var(--gl); text-decoration:none; }
         .site-footer a:hover { color:#fff; }
     </style>
     @stack('styles')
@@ -43,7 +52,7 @@
 @php($wa = preg_replace('/\D/', '', (string) \App\Models\PlatformSetting::get('contact_whatsapp')))
 <nav class="navbar navbar-expand-lg site-nav">
     <div class="container">
-        <a class="navbar-brand" href="{{ route('home') }}"><img src="{{ asset('assets/logo.png') }}" alt=""><span><small>{{ __('School Management') }}</small>TDS Software</span></a>
+        <a class="navbar-brand" href="{{ route('home') }}"><img src="{{ asset('assets/tds-mark.png') }}" alt="The Digital Strokes"><span><small>The Digital Strokes</small>TDS <b>School</b></span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-label="Menu"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="nav">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
@@ -72,7 +81,7 @@
 
 <footer class="site-footer py-4 mt-auto">
     <div class="container d-flex flex-wrap gap-3 justify-content-between align-items-center">
-        <span>© {{ now()->year }} {{ \App\Models\PlatformSetting::get('company_name') }}</span>
+        <span class="d-flex align-items-center gap-2"><img src="{{ asset('assets/tds-mark.png') }}" alt="" style="width:28px;height:28px;border-radius:8px;background:#fff">© {{ now()->year }} {{ \App\Models\PlatformSetting::get('company_name') }} · {{ __('A product of') }} <a href="https://thedigitalstrokes.in" target="_blank" rel="noopener">The Digital Strokes</a></span>
         <span class="d-flex flex-wrap gap-3">
             @if($wa)<a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> WhatsApp</a>@endif
             @if(\App\Models\PlatformSetting::get('contact_phone'))<a href="tel:{{ preg_replace('/[^\d+]/', '', \App\Models\PlatformSetting::get('contact_phone')) }}"><i class="bi bi-telephone"></i> {{ \App\Models\PlatformSetting::get('contact_phone') }}</a>@endif

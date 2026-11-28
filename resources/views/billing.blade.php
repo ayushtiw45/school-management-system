@@ -4,9 +4,9 @@
 @php($isAdmin = auth()->user()->isAdmin())
 
 @if($state === 'locked')
-    <div class="card mb-3 border-2" style="border-color:#e9a23b">
+    <div class="card mb-3 border-2" style="border-color:#FF4B32">
         <div class="card-body p-4 p-md-5 text-center">
-            <div class="display-6" style="color:#e9a23b"><i class="bi bi-lock-fill"></i></div>
+            <div class="display-6" style="color:#FF4B32"><i class="bi bi-lock-fill"></i></div>
             <h2 class="h3 fw-bold mt-2">{{ $trial ? "Start your {$trialDays}-day trial for ₹".($trialPrice + 0) : 'Activate your school for ₹'.number_format($monthlyPrice).' per month' }}</h2>
             <p class="text-muted mb-4" style="max-width:620px;margin:0 auto">
                 @if($trial)
@@ -30,7 +30,7 @@
                     ['bi-shield-lock', 'Staff logins (accountant, admission desk)'], ['bi-chat-dots', 'SMS / WhatsApp messages to parents'],
                 ] as [$icon, $label])
                     <div class="col-md-6"><div class="d-flex align-items-center gap-2 p-2 border rounded-3 text-muted">
-                        <i class="bi {{ $icon }}"></i><span>{{ $label }}</span><i class="bi bi-lock-fill ms-auto" style="color:#e9a23b"></i>
+                        <i class="bi {{ $icon }}"></i><span>{{ $label }}</span><i class="bi bi-lock-fill ms-auto" style="color:#FF4B32"></i>
                     </div></div>
                 @endforeach
             </div>

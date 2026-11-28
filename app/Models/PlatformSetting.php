@@ -13,9 +13,9 @@ class PlatformSetting extends Model
 
     public const DEFAULTS = [
         'company_name' => 'TDS School Management Software',
-        'contact_phone' => '',
-        'contact_whatsapp' => '',
-        'contact_email' => '',
+        'contact_phone' => '+91 92660 14409',
+        'contact_whatsapp' => '919266014409',
+        'contact_email' => 'director@thedigitalstrokes.in',
         'trial_days' => '7',
         'trial_price' => '1',
         'monthly_price' => '599',

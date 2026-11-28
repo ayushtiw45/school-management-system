@@ -5,16 +5,16 @@
 <style>
     @page { margin: 14mm 10mm; }
     body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #111; }
-    .head { text-align: center; border-bottom: 2px solid #14213d; padding-bottom: 6px; margin-bottom: 8px; }
-    .head h1 { font-size: 15px; margin: 0; color: #14213d; }
+    .head { text-align: center; border-bottom: 2px solid #17191C; padding-bottom: 6px; margin-bottom: 8px; }
+    .head h1 { font-size: 15px; margin: 0; color: #17191C; }
     .head .t { font-size: 11px; font-weight: bold; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
     .muted { color: #555; }
     .summary td { padding: 2px 10px 2px 0; }
     table.data { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    table.data th { background: #14213d; color: #fff; padding: 4px; text-align: left; font-size: 8.5px; }
+    table.data th { background: #17191C; color: #fff; padding: 4px; text-align: left; font-size: 8.5px; }
     table.data td { padding: 3px 4px; border-bottom: 1px solid #ddd; }
     table.data tr:nth-child(even) td { background: #f6f7f9; }
-    table.data tfoot td { font-weight: bold; background: #e9ecf2; border-top: 1.5px solid #14213d; }
+    table.data tfoot td { font-weight: bold; background: #e9ecf2; border-top: 1.5px solid #17191C; }
     .r { text-align: right; }
     .foot { position: fixed; bottom: -8mm; left: 0; right: 0; font-size: 7.5px; color: #777; text-align: right; }
 </style>

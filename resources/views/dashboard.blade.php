@@ -78,7 +78,7 @@
                             <td class="text-end">{{ $c->boys }}</td>
                             <td class="text-end">{{ $c->girls }}</td>
                             <td class="text-end fw-semibold">{{ $c->active_count }}</td>
-                            <td><div class="progress" style="height:6px"><div class="progress-bar" style="width:{{ round($c->active_count / $max * 100) }}%;background:#14213d"></div></div></td>
+                            <td><div class="progress" style="height:6px"><div class="progress-bar" style="width:{{ round($c->active_count / $max * 100) }}%;background:#17191C"></div></div></td>
                         </tr>
                     @empty
                         <tr><td colspan="5" class="text-muted text-center py-3">No classes yet.</td></tr>

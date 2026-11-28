@@ -4,6 +4,7 @@ Web software for Nursery to Class 8 schools, sold as a monthly plan from your ow
 Any school registers on the website, gets its **own private account** (data is separated per school),
 pays **₹1 for a 7-day trial** and then **₹599/month by Razorpay Autopay**. Until the ₹1 is paid every feature is locked.
 
+Styled like thedigitalstrokes.in (brand orange `#FF4B32`, dark `#17191C`, Bricolage Grotesque + Inter).
 Built with Laravel 13 (PHP 8.3+) and MySQL. Runs on normal shared hosting (Hostinger) — no VPS needed.
 
 ## What a school gets
@@ -38,13 +39,18 @@ applied before route-model binding, so another school's records return "not foun
 
 ## Put it on Hostinger (shared hosting)
 
+Live address: **https://schoolapp.thedigitalstrokes.in** (a subdomain of the company site). The company WordPress site
+stays in the main `public_html`; this app goes only into the subdomain's folder (usually `public_html/schoolapp`).
+
 1. Get `tds-school-hostinger.zip` (GitHub → Actions → "Build Hostinger zip" → latest run → Artifacts, or from a
    release, or run `scripts/build-hostinger-zip.sh`).
 2. hPanel → **Databases → MySQL Databases**: create a database and user.
 3. hPanel → **Advanced → PHP Configuration**: PHP 8.3+, extensions `sodium`, `pdo_mysql`, `mbstring`, `fileinfo`,
    `zip`, `gd` on.
-4. hPanel → **File Manager → public_html**: delete the old files inside it, upload the zip into `public_html` and
-   **Extract** there. `public_html` must directly contain `.htaccess`, `app`, `public`, `vendor` …
+4. hPanel → **Domains → Subdomains**: create `schoolapp`. hPanel → **File Manager** → the subdomain folder
+   (`public_html/schoolapp`): delete only a default index file if present, upload the zip there and **Extract**.
+   That folder must directly contain `.htaccess`, `app`, `public`, `vendor` … (never extract into the main
+   `public_html`, which holds the company website)
    (the root `.htaccess` serves everything from `public/`; `.env`, `storage`, `vendor` can't be opened from the web).
 5. Open your domain → the **installer** checks the server and asks for the database details and your owner login.
    It deletes itself when done.

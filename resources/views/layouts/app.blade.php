@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ school('name') }}</title>
+    <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --navy:#14213d; --amber:#e9a23b; }
-        body { font-family: 'Poppins', system-ui, sans-serif; background:#f4f6fa; font-size:.92rem; }
+        :root { --navy:#17191C; --amber:#FF4B32; }
+        body { font-family: 'Inter', system-ui, sans-serif; background:#f4f6fa; font-size:.92rem; }
         .sidebar { width:250px; background:var(--navy); min-height:100vh; position:fixed; top:0; left:0; z-index:1030; overflow-y:auto; transition:transform .2s; }
         .sidebar .brand { color:#fff; font-weight:700; padding:1.1rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.08); }
         .sidebar .brand small { color:var(--amber); display:block; font-weight:500; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; }
         .sidebar .nav-head { color:rgba(255,255,255,.4); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; padding:1rem 1.25rem .35rem; }
         .sidebar a.nav-link { color:rgba(255,255,255,.75); padding:.5rem 1.25rem; border-left:3px solid transparent; }
         .sidebar a.nav-link:hover { color:#fff; background:rgba(255,255,255,.05); }
-        .sidebar a.nav-link.active { color:#fff; background:rgba(233,162,59,.12); border-left-color:var(--amber); }
+        .sidebar a.nav-link.active { color:#fff; background:rgba(255,75,50,.12); border-left-color:var(--amber); }
         .sidebar a.nav-link i { width:1.5rem; display:inline-block; }
         .sidebar.locked a.nav-link:not(.billing-link) { opacity:.55; }
         .sidebar.locked a.nav-link:not(.billing-link)::after { content:'\F47B'; font-family:'bootstrap-icons'; float:right; color:var(--amber); }
@@ -27,8 +28,6 @@
         .card-header { background:#fff; border-bottom:1px solid #eef0f4; font-weight:600; }
         .stat .icon { width:44px; height:44px; border-radius:.6rem; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
         .stat .value { font-size:1.4rem; font-weight:700; color:var(--navy); }
-        .btn-primary { --bs-btn-bg:#14213d; --bs-btn-border-color:#14213d; --bs-btn-hover-bg:#0d1730; --bs-btn-hover-border-color:#0d1730; --bs-btn-active-bg:#0d1730; --bs-btn-active-border-color:#0d1730; --bs-btn-disabled-bg:#14213d; --bs-btn-disabled-border-color:#14213d; }
-        .btn-outline-primary { --bs-btn-color:#14213d; --bs-btn-border-color:#14213d; --bs-btn-hover-bg:#14213d; --bs-btn-hover-border-color:#14213d; --bs-btn-active-bg:#14213d; --bs-btn-active-border-color:#14213d; }
         .table > :not(caption) > * > * { padding:.55rem .65rem; }
         .table thead th { font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; color:#6b7280; font-weight:600; background:#f9fafb; }
         .avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; background:#e5e7eb; display:inline-flex; align-items:center; justify-content:center; font-weight:600; color:var(--navy); }
@@ -40,13 +39,23 @@
             .main { margin-left:0; }
         }
         @media print { .sidebar, .topbar, .no-print { display:none !important; } .main { margin:0; } }
+        /* The Digital Strokes brand */
+        h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4, .h5, .brand, .navbar-brand, .stat .value, .stat .v { font-family:'Bricolage Grotesque','Inter',system-ui,sans-serif; letter-spacing:-.02em; }
+        a { color:#FF4B32; } a:hover { color:#E23A22; }
+        .btn-primary { --bs-btn-bg:#FF4B32; --bs-btn-border-color:#FF4B32; --bs-btn-hover-bg:#E23A22; --bs-btn-hover-border-color:#E23A22; --bs-btn-active-bg:#E23A22; --bs-btn-active-border-color:#E23A22; --bs-btn-disabled-bg:#FF4B32; --bs-btn-disabled-border-color:#FF4B32; --bs-btn-color:#fff; --bs-btn-hover-color:#fff; }
+        .btn-outline-primary { --bs-btn-color:#FF4B32; --bs-btn-border-color:#FF4B32; --bs-btn-hover-bg:#FF4B32; --bs-btn-hover-border-color:#FF4B32; --bs-btn-active-bg:#E23A22; --bs-btn-active-border-color:#E23A22; --bs-btn-hover-color:#fff; }
+        .btn-check:checked + .btn-outline-primary { background:#FF4B32; border-color:#FF4B32; color:#fff; }
+        .form-control:focus, .form-select:focus { border-color:#FF4B32; box-shadow:0 0 0 .2rem rgb(255 75 50 / .15); }
+        .form-check-input:checked { background-color:#FF4B32; border-color:#FF4B32; }
+        .nav-tabs .nav-link.active { color:#FF4B32; }
+        .page-link { color:#FF4B32; } .active > .page-link { background:#FF4B32; border-color:#FF4B32; }
     </style>
     @stack('styles')
 </head>
 <body>
 @php($u = auth()->user())
 <nav class="sidebar {{ ($access['state'] ?? null) === 'locked' ? 'locked' : '' }}" id="sidebar">
-    <div class="brand"><small>TDS School Management</small>{{ school('name') }}</div>
+    <div class="brand d-flex align-items-center gap-2"><img src="{{ asset('assets/tds-mark.png') }}" alt="" style="width:34px;height:34px;border-radius:10px;background:#fff"><span><small>TDS School Management</small>{{ school('name') }}</span></div>
     <div class="nav flex-column py-2">
         <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i>Dashboard</a>
 
@@ -114,9 +123,9 @@
 
     @isset($access)
         @if($access['state'] === 'locked')
-            <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white no-print" style="background:#14213d">
+            <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white no-print" style="background:#17191C">
                 <i class="bi bi-lock-fill"></i> All features are locked. Start your 7-day trial for just ₹1 to unlock everything.
-                <a href="{{ route('billing') }}" class="ms-auto btn btn-sm fw-semibold" style="background:#e9a23b;color:#14213d">Start trial for ₹1</a>
+                <a href="{{ route('billing') }}" class="ms-auto btn btn-sm fw-semibold" style="background:#FF4B32;color:#fff">Start trial for ₹1</a>
             </div>
         @elseif($access['state'] === 'expired')
             <div class="px-3 py-2 small d-flex align-items-center gap-2 text-white bg-danger no-print">

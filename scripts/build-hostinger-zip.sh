@@ -21,14 +21,22 @@ find storage -type f ! -name .gitignore -delete
 rm -f bootstrap/cache/*.php
 
 cat > READ-ME-FIRST.txt <<'TXT'
-TDS School Management Software - Hostinger installation
-1. hPanel -> Databases -> MySQL Databases: create a database + user. Note the database name, user and password.
-2. hPanel -> Advanced -> PHP Configuration: PHP 8.3 (or newer). Extensions: sodium, pdo_mysql, mbstring, fileinfo, zip, gd ON.
-3. hPanel -> File Manager -> public_html: delete the old files inside it (default.php etc.),
-   upload this zip INTO public_html and Extract it there.
-   public_html must now directly contain: .htaccess  app  bootstrap  public  vendor ...
-4. Open https://your-domain/ - the installer opens. Enter the database details and your owner login.
-5. Log in at https://your-domain/login - the owner panel opens. Add Razorpay keys in Settings.
+TDS School Management Software - install on schoolapp.thedigitalstrokes.in (Hostinger)
+
+IMPORTANT: your main website thedigitalstrokes.in (WordPress) lives in public_html.
+Do NOT delete or extract anything into the main public_html. This app goes into the SUBDOMAIN folder only.
+
+1. hPanel -> Domains -> Subdomains: create "schoolapp" for thedigitalstrokes.in.
+   Note its folder (usually public_html/schoolapp).
+2. hPanel -> Databases -> MySQL Databases: create a NEW database + user for this app
+   (do not use the WordPress database). Note the database name, user and password.
+3. hPanel -> Advanced -> PHP Configuration: PHP 8.3 or newer; extensions sodium, pdo_mysql, mbstring, fileinfo, zip, gd ON.
+4. hPanel -> File Manager -> open the subdomain folder (public_html/schoolapp). If Hostinger put a default
+   index/default.php there, delete only that file. Upload this zip into that folder and Extract it there.
+   The folder must now directly contain: .htaccess  app  bootstrap  public  vendor ...
+5. hPanel -> Security -> SSL: install SSL for schoolapp.thedigitalstrokes.in.
+6. Open https://schoolapp.thedigitalstrokes.in/ - the installer opens. Enter the database details and your owner login.
+7. Log in at https://schoolapp.thedigitalstrokes.in/login - the owner panel opens. Add Razorpay keys in Settings.
 TXT
 
 rm -f "$OUT"

@@ -4,7 +4,7 @@
     <p class="text-muted mb-0">Ask your school admin to start the plan.</p>
 @else
     <div class="alert alert-danger d-none text-start" id="subErr"></div>
-    <button type="button" class="btn btn-lg px-4 fw-semibold" style="background:#e9a23b;color:#14213d" id="subBtn">
+    <button type="button" class="btn btn-lg px-4 fw-semibold" style="background:#FF4B32;color:#fff" id="subBtn">
         <i class="bi bi-lock"></i> {{ $trial ? 'Pay ₹'.($trialPrice + 0).' & start trial' : 'Pay ₹'.number_format($monthlyPrice).' & activate' }}
     </button>
     <div class="small text-muted mt-2">Secure payment by Razorpay · UPI Autopay / card</div>
@@ -25,7 +25,7 @@
                 if (!res.ok) { throw new Error(data.message || 'Error'); }
                 const rzp = new Razorpay({
                     key: data.key, subscription_id: data.subscription_id, name: data.name, description: data.description,
-                    prefill: data.prefill, theme: {color: '#14213d'},
+                    prefill: data.prefill, theme: {color: '#17191C'},
                     handler: function (r) {
                         const f = document.getElementById('subVerify');
                         f.razorpay_payment_id.value = r.razorpay_payment_id; f.razorpay_subscription_id.value = r.razorpay_subscription_id; f.razorpay_signature.value = r.razorpay_signature;
